@@ -36,30 +36,29 @@ namespace Caribou
 	{
 	public:
 		Continuation(Machine* m) : machine(m) { }
-		~Continuation() { if(saved_stack) delete saved_stack; }
-
-		void save_current_stack()
+		~Continuation()
 		{
-			saved_stack = machine->copy_return_stack();
-			saved_ip    = machine->get_instruction_pointer();
-			replace_stack(*saved_stack);
-			machine->set_instruction_pointer(0);
+			if(saved_rstack) delete saved_rstack;
+			if(saved_dstack) delete saved_dstack;
 		}
 
-		void restore_stack()
+		void save_current_stacks()
 		{
-			machine->set_return_stack(saved_stack);
+			saved_dstack = machine->copy_data_stack();
+			saved_rstack = machine->copy_return_stack();
+			saved_ip     = machine->get_instruction_pointer();
+		}
+
+		void restore_stacks()
+		{
+			machine->set_data_stack(saved_dstack);
+			machine->set_return_stack(saved_rstack);
 			machine->set_instruction_pointer(saved_ip);
 		}
 
 	private:
-		void replace_stack(Stack& stack)
-		{
-			Stack tmp;
-			machine->set_return_stack(&tmp);
-		}
-
-		Stack*    saved_stack;
+		Stack*    saved_dstack;
+		Stack*    saved_rstack;
 		uintptr_t saved_ip;
 		Machine*  machine;
 	};
