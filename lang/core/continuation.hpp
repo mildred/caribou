@@ -34,6 +34,7 @@ namespace Caribou
 	   continuation. */
 	class Continuation
 	{
+	public:
 		Continuation(Machine* m) : machine(m) { }
 		~Continuation() { if(saved_stack) delete saved_stack; }
 
@@ -55,7 +56,7 @@ namespace Caribou
 		void replace_stack(Stack& stack)
 		{
 			Stack tmp;
-			stack = tmp;
+			machine->set_return_stack(&tmp);
 		}
 
 		Stack*    saved_stack;
