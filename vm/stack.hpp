@@ -21,49 +21,31 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__MACHINE_HPP__
-#define __CARIBOU__MACHINE_HPP__
+#ifndef __CARIBOU__STACK_HPP__
+#define __CARIBOU__STACK_HPP__
 
 #include <vector>
-#include <stdint.h>
-#include "stack.hpp"
-#include "symtab.hpp"
-#include "instructions.hpp"
 
 namespace Caribou
 {
-	class Continuation;
-
-	class Machine
+	class Stack
 	{
 	public:
-		Machine();
+		void push(const intptr_t& val)
+		{
+			store.push_back(val);
+		}
 
-		void push(const intptr_t&);
-		void push(const std::string&);
-		intptr_t pop();
-		void puship(const intptr_t&);
-		intptr_t popip();
-
-		void run(const int, const intptr_t&);
-
-		Stack* copy_data_stack() { return new Stack(dstack); }
-		void set_data_stack(Stack* ds) { dstack = *ds; }
-		Stack* copy_return_stack() { return new Stack(rstack); }
-		void set_return_stack(Stack* rs) { rstack = *rs; }
-		intptr_t get_instruction_pointer() { return ip; }
-		void set_instruction_pointer(intptr_t val) { ip = val; }
-
-	protected:
-		void next() { ip += 1; }
+		intptr_t pop()
+		{
+			intptr_t r = store.back();
+			store.pop_back();
+			return r;
+		}
 
 	private:
-		Stack                      dstack;
-		Stack                      rstack;
-		std::vector<Continuation*> continuations;
-		intptr_t                   ip;
-		Symtab                     symtab;
+		std::vector<intptr_t> store;
 	};
 }
 
-#endif /* !__CARIBOU__MACHINE_HPP__ */
+#endif /* !__CARIBOU__STACK_HPP__ */

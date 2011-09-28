@@ -32,7 +32,7 @@ namespace Caribou
 
 	void Machine::push(const intptr_t& val)
 	{
-		dstack.push_back(val);
+		dstack.push(val);
 	}
 
 	void Machine::push(const std::string& str)
@@ -45,21 +45,17 @@ namespace Caribou
 
 	intptr_t Machine::pop()
 	{
-		intptr_t r = dstack.back();
-		dstack.pop_back();
-		return r;
+		return dstack.pop();
 	}
 
 	void Machine::puship(const intptr_t& val)
 	{
-		rstack.push_back(val);
+		rstack.push(val);
 	}
 
 	intptr_t Machine::popip()
 	{
-		intptr_t r = rstack.back();
-		rstack.pop_back();
-		return r;
+		return rstack.pop();
 	}
 
 	void Machine::run(const int instr, const intptr_t& val)
