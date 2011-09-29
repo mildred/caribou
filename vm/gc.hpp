@@ -25,13 +25,23 @@
 #define __CARIBOU__GC_HPP__
 
 #include <vector>
+#include <stdint.h>
 
 namespace Caribou
 {
+	class Machine;
+
 	class GCObject
 	{
 	public:
-		virtual void mark();
+		virtual void mark() = 0;
+
+	protected:
+		// Copy-on-Write [NOT IMPLEMENTED **YET**] ref count. Each time an object is referenced
+		// by traversing the roots, increment this by one for each successive time we find it in
+		// one mark cycle. Decrement it by one if an object that references us goes away. If set
+		// and object is mutated, make a copy of the object.
+		uint32_t shared_count;
 
 	private:
 		size_t object_size;

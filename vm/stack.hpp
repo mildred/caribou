@@ -25,26 +25,33 @@
 #define __CARIBOU__STACK_HPP__
 
 #include <vector>
+#include "gc.hpp"
 
 namespace Caribou
 {
-	class Stack
+	template<typename T>
+	class Stack : public GCObject
 	{
 	public:
-		void push(const intptr_t& val)
+		void push(const T& val)
 		{
 			store.push_back(val);
 		}
 
-		intptr_t pop()
+		T pop()
 		{
-			intptr_t r = store.back();
+			T r = store.back();
 			store.pop_back();
 			return r;
 		}
 
+		virtual void mark()
+		{
+
+		}
+
 	private:
-		std::vector<intptr_t> store;
+		std::vector<T> store;
 	};
 }
 
