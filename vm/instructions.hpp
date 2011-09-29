@@ -37,11 +37,11 @@ namespace Caribou
 			POPIP,
 			DUP,
 			SWAP,
+			SAVE_STACK,
+			RESTORE_STACK,
 			ADD_SYMBOL,
 			FIND_SYMBOL,
 			JZ,
-			SAVE_STACK,
-			RESTORE_STACK,
 			SEND
 		};
 	};
