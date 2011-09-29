@@ -52,8 +52,6 @@ namespace Caribou
 		void add_symbol(std::string*);
 		void find_symbol(std::string*);
 		void jz();
-		void load();
-		void store();
 		void save_stack();
 		void restore_stack();
 		void send();

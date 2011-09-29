@@ -39,8 +39,6 @@ namespace Caribou
 			SWAP,
 			ADD_SYMBOL,
 			FIND_SYMBOL,
-			LOAD,
-			STORE,
 			JZ,
 			SAVE_STACK,
 			RESTORE_STACK,

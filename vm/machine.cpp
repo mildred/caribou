@@ -113,16 +113,6 @@ namespace Caribou
 			next();
 	}
 
-	void Machine::load()
-	{
-
-	}
-
-	void Machine::store()
-	{
-
-	}
-
 	void Machine::save_stack()
 	{
 		Continuation* c = new Continuation(*this);
