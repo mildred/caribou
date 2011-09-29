@@ -27,12 +27,13 @@ namespace Caribou
 {
 	Machine::Machine()
 	{
-
+		memory = new std::vector<GCObject*>;
 	}
 
 	void Machine::push(const intptr_t& val)
 	{
 		dstack.push(val);
+		next();
 	}
 
 	void Machine::push(const std::string& str)
@@ -41,21 +42,62 @@ namespace Caribou
 		if(idx < 0)
 			idx = symtab.add(str);
 		push(idx);
+		next(8);
 	}
 
 	intptr_t Machine::pop()
 	{
+		next();
 		return dstack.pop();
 	}
 
 	void Machine::puship(const intptr_t& val)
 	{
-		rstack.push(val);
+		ActivationRecord* record = new ActivationRecord;
+		record->ip = val;
+		record->locals_index = dstack.pop();
+		rstack.push(record);
+		next(8);
 	}
 
-	intptr_t Machine::popip()
+	void Machine::popip()
 	{
-		return rstack.pop();
+		ActivationRecord* r = rstack.pop();
+		ip = r->ip;
+		dstack.push(r->locals_index);
+		delete r;
+	}
+
+	void Machine::dup()
+	{
+		intptr_t a = dstack.pop();
+		dstack.push(a);
+		dstack.push(a);
+		next();
+	}
+
+	void Machine::swap()
+	{
+		intptr_t a = dstack.pop();
+		intptr_t b = dstack.pop();
+		dstack.push(a);
+		dstack.push(b);
+		next();
+	}
+
+	void Machine::add_symbol(std::string* str)
+	{
+		size_t idx = symtab.add(*str);
+		dstack.push((intptr_t)idx);
+		delete str;
+	}
+
+	void Machine::find_symbol(std::string* str)
+	{
+		size_t idx = symtab.lookup(*str);
+		if(idx != SYMTAB_NOT_FOUND)
+			dstack.push((intptr_t)idx);
+		delete str;
 	}
 
 	void Machine::run(const int instr, const intptr_t& val)
@@ -63,6 +105,7 @@ namespace Caribou
 		switch(instr)
 		{
 			case Instructions::NOOP:
+				next();
 				break;
 			case Instructions::PUSH:
 				push(val);

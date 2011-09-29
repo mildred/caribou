@@ -29,6 +29,8 @@
 #include "stack.hpp"
 #include "symtab.hpp"
 #include "instructions.hpp"
+#include "gc.hpp"
+#include "activation_record.hpp"
 
 namespace Caribou
 {
@@ -38,31 +40,39 @@ namespace Caribou
 	{
 	public:
 		Machine();
+		~Machine() { delete memory; }
 
 		void push(const intptr_t&);
 		void push(const std::string&);
 		intptr_t pop();
 		void puship(const intptr_t&);
-		intptr_t popip();
+		void popip();
+		void dup();
+		void swap();
+		void add_symbol(std::string*);
+		void find_symbol(std::string*);
 
 		void run(const int, const intptr_t&);
 
-		Stack* copy_data_stack() { return new Stack(dstack); }
-		void set_data_stack(Stack* ds) { dstack = *ds; }
-		Stack* copy_return_stack() { return new Stack(rstack); }
-		void set_return_stack(Stack* rs) { rstack = *rs; }
+		void compile(const int, const intptr_t&);
+
+		Stack<intptr_t>* copy_data_stack() { return new Stack<intptr_t>(dstack); }
+		void set_data_stack(Stack<intptr_t>* ds) { dstack = *ds; }
+		Stack<ActivationRecord*>* copy_return_stack() { return new Stack<ActivationRecord*>(rstack); }
+		void set_return_stack(Stack<ActivationRecord*>* rs) { rstack = *rs; }
 		intptr_t get_instruction_pointer() { return ip; }
 		void set_instruction_pointer(intptr_t val) { ip = val; }
 
 	protected:
-		void next() { ip += 1; }
+		void next(int64_t val = 1) { ip += val; }
 
 	private:
-		Stack                      dstack;
-		Stack                      rstack;
+		Stack<intptr_t>            dstack;
+		Stack<ActivationRecord*>   rstack;
 		std::vector<Continuation*> continuations;
 		intptr_t                   ip;
 		Symtab                     symtab;
+		std::vector<GCObject*>*    memory;
 	};
 }
 
