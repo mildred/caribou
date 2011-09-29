@@ -22,6 +22,7 @@
  */
 
 #include "machine.hpp"
+#include "continuation.hpp"
 
 namespace Caribou
 {
@@ -89,6 +90,7 @@ namespace Caribou
 	{
 		size_t idx = symtab.add(*str);
 		dstack.push((intptr_t)idx);
+		next(8);
 		delete str;
 	}
 
@@ -97,7 +99,50 @@ namespace Caribou
 		size_t idx = symtab.lookup(*str);
 		if(idx != SYMTAB_NOT_FOUND)
 			dstack.push((intptr_t)idx);
+		next(8);
 		delete str;
+	}
+
+	void Machine::jz()
+	{
+		intptr_t a = dstack.pop();
+		intptr_t c = dstack.pop();
+		if(c == 0)
+			ip = a;
+		else
+			next();
+	}
+
+	void Machine::load()
+	{
+
+	}
+
+	void Machine::store()
+	{
+
+	}
+
+	void Machine::save_stack()
+	{
+		Continuation* c = new Continuation(*this);
+		c->save_current_stacks();
+		memory->push_back(c);
+		dstack.push(memory->size() - 1);
+		next();
+	}
+
+	void Machine::restore_stack()
+	{
+		intptr_t idx = dstack.pop();
+		Continuation* c = (Continuation*)memory->at(idx);
+		c->restore_stacks();
+		delete c;
+	}
+
+	void Machine::send()
+	{
+
 	}
 
 	void Machine::run(const int instr, const intptr_t& val)
