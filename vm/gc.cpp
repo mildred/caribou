@@ -21,49 +21,73 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__GC_HPP__
-#define __CARIBOU__GC_HPP__
-
 #include <vector>
-#include <stdint.h>
+#include <iostream>
+#include "gc.hpp"
 
 namespace Caribou
 {
-	class Machine;
-
-	class GCObject
+	GarbageCollector::GarbageCollector(size_t size)
 	{
-	public:
-		virtual void mark() = 0;
+		heap = new char[size * 2];
+		tospace = heap;
+		space_size = size;
+		top_of_space = tospace + space_size;
+		fromspace = top_of_space + 1;
+		freep = tospace;
+		scan = tospace;
+	}
 
-		inline size_t object_size()
+	GarbageCollector::~GarbageCollector()
+	{
+		delete[] heap;
+	}
+
+	void* GarbageCollector::allocate(size_t size)
+	{
+		if(freep + size > top_of_space)
+			flip();
+
+		if(freep + size > top_of_space)
 		{
-			return sizeof(this);
+			std::cerr << "Memory exhausted!" << std::endl;
+			abort();
 		}
 
-	private:
-		bool marked;
-	};
+		void* ptr = freep;
+		freep += size;
 
-	class GarbageCollector
+		return ptr;
+	}
+
+	void GarbageCollector::flip()
 	{
-	public:
-		GarbageCollector(size_t size);
-		~GarbageCollector();
+		char* tmpspace = fromspace;
+		fromspace = tospace;
+		tospace = tmpspace;
 
-		void* allocate(size_t size);
-		void flip();
-		void* copy(void*);
+		top_of_space = tospace + space_size;
 
-	private:
-		char*  heap;
-		char*  tospace;
-		char*  fromspace;
-		char*  top_of_space;
-		char*  freep;
-		char*  scan;
-		size_t space_size;
-	};
+		scan = freep = tospace;
+
+		// Iterate over roots & copy each
+
+		// While scan < free
+		//   Iterate over children of scan where P = current child
+		//     *P = copy(*P);
+		//   scan += size
+	}
+
+	void* GarbageCollector::copy(void* ptr)
+	{
+		// If ptr is a forward pointer
+		//   return the forwarded address
+		// Otherwise...
+		//   addr = freep
+		//   move(ptr, freep);
+		//   free += ptr->object_size();
+		//   Set ptr's forwarding address to addr
+		//   return addr
+		return NULL;
+	}
 }
-
-#endif /* !__CARIBOU__GC_HPP__ */
