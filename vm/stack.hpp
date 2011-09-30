@@ -29,10 +29,19 @@
 
 namespace Caribou
 {
+	class Machine;
+
+	extern void* gc_allocate(Machine*, size_t);
+
 	template<typename T>
 	class Stack : public GCObject
 	{
 	public:
+		void* operator new(size_t size, Machine* m)
+		{
+			return gc_allocate(m, size);
+		}
+
 		void push(const T& val)
 		{
 			store.push_back(val);
@@ -44,6 +53,8 @@ namespace Caribou
 			store.pop_back();
 			return r;
 		}
+
+		std::vector<T>& get_store() { return store; }
 
 		virtual void mark()
 		{

@@ -28,7 +28,6 @@ namespace Caribou
 {
 	Machine::Machine()
 	{
-		memory = new std::vector<GCObject*>;
 	}
 
 	void Machine::push(const intptr_t& val)
@@ -54,7 +53,7 @@ namespace Caribou
 
 	void Machine::puship(const intptr_t& val)
 	{
-		ActivationRecord* record = new ActivationRecord;
+		ActivationRecord* record = new(this) ActivationRecord;
 		record->ip = val;
 		record->locals_index = dstack.pop();
 		rstack.push(record);
@@ -115,17 +114,19 @@ namespace Caribou
 
 	void Machine::save_stack()
 	{
-		Continuation* c = new Continuation(*this);
+		Continuation* c = new(this) Continuation(*this);
 		c->save_current_stacks();
-		memory->push_back(c);
-		dstack.push(memory->size() - 1);
+		dstack.push(c->get_memory_index());
+		//memory->push_back(c);
+		//dstack.push(memory->size() - 1);
 		next();
 	}
 
 	void Machine::restore_stack()
 	{
 		intptr_t idx = dstack.pop();
-		Continuation* c = (Continuation*)memory->at(idx);
+		//Continuation* c = (Continuation*)memory->at(idx);
+		Continuation* c = (Continuation*)get_collector()->get_object_at_index(idx);
 		c->restore_stacks();
 		delete c;
 	}
@@ -161,10 +162,6 @@ namespace Caribou
 			case Instructions::ADD_SYMBOL:
 				break;
 			case Instructions::FIND_SYMBOL:
-				break;
-			case Instructions::LOAD:
-				break;
-			case Instructions::STORE:
 				break;
 			case Instructions::JZ:
 				break;
