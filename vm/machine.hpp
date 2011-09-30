@@ -35,12 +35,12 @@
 namespace Caribou
 {
 	class Continuation;
+	class GarbageCollector;
 
 	class Machine
 	{
 	public:
 		Machine();
-		~Machine() { delete memory; }
 
 		void push(const intptr_t&);
 		void push(const std::string&);
@@ -61,13 +61,18 @@ namespace Caribou
 		void compile(const int, const intptr_t&);
 
 		Stack<intptr_t>& get_data_stack() { return dstack; }
-		Stack<intptr_t>* copy_data_stack() { return new Stack<intptr_t>(dstack); }
+		Stack<intptr_t>* copy_data_stack() { return new(this) Stack<intptr_t>(dstack); }
 		void set_data_stack(Stack<intptr_t>* ds) { dstack = *ds; }
 		Stack<ActivationRecord*>& get_return_stack() { return rstack; }
-		Stack<ActivationRecord*>* copy_return_stack() { return new Stack<ActivationRecord*>(rstack); }
+		Stack<ActivationRecord*>* copy_return_stack() { return new(this) Stack<ActivationRecord*>(rstack); }
 		void set_return_stack(Stack<ActivationRecord*>* rs) { rstack = *rs; }
 		intptr_t get_instruction_pointer() { return ip; }
 		void set_instruction_pointer(intptr_t val) { ip = val; }
+
+		GarbageCollector* get_collector()
+		{
+			return (GarbageCollector*)gc;
+		}
 
 	protected:
 		void next(int64_t val = 1) { ip += val; }
@@ -76,10 +81,15 @@ namespace Caribou
 		Stack<intptr_t>            dstack;
 		Stack<ActivationRecord*>   rstack;
 		std::vector<Continuation*> continuations;
+		void*                      gc;
 		intptr_t                   ip;
 		Symtab                     symtab;
-		std::vector<GCObject*>*    memory;
 	};
+
+	void* gc_allocate(Machine* m, size_t size)
+	{
+		return m->get_collector()->allocate(size);
+	}
 }
 
 #endif /* !__CARIBOU__MACHINE_HPP__ */

@@ -26,34 +26,23 @@
 
 #include <vector>
 #include <stdint.h>
+//#include "machine.hpp"
 
 namespace Caribou
 {
 	class Machine;
-
-	class GCObject
-	{
-	public:
-		virtual void mark() = 0;
-
-		inline size_t object_size()
-		{
-			return sizeof(this);
-		}
-
-	private:
-		bool marked;
-	};
+	class GCObject;
 
 	class GarbageCollector
 	{
 	public:
-		GarbageCollector(Machine&, size_t);
+		GarbageCollector(Machine*, size_t);
 		~GarbageCollector();
 
 		void* allocate(size_t size);
 		void flip();
 		void* copy(void*);
+		GCObject* get_object_at_index(size_t idx);
 
 	protected:
 		void* forwarded(void* ptr)
@@ -69,14 +58,51 @@ namespace Caribou
 	private:
 		void walk_roots();
 
-		char*    heap;
-		char*    tospace;
-		char*    fromspace;
-		char*    top_of_space;
-		char*    freep;
-		char*    scan;
-		size_t   space_size;
-		Machine& machine;
+		std::vector<uintptr_t> mapping;
+		char*                  heap;
+		char*                  tospace;
+		char*                  fromspace;
+		char*                  top_of_space;
+		char*                  freep;
+		char*                  scan;
+		size_t                 space_size;
+		Machine*               machine;
+	};
+
+	extern void* gc_allocate(Machine*, size_t);
+
+	class GCObject
+	{
+	public:
+		void* operator new(size_t size, Machine* m)
+		{
+			return gc_allocate(m, size);
+			//return m->get_collector()->allocate(size);
+		}
+
+		// This doesn't get used, so yes this needs to be a noop.
+		void operator delete(void*) { }
+
+		virtual void mark() = 0;
+
+		inline size_t object_size()
+		{
+			return sizeof(this);
+		}
+
+		inline size_t get_memory_index()
+		{
+			return memory_index;
+		}
+
+		inline void set_memory_index(size_t idx)
+		{
+			memory_index = idx;
+		}
+
+	private:
+		size_t memory_index;
+		bool   marked;
 	};
 }
 

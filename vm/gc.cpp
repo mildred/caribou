@@ -30,7 +30,7 @@
 
 namespace Caribou
 {
-	GarbageCollector::GarbageCollector(Machine& m, size_t size) : machine(m), space_size(size)
+	GarbageCollector::GarbageCollector(Machine* m, size_t size) : machine(m), space_size(size), mapping()
 	{
 		heap = new char[size * 2];
 		tospace = heap;
@@ -58,6 +58,8 @@ namespace Caribou
 
 		void* ptr = freep;
 		freep += size;
+		mapping.push_back((uintptr_t)ptr);
+		((GCObject*)ptr)->set_memory_index(mapping.size() - 1);
 
 		return ptr;
 	}
@@ -76,7 +78,7 @@ namespace Caribou
 		{
 			// Iterate over children of scan where P = current child
 			//   *P = copy(*P);
-			scan += size;
+			//scan += ((GCObject*)P)->object_size();
 		}
 	}
 
@@ -95,13 +97,18 @@ namespace Caribou
 		}
 	}
 
-	void walk_roots()
+	void GarbageCollector::walk_roots()
 	{
-		std::vector<ActivationRecord*>& rstack = machine.get_return_stack().get_store();
-		std::vector<intptr_t>&          dstack = machine.get_data_stack().get_store();
+		std::vector<ActivationRecord*>& rstack = machine->get_return_stack().get_store();
+		std::vector<intptr_t>&          dstack = machine->get_data_stack().get_store();
 		std::vector<ActivationRecord*>::iterator it;
 
 		for(it = rstack.begin(); it < rstack.end(); it++)
-			*it = copy(*it);
+			*it = (ActivationRecord*)copy(*it);
+	}
+
+	GCObject* GarbageCollector::get_object_at_index(size_t index)
+	{
+		return NULL;
 	}
 }
