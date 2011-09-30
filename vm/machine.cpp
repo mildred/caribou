@@ -162,10 +162,6 @@ namespace Caribou
 				break;
 			case Instructions::FIND_SYMBOL:
 				break;
-			case Instructions::LOAD:
-				break;
-			case Instructions::STORE:
-				break;
 			case Instructions::JZ:
 				break;
 			case Instructions::SAVE_STACK:
