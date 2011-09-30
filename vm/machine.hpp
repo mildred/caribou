@@ -60,8 +60,10 @@ namespace Caribou
 
 		void compile(const int, const intptr_t&);
 
+		Stack<intptr_t>& get_data_stack() { return dstack; }
 		Stack<intptr_t>* copy_data_stack() { return new Stack<intptr_t>(dstack); }
 		void set_data_stack(Stack<intptr_t>* ds) { dstack = *ds; }
+		Stack<ActivationRecord*>& get_return_stack() { return rstack; }
 		Stack<ActivationRecord*>* copy_return_stack() { return new Stack<ActivationRecord*>(rstack); }
 		void set_return_stack(Stack<ActivationRecord*>* rs) { rstack = *rs; }
 		intptr_t get_instruction_pointer() { return ip; }

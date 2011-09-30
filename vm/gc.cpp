@@ -23,15 +23,17 @@
 
 #include <vector>
 #include <iostream>
+#include <cstring>
+#include <stdint.h>
 #include "gc.hpp"
+#include "machine.hpp"
 
 namespace Caribou
 {
-	GarbageCollector::GarbageCollector(size_t size)
+	GarbageCollector::GarbageCollector(Machine& m, size_t size) : machine(m), space_size(size)
 	{
 		heap = new char[size * 2];
 		tospace = heap;
-		space_size = size;
 		top_of_space = tospace + space_size;
 		fromspace = top_of_space + 1;
 		freep = tospace;
@@ -65,29 +67,41 @@ namespace Caribou
 		char* tmpspace = fromspace;
 		fromspace = tospace;
 		tospace = tmpspace;
-
 		top_of_space = tospace + space_size;
-
 		scan = freep = tospace;
 
-		// Iterate over roots & copy each
+		walk_roots();
 
-		// While scan < free
-		//   Iterate over children of scan where P = current child
-		//     *P = copy(*P);
-		//   scan += size
+		while(scan < freep)
+		{
+			// Iterate over children of scan where P = current child
+			//   *P = copy(*P);
+			scan += size;
+		}
 	}
 
 	void* GarbageCollector::copy(void* ptr)
 	{
-		// If ptr is a forward pointer
-		//   return the forwarded address
-		// Otherwise...
-		//   addr = freep
-		//   move(ptr, freep);
-		//   free += ptr->object_size();
-		//   Set ptr's forwarding address to addr
-		//   return addr
-		return NULL;
+		if(forwarded(ptr))
+			return forwarded(ptr);
+		else
+		{
+			void* addr = freep;
+			size_t size = ((GCObject*)ptr)->object_size();
+			memcpy(freep, ptr, size);
+			freep += size;
+			set_forward(ptr, addr);
+			return addr;
+		}
+	}
+
+	void walk_roots()
+	{
+		std::vector<ActivationRecord*>& rstack = machine.get_return_stack().get_store();
+		std::vector<intptr_t>&          dstack = machine.get_data_stack().get_store();
+		std::vector<ActivationRecord*>::iterator it;
+
+		for(it = rstack.begin(); it < rstack.end(); it++)
+			*it = copy(*it);
 	}
 }

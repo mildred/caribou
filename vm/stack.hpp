@@ -45,6 +45,8 @@ namespace Caribou
 			return r;
 		}
 
+		std::vector<T>& get_store() { return store; }
+
 		virtual void mark()
 		{
 

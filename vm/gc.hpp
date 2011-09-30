@@ -48,21 +48,35 @@ namespace Caribou
 	class GarbageCollector
 	{
 	public:
-		GarbageCollector(size_t size);
+		GarbageCollector(Machine&, size_t);
 		~GarbageCollector();
 
 		void* allocate(size_t size);
 		void flip();
 		void* copy(void*);
 
+	protected:
+		void* forwarded(void* ptr)
+		{
+			return (void*)((uintptr_t)ptr | 0x1);
+		}
+
+		void set_forward(void* ptr, void* to)
+		{
+			ptr = (void*)((uintptr_t)to | 0x1);
+		}
+
 	private:
-		char*  heap;
-		char*  tospace;
-		char*  fromspace;
-		char*  top_of_space;
-		char*  freep;
-		char*  scan;
-		size_t space_size;
+		void walk_roots();
+
+		char*    heap;
+		char*    tospace;
+		char*    fromspace;
+		char*    top_of_space;
+		char*    freep;
+		char*    scan;
+		size_t   space_size;
+		Machine& machine;
 	};
 }
 
