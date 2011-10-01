@@ -29,13 +29,11 @@
 #include "stack.hpp"
 #include "symtab.hpp"
 #include "instructions.hpp"
-#include "gc.hpp"
 #include "activation_record.hpp"
 
 namespace Caribou
 {
 	class Continuation;
-	class GarbageCollector;
 
 	class Machine
 	{
@@ -69,11 +67,6 @@ namespace Caribou
 		intptr_t get_instruction_pointer() { return ip; }
 		void set_instruction_pointer(intptr_t val) { ip = val; }
 
-		GarbageCollector* get_collector()
-		{
-			return (GarbageCollector*)gc;
-		}
-
 	protected:
 		void next(int64_t val = 1) { ip += val; }
 
@@ -81,15 +74,9 @@ namespace Caribou
 		Stack<intptr_t>            dstack;
 		Stack<ActivationRecord*>   rstack;
 		std::vector<Continuation*> continuations;
-		void*                      gc;
 		intptr_t                   ip;
 		Symtab                     symtab;
 	};
-
-	void* gc_allocate(Machine* m, size_t size)
-	{
-		return m->get_collector()->allocate(size);
-	}
 }
 
 #endif /* !__CARIBOU__MACHINE_HPP__ */

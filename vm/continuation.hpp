@@ -26,7 +26,6 @@
 
 #include <vector>
 #include "machine.hpp"
-#include "gc.hpp"
 
 namespace Caribou
 {
@@ -35,7 +34,7 @@ namespace Caribou
 	/* Our continuations are implemented by saving the contents of our call stack onto the heap.
 	   They are also per virtual core, meaning you must pass a machine in when you create the
 	   continuation. */
-	class Continuation : public GCObject
+	class Continuation
 	{
 	public:
 		Continuation(Machine& m) : machine(m) { }
@@ -58,8 +57,6 @@ namespace Caribou
 			machine.set_return_stack(saved_rstack);
 			machine.set_instruction_pointer(saved_ip);
 		}
-
-		virtual void mark() { }
 
 	private:
 		Stack<intptr_t>*          saved_dstack;
