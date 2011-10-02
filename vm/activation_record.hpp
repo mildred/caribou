@@ -24,12 +24,14 @@
 #ifndef __CARIBOU__ACTIVATION_RECORD_HPP__
 #define __CARIBOU__ACTIVATION_RECORD_HPP__
 
+#include <stdint.h>
+
 namespace Caribou
 {
 	struct ActivationRecord
 	{
-		intptr_t ip;
-		intptr_t locals_index;
+		uintptr_t ip;
+		uintptr_t locals_index;
 	};
 }
 

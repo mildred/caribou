@@ -59,7 +59,7 @@ namespace Caribou
 		}
 
 	private:
-		Stack<intptr_t>*          saved_dstack;
+		Stack<uintptr_t>*         saved_dstack;
 		Stack<ActivationRecord*>* saved_rstack;
 		uintptr_t                 saved_ip;
 		Machine&                  machine;

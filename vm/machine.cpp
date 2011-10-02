@@ -30,7 +30,7 @@ namespace Caribou
 	{
 	}
 
-	void Machine::push(const intptr_t& val)
+	void Machine::push(const uintptr_t& val)
 	{
 		dstack.push(val);
 		next();
@@ -38,20 +38,20 @@ namespace Caribou
 
 	void Machine::push(const std::string& str)
 	{
-		intptr_t idx = symtab.lookup(str);
+		uintptr_t idx = symtab.lookup(str);
 		if(idx < 0)
 			idx = symtab.add(str);
 		push(idx);
 		next(8);
 	}
 
-	intptr_t Machine::pop()
+	uintptr_t Machine::pop()
 	{
 		next();
 		return dstack.pop();
 	}
 
-	void Machine::puship(const intptr_t& val)
+	void Machine::puship(const uintptr_t& val)
 	{
 		ActivationRecord* record = new(this) ActivationRecord;
 		record->ip = val;
@@ -70,7 +70,7 @@ namespace Caribou
 
 	void Machine::dup()
 	{
-		intptr_t a = dstack.pop();
+		uintptr_t a = dstack.pop();
 		dstack.push(a);
 		dstack.push(a);
 		next();
@@ -78,8 +78,8 @@ namespace Caribou
 
 	void Machine::swap()
 	{
-		intptr_t a = dstack.pop();
-		intptr_t b = dstack.pop();
+		uintptr_t a = dstack.pop();
+		uintptr_t b = dstack.pop();
 		dstack.push(a);
 		dstack.push(b);
 		next();
@@ -88,7 +88,7 @@ namespace Caribou
 	void Machine::add_symbol(std::string* str)
 	{
 		size_t idx = symtab.add(*str);
-		dstack.push((intptr_t)idx);
+		dstack.push((uintptr_t)idx);
 		next(8);
 		delete str;
 	}
@@ -97,15 +97,15 @@ namespace Caribou
 	{
 		size_t idx = symtab.lookup(*str);
 		if(idx != SYMTAB_NOT_FOUND)
-			dstack.push((intptr_t)idx);
+			dstack.push((uintptr_t)idx);
 		next(8);
 		delete str;
 	}
 
 	void Machine::jz()
 	{
-		intptr_t a = dstack.pop();
-		intptr_t c = dstack.pop();
+		uintptr_t a = dstack.pop();
+		uintptr_t c = dstack.pop();
 		if(c == 0)
 			ip = a;
 		else
@@ -116,17 +116,15 @@ namespace Caribou
 	{
 		Continuation* c = new(this) Continuation(*this);
 		c->save_current_stacks();
-		dstack.push(c->get_memory_index());
-		//memory->push_back(c);
-		//dstack.push(memory->size() - 1);
+		memory->push_back(c);
+		dstack.push(memory->size() - 1);
 		next();
 	}
 
 	void Machine::restore_stack()
 	{
-		intptr_t idx = dstack.pop();
-		//Continuation* c = (Continuation*)memory->at(idx);
-		Continuation* c = (Continuation*)get_collector()->get_object_at_index(idx);
+		uintptr_t idx = dstack.pop();
+		Continuation* c = (Continuation*)memory->at(idx);
 		c->restore_stacks();
 		delete c;
 	}
@@ -136,7 +134,7 @@ namespace Caribou
 
 	}
 
-	void Machine::run(const int instr, const intptr_t& val)
+	void Machine::run(const int instr, const uintptr_t& val)
 	{
 		switch(instr)
 		{

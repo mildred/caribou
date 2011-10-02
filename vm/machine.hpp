@@ -40,10 +40,10 @@ namespace Caribou
 	public:
 		Machine();
 
-		void push(const intptr_t&);
+		void push(const uintptr_t&);
 		void push(const std::string&);
-		intptr_t pop();
-		void puship(const intptr_t&);
+		uintptr_t pop();
+		void puship(const uintptr_t&);
 		void popip();
 		void dup();
 		void swap();
@@ -54,27 +54,27 @@ namespace Caribou
 		void restore_stack();
 		void send();
 
-		void run(const int, const intptr_t&);
+		void run(const int, const uintptr_t&);
 
-		void compile(const int, const intptr_t&);
+		void compile(const int, const uintptr_t&);
 
-		Stack<intptr_t>& get_data_stack() { return dstack; }
-		Stack<intptr_t>* copy_data_stack() { return new(this) Stack<intptr_t>(dstack); }
-		void set_data_stack(Stack<intptr_t>* ds) { dstack = *ds; }
+		Stack<uintptr_t>& get_data_stack() { return dstack; }
+		Stack<uintptr_t>* copy_data_stack() { return new(this) Stack<uintptr_t>(dstack); }
+		void set_data_stack(Stack<uintptr_t>* ds) { dstack = *ds; }
 		Stack<ActivationRecord*>& get_return_stack() { return rstack; }
 		Stack<ActivationRecord*>* copy_return_stack() { return new(this) Stack<ActivationRecord*>(rstack); }
 		void set_return_stack(Stack<ActivationRecord*>* rs) { rstack = *rs; }
-		intptr_t get_instruction_pointer() { return ip; }
-		void set_instruction_pointer(intptr_t val) { ip = val; }
+		uintptr_t get_instruction_pointer() { return ip; }
+		void set_instruction_pointer(uintptr_t val) { ip = val; }
 
 	protected:
 		void next(int64_t val = 1) { ip += val; }
 
 	private:
-		Stack<intptr_t>            dstack;
+		Stack<uintptr_t>           dstack;
 		Stack<ActivationRecord*>   rstack;
 		std::vector<Continuation*> continuations;
-		intptr_t                   ip;
+		uintptr_t                  ip;
 		Symtab                     symtab;
 	};
 }
