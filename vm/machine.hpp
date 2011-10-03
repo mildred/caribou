@@ -30,6 +30,7 @@
 #include "symtab.hpp"
 #include "instructions.hpp"
 #include "activation_record.hpp"
+#include "memory_mapper.hpp"
 
 namespace Caribou
 {
@@ -41,18 +42,18 @@ namespace Caribou
 		Machine();
 
 		void push(const uintptr_t&);
-		void push(const std::string&);
 		uintptr_t pop();
 		void puship(const uintptr_t&);
 		void popip();
 		void dup();
 		void swap();
-		void add_symbol(std::string*);
-		void find_symbol(std::string*);
-		void jz();
 		void save_stack();
 		void restore_stack();
-		void send();
+		void jz();
+		void store();
+		void load();
+		void add_symbol(std::string*);
+		void find_symbol(std::string*);
 
 		void run(const int, const uintptr_t&);
 
@@ -74,6 +75,7 @@ namespace Caribou
 		Stack<uintptr_t>           dstack;
 		Stack<ActivationRecord*>   rstack;
 		std::vector<Continuation*> continuations;
+		MemoryMapper               memory_mapper;
 		uintptr_t                  ip;
 		Symtab                     symtab;
 	};

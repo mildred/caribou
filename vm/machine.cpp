@@ -26,7 +26,7 @@
 
 namespace Caribou
 {
-	Machine::Machine()
+	Machine::Machine() : memory_mapper()
 	{
 	}
 
@@ -34,15 +34,6 @@ namespace Caribou
 	{
 		dstack.push(val);
 		next();
-	}
-
-	void Machine::push(const std::string& str)
-	{
-		uintptr_t idx = symtab.lookup(str);
-		if(idx < 0)
-			idx = symtab.add(str);
-		push(idx);
-		next(8);
 	}
 
 	uintptr_t Machine::pop()
@@ -114,24 +105,58 @@ namespace Caribou
 
 	void Machine::save_stack()
 	{
+		uintptr_t index = 0;
 		Continuation* c = new(this) Continuation(*this);
 		c->save_current_stacks();
-		memory->push_back(c);
-		dstack.push(memory->size() - 1);
+		index = memory_mapper.request_slot(sizeof(*c));
+		memory_mapper.store(index, std::vector<uintptr_t>((uintptr_t)c));
+		dstack.push(index);
 		next();
 	}
 
 	void Machine::restore_stack()
 	{
 		uintptr_t idx = dstack.pop();
-		Continuation* c = (Continuation*)memory->at(idx);
+		Continuation* c = (Continuation*)memory_mapper.get_slot(idx)[MEMORY_ADDRESS];
 		c->restore_stacks();
 		delete c;
 	}
 
-	void Machine::send()
+	void Machine::store()
 	{
+		uintptr_t num_elems = dstack.pop();
+		size_t size = 0;
+		std::vector<uintptr_t> elements;
+		size_t index;
 
+		for(size_t i = 0; i < num_elems; i++)
+		{
+			uintptr_t data = dstack.pop();
+			elements.push_back(data);
+			size += sizeof(data);
+		}
+
+		if(size > 0)
+		{
+			index = memory_mapper.request_slot(size);
+			memory_mapper.store(index, elements);
+			dstack.push(index);
+		}
+
+		next();
+	}
+
+	void Machine::load()
+	{
+		uintptr_t index = pop();
+		uintptr_t* slot = memory_mapper.get_slot(index);
+		size_t size     = slot[MEMORY_SIZE];
+		uintptr_t* data = (uintptr_t*)slot[MEMORY_ADDRESS];
+
+		for(size_t i = 0; i < size; i++)
+			dstack.push(data[i]);
+
+		next();
 	}
 
 	void Machine::run(const int instr, const uintptr_t& val)
@@ -154,20 +179,25 @@ namespace Caribou
 				popip();
 				break;
 			case Instructions::DUP:
+				dup();
 				break;
 			case Instructions::SWAP:
-				break;
-			case Instructions::ADD_SYMBOL:
-				break;
-			case Instructions::FIND_SYMBOL:
+				swap();
 				break;
 			case Instructions::JZ:
+				jz();
 				break;
 			case Instructions::SAVE_STACK:
+				save_stack();
 				break;
 			case Instructions::RESTORE_STACK:
+				restore_stack();
 				break;
-			case Instructions::SEND:
+			case Instructions::STORE:
+				store();
+				break;
+			case Instructions::LOAD:
+				load();
 				break;
 		}
 		next();

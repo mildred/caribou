@@ -21,31 +21,44 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__INSTRUCTIONS_HPP__
-#define __CARIBOU__INSTRUCTIONS_HPP__
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include "segment.hpp"
+#include "memory_mapper.hpp"
 
 namespace Caribou
 {
-	struct Instructions
+	size_t MemoryMapper::request_slot(size_t size)
 	{
-		enum
-		{
-			NOOP = 0,
-			PUSH,
-			POP,
-			PUSHIP,
-			POPIP,
-			DUP,
-			SWAP,
-			SAVE_STACK,
-			RESTORE_STACK,
-			LOAD,
-			STORE,
-			ADD_SYMBOL,
-			FIND_SYMBOL,
-			JZ
-		};
-	};
-}
+		std::vector<Segment>::iterator it;
+		uintptr_t segment_count = 0;
 
-#endif /* !__CARIBOU__INSTRUCTIONS_HPP__ */
+		for(it = segments.begin(); it != segments.end(); it++)
+		{
+			segment_count += 1;
+			uintptr_t index = it->request_slot(size);
+			if(index != SEGMENT_ERROR)
+				return (segment_count * SEGMENT_SIZE) + index;
+		}
+
+		return SEGMENT_ERROR;
+	}
+
+	uintptr_t* MemoryMapper::get_slot(uintptr_t index)
+	{
+		size_t segment_number = (size_t)ceil((double)index / segments.size());
+		uintptr_t normalized_index = index / segment_number;
+		uintptr_t* r = segments.at(segment_number).get_slot(normalized_index);
+		if(r)
+			return r;
+		return NULL;
+	}
+
+	void MemoryMapper::store(size_t index, std::vector<uintptr_t> elements)
+	{
+		size_t segment_number = (size_t)ceil((double)index / segments.size());
+		uintptr_t normalized_index = index / segment_number;
+		segments.at(segment_number).store(index, elements);
+	}
+}

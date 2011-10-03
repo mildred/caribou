@@ -27,73 +27,70 @@
 #include <iostream>
 #include <stdint.h>
 
-#define SEGMENT_SIZE       (2 << 16)
+#define SEGMENT_SIZE       (2 << 12)
 #define SEGMENT_SIZE_BYTES (SEGMENT_SIZE * sizeof(uintptr_t))
 #define SEGMENT_ERROR      (UINTPTR_MAX - 1)
+
+#define MEMORY_SIZE    0
+#define MEMORY_ADDRESS 1
 
 namespace Caribou
 {
 	// Each segment holds 8k slots. On 32-bit platforms, this means we can
-	// store 32 KB of memory, and double that on 64-bit platforms.
+	// store 64 KB of memory, and double that on 64-bit platforms.
 	class Segment
 	{
 	public:
-		Segment() : next(NULL) {}
+		Segment() {}
 
-		void store(size_t index, uintptr_t address)
+		void store(size_t index, std::vector<uintptr_t> elements)
 		{
+			uintptr_t& current_size = memory[index][MEMORY_SIZE];
+			uintptr_t& current_addr = memory[index][MEMORY_ADDRESS];
+			uintptr_t original_pos = current_addr;
+
 			used_indices[index] = index;
-			memory[index] = address;
+
+			std::vector<uintptr_t>::iterator it;
+			for(it = elements.begin(); it != elements.end(), current_addr < (original_pos + current_size); it++, current_addr += sizeof(uintptr_t))
+				current_addr = *it;
+
+			current_addr = original_pos;
 		}
 
-		// request_slot() will return SEGMENT_ERROR if there is no more space left. CHECK IT!
-		size_t request_slot()
+		size_t request_slot(size_t size)
 		{
-			uintptr_t new_index = find_slot();
-			// We didn't find an empty slot, make a new segment!
-			if(new_index == SEGMENT_ERROR)
-			{
-				Segment* other = new Segment;
-				next = other;
-				new_index = 1;
-				other->store(new_index, NULL);
-				return SEGMENT_SIZE + new_index;
-			}
-
-			return new_index;
-		}
-
-		void* load(size_t index)
-		{
-			return (void*)memory[index];
-		}
-
-		void set_next(Segment* other)
-		{
-			next = other;
-		}
-
-	private:
-		size_t find_slot()
-		{
-			uintptr_t slot = SEGMENT_ERROR;
+			uintptr_t new_index = SEGMENT_ERROR;
 
 			for(int i = 1; i < SEGMENT_SIZE; i++)
 			{
 				if(used_indices[i] != i)
 				{
 					used_indices[i] = i;
-					slot = i;
+					new_index = i;
 					break;
 				}
 			}
 
-			return slot;
+			if(memory[new_index][MEMORY_ADDRESS] == NULL)
+			{
+				memory[new_index][MEMORY_SIZE]    = size;
+				memory[new_index][MEMORY_ADDRESS] = (uintptr_t)malloc(size);
+			}
+
+			return new_index;
 		}
 
+		uintptr_t* get_slot(uintptr_t index)
+		{
+			if(index < SEGMENT_SIZE)
+				return memory[index];
+			return NULL;
+		}
+
+	private:
 		uintptr_t used_indices[SEGMENT_SIZE];
-		uintptr_t memory[SEGMENT_SIZE];
-		Segment*  next;
+		uintptr_t memory[SEGMENT_SIZE][2];
 	};
 }
 

@@ -21,31 +21,26 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__INSTRUCTIONS_HPP__
-#define __CARIBOU__INSTRUCTIONS_HPP__
+#ifndef __CARIBOU__MEMORY_MAPPER_HPP__
+#define __CARIBOU__MEMORY_MAPPER_HPP__
+
+#include <vector>
+#include "segment.hpp"
 
 namespace Caribou
 {
-	struct Instructions
+	class MemoryMapper
 	{
-		enum
-		{
-			NOOP = 0,
-			PUSH,
-			POP,
-			PUSHIP,
-			POPIP,
-			DUP,
-			SWAP,
-			SAVE_STACK,
-			RESTORE_STACK,
-			LOAD,
-			STORE,
-			ADD_SYMBOL,
-			FIND_SYMBOL,
-			JZ
-		};
+	public:
+		MemoryMapper() : segments() { }
+
+		size_t request_slot(size_t);
+		uintptr_t* get_slot(uintptr_t);
+		void store(size_t, std::vector<uintptr_t>);
+
+	private:
+		std::vector<Segment> segments;
 	};
 }
 
-#endif /* !__CARIBOU__INSTRUCTIONS_HPP__ */
+#endif /* !__CARIBOU__MEMORY_MAPPER_HPP__ */
