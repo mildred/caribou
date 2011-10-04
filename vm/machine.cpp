@@ -76,6 +76,74 @@ namespace Caribou
 		next();
 	}
 
+	void Machine::rot3()
+	{
+		uintptr_t a = dstack.pop();
+		uintptr_t b = dstack.pop();
+		uintptr_t c = dstack.pop();
+		dstack.push(b);
+		dstack.push(c);
+		dstack.push(a);
+		next();
+	}
+
+	void Machine::add()
+	{
+		intptr_t a = (intptr_t)dstack.pop();
+		intptr_t b = (intptr_t)dstack.pop();
+		intptr_t c = a + b;
+		dstack.push((uintptr_t)c);
+		next();
+	}
+
+	void Machine::bitwise_shift_left()
+	{
+		uintptr_t a = dstack.pop();
+		uintptr_t b = dstack.pop();
+		dstack.push(a << b);
+		next();
+	}
+
+	void Machine::bitwise_shift_right()
+	{
+		uintptr_t a = dstack.pop();
+		uintptr_t b = dstack.pop();
+		dstack.push(a >> b);
+		next();
+	}
+
+	void Machine::bitwise_and()
+	{
+		uintptr_t a = dstack.pop();
+		uintptr_t b = dstack.pop();
+		dstack.push(a & b);
+		next();
+	}
+
+	void Machine::bitwise_or()
+	{
+		uintptr_t a = dstack.pop();
+		uintptr_t b = dstack.pop();
+		dstack.push(a | b);
+		next();
+	}
+
+	void Machine::bitwise_xor()
+	{
+		uintptr_t a = dstack.pop();
+		uintptr_t b = dstack.pop();
+		dstack.push(a ^ b);
+		next();
+	}
+
+	void Machine::bitwise_not()
+	{
+		uintptr_t a = dstack.pop();
+		intptr_t b  = (intptr_t)~a;
+		dstack.push((uintptr_t)b);
+		next();
+	}
+
 	void Machine::add_symbol(std::string* str)
 	{
 		size_t idx = symtab.add(*str);
@@ -183,6 +251,30 @@ namespace Caribou
 				break;
 			case Instructions::SWAP:
 				swap();
+				break;
+			case Instructions::ROT3:
+				rot3();
+				break;
+			case Instructions::ADD:
+				add();
+				break;
+			case Instructions::LSHIFT:
+				bitwise_shift_left();
+				break;
+			case Instructions::RSHIFT:
+				bitwise_shift_right();
+				break;
+			case Instructions::AND:
+				bitwise_and();
+				break;
+			case Instructions::OR:
+				bitwise_or();
+				break;
+			case Instructions::XOR:
+				bitwise_xor();
+				break;
+			case Instructions::NOT:
+				bitwise_not();
 				break;
 			case Instructions::JZ:
 				jz();

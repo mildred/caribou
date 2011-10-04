@@ -3,7 +3,7 @@ Copyright © 2011, Jeremy Tregunna, All Rights Reserved.
 
 ## Overview
 
-Caribou is a prototype based object-oriented language virtual machine built on a message sending architecture. It implements an object model and messaging systems heavily inspired from Io, and Self.
+Caribou is a simple stack-based virtual machine built with the necessary primitives to support a prototype-based, object-oriented programming language. It is implemented in layers. The bottom most layer is the core, a rather simple stack machine that understands functions, continuations and a memory indirection map. Above that, lay features you'd expect to find in the core of an object-oriented language: Objects, Traits, Symbol Table, Garbage Collector. The design of the VM is not inspired by any language in particular, though the object model is heavily inspired by (Acute)[http://acute.srcd.mp/] which itself is inspired from Io and Self.
 
 ## What's different?
 
@@ -11,7 +11,7 @@ The architecture. While closer to Self than Io, the model for Caribou was develo
 
 Io implements a message sending architecture where messages are dispatched to an object, whereby it looks it up locally, then through its protos list in a first match wins. It delegates the message send to the first item in the protos, then to its protos first object and so on until it runs out; then it goes back up one level, tries another proto. Should that fail, it keeps going back up the tree until it exhausts all protos and raises an exception. Caribou is slightly different.
 
-Objects are containers for concurrency. They hold state which is local to the object, a mailbox (a queue where messages are received). It contains also a list of traits; it does not employ any type of inheritance. Each object will contain at a minimum, two traits: A trait defining primitive operations all objects need to understand (such as slot lookup, evaluator, etc) which has the lowest lookup priority; and a trait defining slots that are local only to this object. All the other traits are considered foreign.
+Objects hold state which is local to the object, a mailbox (a queue where messages are received). It contains also a list of traits; it does not employ any type of inheritance. Delegation is explicit, not implicit, trait conflict resolution is also explicit.
 
 Object concurrency is handled by the Actor model. This allows us some great deal of flexibility in how the underlying architecture works. Merely placing "common sense" requirements on top of a flexible base.
 

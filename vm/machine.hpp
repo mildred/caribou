@@ -47,6 +47,14 @@ namespace Caribou
 		void popip();
 		void dup();
 		void swap();
+		void rot3();
+		void add();
+		void bitwise_shift_left();
+		void bitwise_shift_right();
+		void bitwise_and();
+		void bitwise_or();
+		void bitwise_xor();
+		void bitwise_not();
 		void save_stack();
 		void restore_stack();
 		void jz();
