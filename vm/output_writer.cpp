@@ -25,14 +25,13 @@
 #include <fstream>
 #include "output_writer.hpp"
 
-#define MAGIC_HEADER_NUMBER 0x3FB10A5C
+#define HEADER_MAGIC_NUMBER { 'C', 'a', 'r', 'i', 'b', 'o', 'u', '!' }
 
 namespace Caribou
 {
-	struct MagicHeader
+	struct BytecodeHeader
 	{
-		uint32_t     magic_number;
-		const char   name[4];
+		const char     name[8];
 
 		// The following two fields represent the version of the file format.
 		// Releases are in this format: XXXX.YY where XXXX is the year, YY is
@@ -60,11 +59,10 @@ namespace Caribou
 
 	void OutputWriter::dump(const char* bytes, size_t length)
 	{
-		MagicHeader header = { .magic_number   = htonl(MAGIC_HEADER_NUMBER),
-		                       .name           = { 'C', 'B', 'V', 'M' },
-		                       .format_year    = htons(2011),
-		                       .format_release = htons(1),
-		                       .constants_size = htonl(0) };
+		BytecodeHeader header = { .name           = HEADER_MAGIC_NUMBER,
+		                          .format_year    = htons(2011),
+		                          .format_release = htons(1),
+		                          .constants_size = htonl(0) };
 		output_file->write((char*)&header, sizeof(header));
 		output_file->write(bytes, length);
 		output_file->close();
