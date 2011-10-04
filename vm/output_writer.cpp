@@ -25,11 +25,30 @@
 #include <fstream>
 #include "output_writer.hpp"
 
+#define MAGIC_HEADER_NUMBER 0x3FB10A5C
+
 namespace Caribou
 {
+	struct MagicHeader
+	{
+		uint32_t     magic_number;
+		const char   name[4];
+
+		// The following two fields represent the version of the file format.
+		// Releases are in this format: XXXX.YY where XXXX is the year, YY is
+		// the a serial number representing the release in that year.
+		unsigned short format_year;
+		unsigned short format_release;
+
+		// Reserve space for a constants header. Needs to have at a minimum a size
+		// field to indicate how many bytes it is going to run.
+		size_t         constants_size;
+	};
+
 	OutputWriter::OutputWriter(const char* filename)
 	{
-		output_file = new std::ofstream(filename, std::ios::binary);
+		output_file = new std::ofstream;
+		output_file->open(filename, std::ios::binary);
 	}
 
 	OutputWriter::~OutputWriter()
@@ -39,8 +58,15 @@ namespace Caribou
 		delete output_file;
 	}
 
-	void OutputWriter::dump(const char* bytes)
+	void OutputWriter::dump(const char* bytes, size_t length)
 	{
-
+		MagicHeader header = { .magic_number   = MAGIC_HEADER_NUMBER,
+		                       .name           = { 'C', 'B', 'V', 'M' },
+		                       .format_year    = 2011,
+		                       .format_release = 1,
+							   .constants_size = 0 };
+		output_file->write((char*)&header, sizeof(header));
+		output_file->write(bytes, length);
+		output_file->close();
 	}
 }

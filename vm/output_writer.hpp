@@ -35,7 +35,7 @@ namespace Caribou
 		OutputWriter(const char* filename);
 		~OutputWriter();
 
-		void dump(const char* bytes);
+		void dump(const char* bytes, size_t length);
 
 	private:
 		std::ofstream* output_file;
