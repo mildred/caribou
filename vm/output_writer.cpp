@@ -60,11 +60,11 @@ namespace Caribou
 
 	void OutputWriter::dump(const char* bytes, size_t length)
 	{
-		MagicHeader header = { .magic_number   = MAGIC_HEADER_NUMBER,
+		MagicHeader header = { .magic_number   = htonl(MAGIC_HEADER_NUMBER),
 		                       .name           = { 'C', 'B', 'V', 'M' },
-		                       .format_year    = 2011,
-		                       .format_release = 1,
-							   .constants_size = 0 };
+		                       .format_year    = htons(2011),
+		                       .format_release = htons(1),
+		                       .constants_size = htonl(0) };
 		output_file->write((char*)&header, sizeof(header));
 		output_file->write(bytes, length);
 		output_file->close();
