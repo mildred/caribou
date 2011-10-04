@@ -30,7 +30,6 @@
 #include "symtab.hpp"
 #include "instructions.hpp"
 #include "activation_record.hpp"
-#include "memory_mapper.hpp"
 
 namespace Caribou
 {
@@ -83,7 +82,7 @@ namespace Caribou
 		Stack<uintptr_t>           dstack;
 		Stack<ActivationRecord*>   rstack;
 		std::vector<Continuation*> continuations;
-		MemoryMapper               memory_mapper;
+		uintptr_t*                 memory;
 		uintptr_t                  ip;
 		Symtab                     symtab;
 	};

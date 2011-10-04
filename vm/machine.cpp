@@ -26,7 +26,7 @@
 
 namespace Caribou
 {
-	Machine::Machine() : memory_mapper()
+	Machine::Machine()
 	{
 	}
 
@@ -176,54 +176,30 @@ namespace Caribou
 		uintptr_t index = 0;
 		Continuation* c = new(this) Continuation(*this);
 		c->save_current_stacks();
-		index = memory_mapper.request_slot(sizeof(*c));
-		memory_mapper.store(index, std::vector<uintptr_t>((uintptr_t)c));
-		dstack.push(index);
+		dstack.push((uintptr_t)c);
 		next();
 	}
 
 	void Machine::restore_stack()
 	{
-		uintptr_t idx = dstack.pop();
-		Continuation* c = (Continuation*)memory_mapper.get_slot(idx)[MEMORY_ADDRESS];
+		uintptr_t addr = dstack.pop();
+		Continuation* c = (Continuation*)memory[addr];
 		c->restore_stacks();
 		delete c;
 	}
 
 	void Machine::store()
 	{
-		uintptr_t num_elems = dstack.pop();
-		size_t size = 0;
-		std::vector<uintptr_t> elements;
-		size_t index;
-
-		for(size_t i = 0; i < num_elems; i++)
-		{
-			uintptr_t data = dstack.pop();
-			elements.push_back(data);
-			size += sizeof(data);
-		}
-
-		if(size > 0)
-		{
-			index = memory_mapper.request_slot(size);
-			memory_mapper.store(index, elements);
-			dstack.push(index);
-		}
-
+		uintptr_t addr = dstack.pop();
+		uintptr_t data = dstack.pop();
+		memory[addr] = data;
 		next();
 	}
 
 	void Machine::load()
 	{
-		uintptr_t index = pop();
-		uintptr_t* slot = memory_mapper.get_slot(index);
-		size_t size     = slot[MEMORY_SIZE];
-		uintptr_t* data = (uintptr_t*)slot[MEMORY_ADDRESS];
-
-		for(size_t i = 0; i < size; i++)
-			dstack.push(data[i]);
-
+		uintptr_t addr = dstack.pop();
+		dstack.push(memory[addr]);
 		next();
 	}
 
