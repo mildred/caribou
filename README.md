@@ -3,7 +3,7 @@ Copyright © 2011, Jeremy Tregunna, All Rights Reserved.
 
 ## Overview
 
-Caribou is a simple stack-based virtual machine built with the necessary primitives to support a prototype-based, object-oriented programming language. It is implemented in layers. The bottom most layer is the core, a rather simple stack machine that understands functions, continuations and a memory indirection map. Above that, lay features you'd expect to find in the core of an object-oriented language: Objects, Traits, Symbol Table, Garbage Collector. The design of the VM is not inspired by any language in particular, though the object model is heavily inspired by (Acute)[http://acute.srcd.mp/] which itself is inspired from Io and Self.
+Caribou is a simple stack-based virtual machine built with the necessary primitives to support a prototype-based, object-oriented programming language. It is implemented in layers. The bottom most layer is the core, a rather simple stack machine that understands functions, continuations and a memory indirection map. Above that, lay features you'd expect to find in the core of an object-oriented language: Objects, Traits, Symbol Table, Garbage Collector. The design of the VM is not inspired by any language in particular, though the object model is heavily inspired by [Acute](http://acute.srcd.mp/) which itself is inspired from Io and Self.
 
 ## What's different?
 
