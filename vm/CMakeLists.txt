@@ -4,4 +4,4 @@ set(SRCS
   "output_writer.cpp"
   "gc.cpp"
 )
-add_library(caribou ${SRCS})
+add_library(caribou SHARED ${SRCS})
