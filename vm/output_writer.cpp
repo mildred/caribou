@@ -21,6 +21,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#include <arpa/inet.h>
 #include <iostream>
 #include <fstream>
 #include <stdint.h>
