@@ -21,13 +21,20 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#include <stdint.h>
 #include "machine.hpp"
 #include "continuation.hpp"
 
 namespace Caribou
 {
-	Machine::Machine()
+	Machine::Machine(size_t imem_size)
 	{
+		instruction_memory = new uint8_t[imem_size];
+	}
+
+	Machine::~Machine()
+	{
+		delete[] instruction_memory;
 	}
 
 	void Machine::push(const uintptr_t& val)

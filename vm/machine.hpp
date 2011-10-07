@@ -38,7 +38,8 @@ namespace Caribou
 	class Machine
 	{
 	public:
-		Machine();
+		Machine(size_t);
+		~Machine();
 
 		void push(const uintptr_t&);
 		uintptr_t pop();
@@ -76,14 +77,16 @@ namespace Caribou
 		void set_instruction_pointer(uintptr_t val) { ip = val; }
 
 	protected:
-		void next(int64_t val = 1) { ip += val; }
+		void next(uint64_t val = 1) { ip += val; }
 
 	private:
 		Stack<uintptr_t>           dstack;
 		Stack<ActivationRecord*>   rstack;
 		std::vector<Continuation*> continuations;
-		uintptr_t*                 memory;
+		uint8_t*                   instruction_memory;
+		// The instruction pointer references a byte in the instruction memory above
 		uintptr_t                  ip;
+		uintptr_t*                 memory;
 		Symtab                     symtab;
 	};
 }
