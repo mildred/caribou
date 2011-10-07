@@ -31,17 +31,18 @@ namespace Caribou
 {
 	struct BytecodeHeader
 	{
-		const char     name[8];
+		// Magic string.
+		const char        name[8];
 
 		// The following two fields represent the version of the file format.
 		// Releases are in this format: XXXX.YY where XXXX is the year, YY is
 		// the a serial number representing the release in that year.
-		unsigned short format_year;
-		unsigned short format_release;
+		unsigned uint16_t format_year;
+		unsigned uint16_t format_release;
 
 		// Reserve space for a constants header. Needs to have at a minimum a size
 		// field to indicate how many bytes it is going to run.
-		size_t         constants_size;
+		uint32_t          constants_size;
 	};
 
 	OutputWriter::OutputWriter(const char* filename)
