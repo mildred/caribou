@@ -40,8 +40,8 @@ namespace Caribou
 		Continuation(Machine& m) : machine(m) { }
 		~Continuation()
 		{
-			if(saved_rstack) delete saved_rstack;
-			if(saved_dstack) delete saved_dstack;
+			delete saved_rstack;
+			delete saved_dstack;
 		}
 
 		void save_current_stacks()
