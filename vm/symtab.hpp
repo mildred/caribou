@@ -24,6 +24,7 @@
 #ifndef __CARIBOU__SYMTAB_HPP__
 #define __CARIBOU__SYMTAB_HPP__
 
+#include <stdint.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -40,7 +41,7 @@ namespace Caribou
 		size_t add(std::string str);
 
 		size_t lookup(const std::string& str);
-		std::string lookup(const size_t idx);
+		std::string lookup(const uintptr_t idx);
 
 		size_t size();
 
