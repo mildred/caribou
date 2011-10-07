@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <stdint.h>
 #include "output_writer.hpp"
 
 #define HEADER_MAGIC_NUMBER { 'C', 'a', 'r', 'i', 'b', 'o', 'u', '!' }
@@ -32,17 +33,17 @@ namespace Caribou
 	struct BytecodeHeader
 	{
 		// Magic string.
-		const char        name[8];
+		const char name[8];
 
 		// The following two fields represent the version of the file format.
 		// Releases are in this format: XXXX.YY where XXXX is the year, YY is
 		// the a serial number representing the release in that year.
-		unsigned uint16_t format_year;
-		unsigned uint16_t format_release;
+		uint16_t   format_year;
+		uint16_t   format_release;
 
 		// Reserve space for a constants header. Needs to have at a minimum a size
 		// field to indicate how many bytes it is going to run.
-		uint32_t          constants_size;
+		uint32_t   constants_size;
 	};
 
 	OutputWriter::OutputWriter(const char* filename)
@@ -60,10 +61,7 @@ namespace Caribou
 
 	void OutputWriter::dump(const char* bytes, size_t length)
 	{
-		BytecodeHeader header = { .name           = HEADER_MAGIC_NUMBER,
-		                          .format_year    = htons(2011),
-		                          .format_release = htons(1),
-		                          .constants_size = htonl(0) };
+		BytecodeHeader header = (BytecodeHeader){ HEADER_MAGIC_NUMBER, htons(2011), htons(1), htonl(0) };
 		output_file->write((char*)&header, sizeof(header));
 		output_file->write(bytes, length);
 		output_file->close();
