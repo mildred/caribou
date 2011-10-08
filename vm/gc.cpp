@@ -25,6 +25,7 @@
 #include <iostream>
 #include <cstring>
 #include <stdint.h>
+#include <stdlib.h>
 #include "gc.hpp"
 #include "machine.hpp"
 
