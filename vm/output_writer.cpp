@@ -26,6 +26,7 @@
 #include <fstream>
 #include <stdint.h>
 #include "output_writer.hpp"
+#include "endian.hpp"
 
 #define HEADER_MAGIC_NUMBER { 'C', 'a', 'r', 'i', 'b', 'o', 'u', '!' }
 
@@ -62,7 +63,21 @@ namespace Caribou
 
 	void OutputWriter::dump(const char* bytes, size_t length)
 	{
-		BytecodeHeader header = (BytecodeHeader){ HEADER_MAGIC_NUMBER, htons(2011), htons(1), htonl(0) };
+		// I know we don't need to endian_swap on the constants_size here, but
+		// we do it so in the future when we make use of this space, we don't
+		// forget to do it.
+		uint16_t year = 2011;
+		uint16_t release_id = 1;
+		uint32_t constants_size = 0;
+
+		if(big_endian())
+		{
+			endian_swap(year);
+			endian_swap(release_id);
+			endian_swap(constants_size);
+		}
+
+		BytecodeHeader header = (BytecodeHeader){ HEADER_MAGIC_NUMBER, year, release_id, constants_size };
 		output_file->write((char*)&header, sizeof(header));
 		output_file->write(bytes, length);
 		output_file->close();
