@@ -38,7 +38,7 @@ namespace Caribou
 	class Machine
 	{
 	public:
-		Machine(size_t);
+		Machine();
 		~Machine();
 
 		void push(const uintptr_t&);
@@ -75,6 +75,8 @@ namespace Caribou
 		void set_return_stack(Stack<ActivationRecord*>* rs) { rstack = *rs; }
 		uintptr_t get_instruction_pointer() { return ip; }
 		void set_instruction_pointer(uintptr_t val) { ip = val; }
+
+		void allocate_instruction_memory(size_t size) { new uint8_t[size]; }
 
 	protected:
 		void next(uint64_t val = 1) { ip += val; }

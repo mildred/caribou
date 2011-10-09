@@ -27,9 +27,8 @@
 
 namespace Caribou
 {
-	Machine::Machine(size_t imem_size)
+	Machine::Machine()
 	{
-		instruction_memory = new uint8_t[imem_size];
 	}
 
 	Machine::~Machine()

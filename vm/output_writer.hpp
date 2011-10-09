@@ -32,13 +32,9 @@ namespace Caribou
 	class OutputWriter
 	{
 	public:
-		OutputWriter(const char* filename);
-		~OutputWriter();
+		OutputWriter() {}
 
-		void dump(const char* bytes, size_t length);
-
-	private:
-		std::ofstream* output_file;
+		void dump(const char* filename, const uint8_t* bytes, size_t length);
 	};
 }
 

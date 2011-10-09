@@ -31,7 +31,7 @@ namespace Caribou
 	struct BytecodeHeader
 	{
 		// Magic string.
-		const char name[8];
+		char name[8];
 
 		// The following two fields represent the version of the file format.
 		// Releases are in this format: XXXX.YY where XXXX is the year, YY is

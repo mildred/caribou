@@ -28,7 +28,7 @@
 
 namespace Caribou
 {
-	bool big_endian()
+	inline bool big_endian()
 	{
 		static bool result = false;
 		uint32_t num = 1;

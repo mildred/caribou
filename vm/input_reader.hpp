@@ -21,37 +21,25 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include <arpa/inet.h>
-#include <iostream>
-#include <fstream>
-#include <stdint.h>
-#include "output_writer.hpp"
-#include "endian.hpp"
-#include "bytecode.hpp"
+#ifndef __CARIBOU__INPUT_READER_HPP__
+#define __CARIBOU__INPUT_READER_HPP__
+
+#include "machine.hpp"
 
 namespace Caribou
 {
-	void OutputWriter::dump(const char* filename, const uint8_t* bytes, size_t length)
+	class InputReader
 	{
-		// I know we don't need to endian_swap on the constants_size here, but
-		// we do it so in the future when we make use of this space, we don't
-		// forget to do it.
-		uint16_t year = 2011;
-		uint16_t release_id = 1;
-		uint32_t custom_size = 0;
+	public:
+		InputReader(Machine& m) : machine(m) {}
 
-		if(big_endian())
-		{
-			endian_swap(year);
-			endian_swap(release_id);
-			endian_swap(custom_size);
-		}
+		// This method will overwrite the instruction_memory on the Machine
+		// passed into the constructor.
+		void load(const char*);
 
-		BytecodeHeader header = (BytecodeHeader){ HEADER_MAGIC_NUMBER, year, release_id, custom_size };
-		std::ofstream output_file(filename, std::ios::binary);
-
-		output_file.write((char*)&header, sizeof(header));
-		output_file.write((char*)bytes, length);
-		output_file.close();
-	}
+	private:
+		Machine& machine;
+	};
 }
+
+#endif /* !__CARIBOU__INPUT_READER_HPP__ */

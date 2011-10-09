@@ -21,37 +21,31 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include <arpa/inet.h>
-#include <iostream>
 #include <fstream>
 #include <stdint.h>
-#include "output_writer.hpp"
+#include "input_reader.hpp"
+#include "machine.hpp"
 #include "endian.hpp"
 #include "bytecode.hpp"
 
 namespace Caribou
 {
-	void OutputWriter::dump(const char* filename, const uint8_t* bytes, size_t length)
+	void InputReader::load(const char* filename)
 	{
-		// I know we don't need to endian_swap on the constants_size here, but
-		// we do it so in the future when we make use of this space, we don't
-		// forget to do it.
-		uint16_t year = 2011;
-		uint16_t release_id = 1;
-		uint32_t custom_size = 0;
+		std::ifstream file(filename, std::ios::binary);
+		size_t instruction_size = 0;
+		BytecodeHeader header;
+		uint8_t* instruction_memory;
 
-		if(big_endian())
-		{
-			endian_swap(year);
-			endian_swap(release_id);
-			endian_swap(custom_size);
-		}
+		file.seekg(0, std::ios::end);
+		instruction_size = file.tellg();
+		instruction_size -= sizeof(header);
+		file.seekg(0, std::ios::beg);
 
-		BytecodeHeader header = (BytecodeHeader){ HEADER_MAGIC_NUMBER, year, release_id, custom_size };
-		std::ofstream output_file(filename, std::ios::binary);
+		instruction_memory = new uint8_t[instruction_size];
 
-		output_file.write((char*)&header, sizeof(header));
-		output_file.write((char*)bytes, length);
-		output_file.close();
+		file.read((char*)&header, sizeof(BytecodeHeader));
+		file.read((char*)instruction_memory, instruction_size);
+		file.close();
 	}
 }
