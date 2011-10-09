@@ -21,48 +21,28 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include <arpa/inet.h>
-#include <iostream>
-#include <fstream>
-#include <stdint.h>
-#include "output_writer.hpp"
-#include "endian.hpp"
-#include "bytecode.hpp"
+#ifndef __CARIBOU__BYTECODE_HPP__
+#define __CARIBOU__BYTECODE_HPP__
+
+#define HEADER_MAGIC_NUMBER { 'C', 'a', 'r', 'i', 'b', 'o', 'u', '!' }
 
 namespace Caribou
 {
-	OutputWriter::OutputWriter(const char* filename)
+	struct BytecodeHeader
 	{
-		output_file = new std::ofstream;
-		output_file->open(filename, std::ios::binary);
-	}
+		// Magic string.
+		const char name[8];
 
-	OutputWriter::~OutputWriter()
-	{
-		if(output_file->is_open())
-			output_file->close();
-		delete output_file;
-	}
+		// The following two fields represent the version of the file format.
+		// Releases are in this format: XXXX.YY where XXXX is the year, YY is
+		// the a serial number representing the release in that year.
+		uint16_t   format_year;
+		uint16_t   format_release;
 
-	void OutputWriter::dump(const uint8_t* bytes, size_t length)
-	{
-		// I know we don't need to endian_swap on the constants_size here, but
-		// we do it so in the future when we make use of this space, we don't
-		// forget to do it.
-		uint16_t year = 2011;
-		uint16_t release_id = 1;
-		uint32_t constants_size = 0;
-
-		if(big_endian())
-		{
-			endian_swap(year);
-			endian_swap(release_id);
-			endian_swap(custom_size);
-		}
-
-		BytecodeHeader header = (BytecodeHeader){ HEADER_MAGIC_NUMBER, year, release_id, custom_size };
-		output_file->write((uint8_t*)&header, sizeof(header));
-		output_file->write(bytes, length);
-		output_file->close();
-	}
+		// Reserve space for a custom header. Needs to have at a minimum a size
+		// field to indicate how many bytes it is going to run.
+		uint32_t   custom_size;
+	};
 }
+
+#endif /* !__CARIBOU__BYTECODE_HPP__ */
