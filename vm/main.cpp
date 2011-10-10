@@ -26,3 +26,17 @@
 #include "machine.hpp"
 
 using namespace Caribou;
+
+int main(int argc, char* argv[])
+{
+	Machine m = Machine();
+	InputReader reader = InputReader(m);
+
+	if(argv[1] == NULL)
+	{
+		std::cout << "Need a filename." << std::endl;
+		exit(1);
+	}
+
+	reader.load(argv[1]);
+}

@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include "machine.hpp"
 #include "continuation.hpp"
+#include "endian.hpp"
 
 namespace Caribou
 {
@@ -98,6 +99,8 @@ namespace Caribou
 		intptr_t a = (intptr_t)dstack.pop();
 		intptr_t b = (intptr_t)dstack.pop();
 		intptr_t c = a + b;
+		printf("%lld %lld +\n", (long long)a, (long long)b);
+		printf("%lld\n", (long long)c);
 		dstack.push((uintptr_t)c);
 		next();
 	}
@@ -209,7 +212,27 @@ namespace Caribou
 		next();
 	}
 
-	void Machine::run(const int instr, const uintptr_t& val)
+	void Machine::run()
+	{
+		for(uint8_t idx = 0; idx < instruction_size; idx++)
+		{
+			uint8_t byte = instruction_memory[idx];
+			uint64_t operand = 0;
+			//printf("Byte: %u @ idx = %u", byte, idx);
+			if(byte == Instructions::PUSH)
+			{
+				operand = (uint64_t)instruction_memory[idx + 1];
+				if(big_endian())
+					endian_swap(operand);
+				//printf("; Operand: %llu\n", (unsigned long long)operand);
+				idx += sizeof(uint64_t);
+			}
+			process(byte, operand);
+			//printf("\n");
+		}
+	}
+
+	void Machine::process(uint8_t instr, uintptr_t val)
 	{
 		switch(instr)
 		{

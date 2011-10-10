@@ -35,17 +35,19 @@ namespace Caribou
 		std::ifstream file(filename, std::ios::binary);
 		size_t instruction_size = 0;
 		BytecodeHeader header;
-		uint8_t* instruction_memory;
 
 		file.seekg(0, std::ios::end);
 		instruction_size = file.tellg();
 		instruction_size -= sizeof(header);
 		file.seekg(0, std::ios::beg);
 
-		instruction_memory = new uint8_t[instruction_size];
+		machine.allocate_instruction_memory(instruction_size);
+		uint8_t*& instruction_memory = machine.get_instruction_memory();
 
 		file.read((char*)&header, sizeof(BytecodeHeader));
 		file.read((char*)instruction_memory, instruction_size);
 		file.close();
+
+		machine.run();
 	}
 }

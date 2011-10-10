@@ -63,7 +63,8 @@ namespace Caribou
 		void add_symbol(std::string*);
 		void find_symbol(std::string*);
 
-		void run(const int, const uintptr_t&);
+		void run();
+		void process(uint8_t, uintptr_t);
 
 		void compile(const int, const uintptr_t&);
 
@@ -76,7 +77,13 @@ namespace Caribou
 		uintptr_t get_instruction_pointer() { return ip; }
 		void set_instruction_pointer(uintptr_t val) { ip = val; }
 
-		void allocate_instruction_memory(size_t size) { new uint8_t[size]; }
+		void allocate_instruction_memory(size_t size)
+		{
+			instruction_size   = size;
+			instruction_memory = new uint8_t[size];
+		}
+
+		uint8_t*& get_instruction_memory() { return instruction_memory; }
 
 	protected:
 		void next(uint64_t val = 1) { ip += val; }
@@ -86,6 +93,7 @@ namespace Caribou
 		Stack<ActivationRecord*>   rstack;
 		std::vector<Continuation*> continuations;
 		uint8_t*                   instruction_memory;
+		size_t                     instruction_size;
 		// The instruction pointer references a byte in the instruction memory above
 		uintptr_t                  ip;
 		uintptr_t*                 memory;

@@ -31,7 +31,7 @@ namespace Caribou
 	inline bool big_endian()
 	{
 		uint32_t num = 1;
-		return (*(uint8_t*)&num != 1)
+		return (*(uint8_t*)&num != 1);
 	}
 
 	inline void endian_swap(uint16_t& x)
