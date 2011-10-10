@@ -1,4 +1,3 @@
 *.o
 [ch]pp
 build
-ruby/*.rb
