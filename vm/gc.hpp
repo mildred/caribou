@@ -83,26 +83,12 @@ namespace Caribou
 		// This doesn't get used, so yes this needs to be a noop.
 		void operator delete(void*) { }
 
-		virtual void mark() = 0;
+		virtual void walk() = 0;
 
 		inline size_t object_size()
 		{
-			return sizeof(this);
+			return sizeof(*this);
 		}
-
-		inline size_t get_memory_index()
-		{
-			return memory_index;
-		}
-
-		inline void set_memory_index(size_t idx)
-		{
-			memory_index = idx;
-		}
-
-	private:
-		size_t memory_index;
-		bool   marked;
 	};
 }
 
