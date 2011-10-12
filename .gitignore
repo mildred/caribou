@@ -1,3 +1,4 @@
 *.o
 [ch]pp
 build
+*.rbc
