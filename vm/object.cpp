@@ -40,15 +40,36 @@ namespace Caribou
 
 	void Object::add_trait(Object* trait)
 	{
+		// TODO: Throw an exception here
 		traits.push_back(trait);
+	}
+
+	void walk()
+	{
+		// TODO: Walk our children. This is part of the GC.
 	}
 
 	// We don't want any conflicts. Returns true if we already implement name.
 	bool Object::implements(const std::string& name)
 	{
-		SlotTable::iterator it = slots.find(name);
+		std::vector<Object*>::iterator traitsIter;
+		SlotTable::iterator it;
+
+		for(traitsIter = traits.begin(); traitsIter != traits.end(); traitsIter++)
+		{
+			// When we find that one of our traits already implements a given slot,
+			// we should through an exception.
+			SlotTable* st = (*traitsIter)->get_slot_table();
+			it = st->find(name);
+			if(it != st->end())
+				return true;
+
+		}
+
+		it = slots.find(name);
 		if(it != slots.end())
 			return true;
+
 		return false;
 	}
 }

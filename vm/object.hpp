@@ -38,8 +38,10 @@ namespace Caribou
 	class Object : public GCObject
 	{
 	private:
+		// First three fields are for the GC.
 		Object*              next;
 		Object*              prev;
+		unsigned int         colour:2;
 		SlotTable            slots;
 		std::vector<Object*> traits;
 
@@ -49,6 +51,8 @@ namespace Caribou
 		void add_slot(const std::string, Object*);
 		void remove_slot(const std::string&);
 		void add_trait(Object*);
+
+		SlotTable* get_slot_table() { return new SlotTable(slots); }
 
 		virtual void walk();
 
