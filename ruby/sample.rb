@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'bindata'
 
 class Header < BinData::Record
