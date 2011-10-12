@@ -40,7 +40,9 @@ namespace Caribou
 
 	void Object::add_trait(Object* trait)
 	{
-		// TODO: Throw an exception here
+		// TODO: Logic here to check the union of all the traits doesn't contain
+		// any slots that this one might be trying to bring in. If there is a
+		// conflict, throw an exception.
 		traits.push_back(trait);
 	}
 

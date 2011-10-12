@@ -27,13 +27,16 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <queue>
 #include "gc.hpp"
 
 namespace Caribou
 {
 	class Object;
+	class Message;
 
 	typedef std::map<std::string, Object*> SlotTable;
+	typedef std::queue<Message*>           Mailbox;
 
 	class Object : public GCObject
 	{
@@ -42,11 +45,19 @@ namespace Caribou
 		Object*              next;
 		Object*              prev;
 		unsigned int         colour:2;
+
+		// The mailbox is where messages come into. This allows us to decouple
+		// message sending and message receiving.
+		Mailbox              mailbox;
+
+		// The slot table is our local container to hold slot definitions.
 		SlotTable            slots;
+
+		// Our traits list contains other composable objects of behaviour and state.
 		std::vector<Object*> traits;
 
 	public:
-		Object() : slots(), traits() { }
+		Object() : mailbox(), slots(), traits() { }
 
 		void add_slot(const std::string, Object*);
 		void remove_slot(const std::string&);
