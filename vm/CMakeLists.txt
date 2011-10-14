@@ -5,6 +5,7 @@ set(SRCS
   "input_reader.cpp"
   "gc.cpp"
   "object.cpp"
+  "message.cpp"
 )
 add_library(caribou SHARED ${SRCS})
 add_executable(vm "main.cpp")

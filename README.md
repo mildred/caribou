@@ -11,7 +11,7 @@ The architecture. While closer to Self than Io, the model for Caribou was develo
 
 Io implements a message sending architecture where messages are dispatched to an object, whereby it looks it up locally, then through its protos list in a first match wins. It delegates the message send to the first item in the protos, then to its protos first object and so on until it runs out; then it goes back up one level, tries another proto. Should that fail, it keeps going back up the tree until it exhausts all protos and raises an exception. Caribou is slightly different.
 
-Objects hold state which is local to the object, a mailbox (a queue where messages are received). It contains also a list of traits; it does not employ any type of inheritance. Delegation is explicit, not implicit, trait conflict resolution is also explicit.
+In Caribou, Objects hold state which is local to the object, a mailbox (a queue where messages are received) and it contains also a list of traits. It does not employ any type of inheritance. Delegation is explicit, not implicit, trait conflict resolution is also explicit.
 
 Object concurrency is handled by the Actor model. This allows us some great deal of flexibility in how the underlying architecture works. Merely placing "common sense" requirements on top of a flexible base.
 
@@ -51,6 +51,6 @@ I'd love to see many people inteterested in helping build this project, and cont
 There are a few things we'd like you to respect though:
 
 1. Develop your feature in a separate branch that I can pull into my repo. Don't clobber the `master` branch. It's the stable branch;
-2. We want to keep a uniform license. As such, by contributing code to us, you are granting us license to distribute your changes under the terms of the MIT license, as found above; and
+2. We want to keep a uniform license. As such, by contributing code, you are granting a license to distribute your changes under the terms of the MIT license, as found above; and
 3. If your code isn't completely done yet, it's ok to open a pull request. Just be sure to clearly note that it is incomplete and shouldn't be merged into the mainline. I test these things out beforehand, but still; be respectful of others who may want your feature now.
 4. Please include tests.
