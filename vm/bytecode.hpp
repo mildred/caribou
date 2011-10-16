@@ -31,17 +31,15 @@ namespace Caribou
 	struct BytecodeHeader
 	{
 		// Magic string.
-		char name[8];
+		char     name[8];
 
-		// The following two fields represent the version of the file format.
-		// Releases are in this format: XXXX.YY where XXXX is the year, YY is
-		// the a serial number representing the release in that year.
-		uint16_t   format_year;
-		uint16_t   format_release;
+		// The following field represents a version number of the bytecode image.
+		// It's a serial number incrementing from 0.
+		uint8_t  version;
 
 		// Reserve space for a custom header. Needs to have at a minimum a size
 		// field to indicate how many bytes it is going to run.
-		uint32_t   custom_size;
+		uint32_t custom_size;
 	};
 }
 
