@@ -31,87 +31,85 @@
 
 namespace Caribou
 {
-	GarbageCollector::GarbageCollector(Machine* m, size_t size) : machine(m), space_size(size)
+	GarbageCollector::GarbageCollector(Machine* m) : machine(m)
 	{
-		heap = new char[size * 2];
-		tospace = heap;
-		top_of_space = tospace + space_size;
-		fromspace = top_of_space + 1;
-		freep = tospace;
-		scan = tospace;
+		blacks = new GCMarker(kGCColourBlack);
+		greys  = new GCMarker(kGCColourGrey);
+		whites = new GCMarker(kGCColourWhite);
+		freed  = new GCMarker(kGCColourFreed);
+
+		whites->loop();
+		greys->resnap_after(whites);
+		blacks->resnap_after(greys);
+		freed->resnap_after(blacks);
+
+		allocated = 0;
 	}
 
 	GarbageCollector::~GarbageCollector()
 	{
-		delete[] heap;
+		delete whites;
+		delete greys;
+		delete blacks;
+		delete freed;
 	}
 
-	GCObject* GarbageCollector::allocate(size_t size)
+	GCMarker* GarbageCollector::new_marker()
 	{
-		if(freep + size > top_of_space)
-			flip();
+		GCMarker* marker = freed->next;
 
-		if(freep + size > top_of_space)
+		if(marker->colour != freed->colour)
+			marker = new GCMarker();
+
+		allocated++;
+		add_value(marker);
+
+		return marker;
+	}
+
+	void GarbageCollector::add_value(GCMarker* value)
+	{
+		value->resnap_after(whites);
+		marks_queued += marks_alloc;
+	}
+
+	void GarbageCollector::scan_greys(size_t max)
+	{
+		GCMarker* v = greys->next;
+		GCMarker* new_next;
+		unsigned int c = greys->colour;
+
+		while(v->colour == c)
 		{
-			std::cerr << "Memory exhausted!" << std::endl;
-			abort();
+			new_next = v->next;
+
+			// TODO: Scan roots and make the node black
+
+			if(--max == 0)
+				break;
+
+			v = new_next;
 		}
 
-		GCObject* ptr = (GCObject*)freep;
-		freep += size;
-
-		return ptr;
-	}
-
-	void GarbageCollector::flip()
-	{
-		char* tmpspace = fromspace;
-		fromspace = tospace;
-		tospace = tmpspace;
-		top_of_space = tospace + space_size;
-		scan = freep = tospace;
-
-		walk_roots();
-
-		while(scan < freep)
-		{
-			// Iterate over children of scan where P = current child
-			//   *P = copy(*P);
-			//scan += ((GCObject*)P)->object_size();
-		}
-	}
-
-	GCObject* GarbageCollector::copy(GCObject* ptr)
-	{
-		if(forwarded(ptr))
-			return forwarded(ptr);
-		else
-		{
-			GCObject* addr = (GCObject*)freep;
-			size_t size = ptr->object_size();
-			memcpy(freep, (void*)ptr, size);
-			freep += size;
-			set_forward(ptr, addr);
-			return addr;
-		}
-	}
-
-	void GarbageCollector::walk_roots()
-	{
+		/*
 		std::vector<ActivationRecord*>& rstack = machine->get_return_stack().get_store();
 		std::vector<ActivationRecord*>::iterator it;
 		Stack<ActivationRecord*>        new_rstack;
 
-		for(it = rstack.begin(); it < rstack.end(); it++)
-			new_rstack.push((ActivationRecord*)copy((GCObject*)(*it)));
+		for(it = rstack.begin(); it < rstack.end(); it++);
+			//new_rstack.push((ActivationRecord*)copy((GCObject*)(*it)));
 
 		machine->set_return_stack(&new_rstack);
+		*/
 	}
 
-	GCObject* GarbageCollector::get_object_at_address(uintptr_t address)
+	void GarbageCollector::sweep()
 	{
-		if(address >= (uintptr_t)heap && address < ((uintptr_t)heap + space_size))
-			return (GCObject*)address;
-		return NULL;
+		while(!greys->is_empty())
+			scan_greys();
+
+		GCMarker* tmp = blacks;
+		blacks = whites;
+		whites = tmp;
 	}
 }

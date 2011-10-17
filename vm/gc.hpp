@@ -27,68 +27,142 @@
 #include <vector>
 #include <stdint.h>
 
-#define GC_FORWARDED_TAG 0x1
-
 namespace Caribou
 {
 	class Machine;
 	class GCObject;
 
+	enum GCColours
+	{
+		kGCColourBlack = 0,
+		kGCColourGrey,
+		kGCColourWhite,
+		kGCColourFreed
+	};
+
+	struct GCMarker
+	{
+		GCMarker* next;
+		GCMarker* prev;
+		uint8_t   colour:2;
+		uint8_t   reserved:6;
+		GCObject* object;
+
+		GCMarker(unsigned int c = kGCColourFreed) : colour(c) {}
+
+		inline size_t count_in_set()
+		{
+			size_t count = 0;
+			GCMarker* v = next;
+			unsigned int c = colour;
+
+			while(v->colour == c)
+			{
+				GCMarker*& n = v->next;
+				v = n;
+				++count;
+			}
+
+			return count;
+		}
+
+		inline bool set_is_empty()
+		{
+			return colour != next->colour;
+		}
+
+		inline void insert_after(GCMarker* other)
+		{
+			colour = other->colour;
+			prev = other;
+			next = other->next;
+			other->next->prev = this;
+			other->next= this;
+		}
+
+		inline void insert_before(GCMarker* other)
+		{
+			colour = other->colour;
+			prev = other->prev;
+			next = other;
+			other->prev->next = this;
+			other->prev = this;
+		}
+
+		inline void remove()
+		{
+			prev->next = next;
+			next->prev = prev;
+		}
+
+		inline void resnap_after(GCMarker* other)
+		{
+			if(prev)
+				remove();
+			insert_after(other);
+		}
+
+		inline void loop()
+		{
+			prev = this;
+			next = this;
+		}
+
+		inline bool is_empty()
+		{
+			return colour != next->colour;
+		}
+	};
+
 	class GarbageCollector
 	{
 	public:
-		GarbageCollector(Machine*, size_t);
+		GarbageCollector(Machine*);
 		~GarbageCollector();
 
-		GCObject* allocate(size_t size);
-		void flip();
-		GCObject* copy(GCObject*);
-		GCObject* get_object_at_address(uintptr_t addr);
+		GCMarker* new_marker();
+		void add_value(GCMarker*);
 
-	protected:
-		inline GCObject* forwarded(GCObject* ptr)
+		void scan_greys(size_t max = INT_MAX);
+		void sweep();
+
+		void make_grey(GCMarker* other)
 		{
-			return (GCObject*)((uintptr_t)ptr | GC_FORWARDED_TAG);
+			other->resnap_after(greys);
 		}
 
-		inline void set_forward(GCObject* ptr, GCObject* to)
+		void make_white(GCMarker* other)
 		{
-			ptr = (GCObject*)((uintptr_t)to | GC_FORWARDED_TAG);
+			other->resnap_after(whites);
+		}
+
+		void make_black(GCMarker* other)
+		{
+			other->resnap_after(blacks);
+		}
+
+		void make_freed(GCMarker* other)
+		{
+			other->resnap_after(freed);
 		}
 
 	private:
-		void walk_roots();
-
-		char*    heap;
-		char*    tospace;
-		char*    fromspace;
-		char*    top_of_space;
-		char*    freep;
-		char*    scan;
-		size_t   space_size;
-		Machine* machine;
+		GCMarker* blacks;
+		GCMarker* greys;
+		GCMarker* whites;
+		GCMarker* freed;
+		size_t    allocated;
+		size_t    marks_alloc;
+		size_t    marks_queued;
+		Machine*  machine;
 	};
 
-	extern void* gc_allocate(Machine*, size_t);
-
-	class GCObject
+	class GCObject : public GCMarker
 	{
 	public:
-		void* operator new(size_t size, Machine* m)
-		{
-			return gc_allocate(m, size);
-			//return m->get_collector()->allocate(size);
-		}
-
-		// This doesn't get used, so yes this needs to be a noop.
-		void operator delete(void*) { }
+		GCMarker marker;
 
 		virtual void walk() = 0;
-
-		inline size_t object_size()
-		{
-			return sizeof(*this);
-		}
 	};
 }
 
