@@ -2,3 +2,10 @@
 [ch]pp
 build
 *.rbc
+Makefile
+cmake_install.cmake
+CMakeFiles/
+/CMakeFiles/
+/CMakeCache.txt
+/vm/libcaribou.so
+*~
