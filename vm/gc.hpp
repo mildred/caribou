@@ -146,6 +146,12 @@ namespace Caribou
 			other->resnap_after(freed);
 		}
 
+		void shade(GCMarker* marker)
+		{
+			if(marker->colour == kGCColourWhite)
+				make_grey(marker);
+		}
+
 	private:
 		GCMarker* blacks;
 		GCMarker* greys;
