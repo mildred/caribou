@@ -36,18 +36,13 @@ namespace Caribou
 		// I know we don't need to endian_swap on the constants_size here, but
 		// we do it so in the future when we make use of this space, we don't
 		// forget to do it.
-		uint16_t year = 2011;
-		uint16_t release_id = 1;
+		uint8_t  release_id = 1;
 		uint32_t custom_size = 0;
 
 		if(big_endian())
-		{
-			endian_swap(year);
-			endian_swap(release_id);
 			endian_swap(custom_size);
-		}
 
-		BytecodeHeader header = (BytecodeHeader){ HEADER_MAGIC_NUMBER, year, release_id, custom_size };
+		BytecodeHeader header = (BytecodeHeader){ HEADER_MAGIC_NUMBER, release_id, custom_size };
 		std::ofstream output_file(filename, std::ios::binary);
 
 		output_file.write((char*)&header, sizeof(header));
