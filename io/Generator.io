@@ -25,3 +25,29 @@ Opcode := Object clone do(
     )
     textual := method(name .. if(operand isNil, "", ":" .. operand asString))
 )
+
+Generator := Object clone do(
+    buffer := list
+	
+	version ::= 0
+    
+    init := method(buffer = list)
+
+	binaryHeader := method("Caribou!" ..(version asCharacter))
+	textualHeader := method("Caribou! Version:" ..(version asString))
+    
+    binary  := method(
+		output := binaryHeader
+		b := buffer map(binary) reduce(acc, cur, acc .. cur)
+		b isNil ifFalse(output = output ..(b))
+		output
+		)
+    textual := method(
+		output := textualHeader
+		b := buffer map(textual) reduce(acc, cur, acc .. "\n" .. cur)
+		b isNil ifFalse(output = output ..("\n") ..(b))
+		output
+		)
+
+	register := method(name, number, operand, buffer push(Opcode clone setName(name) setNumber(number) setOperand(operand));self)
+)
