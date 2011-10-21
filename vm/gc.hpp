@@ -112,6 +112,8 @@ namespace Caribou
 		{
 			return colour != next->colour;
 		}
+
+		virtual void walk() { }
 	};
 
 	class GarbageCollector
