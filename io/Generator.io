@@ -5,6 +5,7 @@ BigNum asSequence := method(
 		segments append(source % 256)
 		source = source / 256
 		)
+	if(segments isEmpty, segments append(0))
 	segments map(asNumber asCharacter) reduce(..)
 	)
 
