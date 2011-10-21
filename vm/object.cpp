@@ -61,11 +61,15 @@ namespace Caribou
 		{
 			// When we find that one of our traits already implements a given slot,
 			// we should through an exception.
-			SlotTable* st = (*traitsIter)->get_slot_table();
+			SlotTable* st = (*traitsIter)->copy_slot_table();
 			it = st->find(name);
 			if(it != st->end())
+			{
+				delete st;
 				return true;
-
+			}
+			else
+				delete st;
 		}
 
 		it = slots.find(name);

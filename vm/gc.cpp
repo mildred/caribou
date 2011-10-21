@@ -83,7 +83,9 @@ namespace Caribou
 		{
 			new_next = v->next;
 
-			// TODO: Scan roots and make the node black
+			// Scan children, then make the node black.
+			v->walk();
+			make_black(v);
 
 			if(--max == 0)
 				break;
