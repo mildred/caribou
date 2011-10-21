@@ -63,7 +63,7 @@ namespace Caribou
 		void remove_slot(const std::string&);
 		void add_trait(Object*);
 
-		SlotTable* get_slot_table() { return new SlotTable(slots); }
+		SlotTable* copy_slot_table() { return new SlotTable(slots); }
 
 		virtual void walk();
 
