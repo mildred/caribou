@@ -92,17 +92,6 @@ namespace Caribou
 
 			v = new_next;
 		}
-
-		/*
-		std::vector<ActivationRecord*>& rstack = machine->get_return_stack().get_store();
-		std::vector<ActivationRecord*>::iterator it;
-		Stack<ActivationRecord*>        new_rstack;
-
-		for(it = rstack.begin(); it < rstack.end(); it++);
-			//new_rstack.push((ActivationRecord*)copy((GCObject*)(*it)));
-
-		machine->set_return_stack(&new_rstack);
-		*/
 	}
 
 	void GarbageCollector::sweep()
