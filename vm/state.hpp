@@ -45,38 +45,20 @@ namespace Caribou
 	class State
 	{
 	public:
-		State() : name("Unknown") {}
-		State(const std::string& str) : name(str) {}
 		virtual ~State() {}
 
-		virtual void enter(StateMachine* machine)
+		virtual void transition(StateMachine* machine, State* other)
 		{
-			throw(StateException("Already in the '" + name + "' state."));
+			will_leave(machine);
+			machine->set_current(other);
+			did_leave(machine);
+			other->did_enter(machine);
 		}
 
-		virtual void leave(StateMachine* machine)
-		{
-			throw(StateException("Already in the '" + name + "' state."));
-		}
-
-	protected:
-		std::string name;
-	};
-
-	class InitialState : public State
-	{
-	public:
-		InitialState() { name = "Initial"; }
-
-		void enter(StateMachine* machine)
-		{
-			throw(StateException("The Initial State cannot be entered."));
-		}
-
-		void leave(StateMachine* machine)
-		{
-			throw(StateException("Cannot leave the Initial State this way. Use set_current() on StateMachine directly for your first state."));
-		}
+		virtual void will_enter(StateMachine* machine) {}
+		virtual void did_enter(StateMachine* machine) {}
+		virtual void will_leave(StateMachine* machine) {}
+		virtual void did_leave(StateMachine* machine) {}
 	};
 }
 

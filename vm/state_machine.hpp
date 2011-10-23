@@ -42,8 +42,10 @@ namespace Caribou
 			current = s;
 		}
 
-		void enter();
-		void leave();
+		inline void transition(State* other)
+		{
+			current->transition(this, other);
+		}
 	};
 }
 

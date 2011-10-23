@@ -26,23 +26,12 @@
 
 namespace Caribou
 {
-	StateMachine::StateMachine()
+	StateMachine::StateMachine() : current(NULL)
 	{
-		current = new InitialState();
 	}
 
 	StateMachine::~StateMachine()
 	{
 		delete current;
-	}
-
-	void StateMachine::enter()
-	{
-		current->enter(this);
-	}
-
-	void StateMachine::leave()
-	{
-		current->leave(this);
 	}
 }
