@@ -1,6 +1,7 @@
 set(SRCS
   "machine.cpp"
   "symtab.cpp"
+  "state_machine.cpp"
   "output_writer.cpp"
   "input_reader.cpp"
   "gc.cpp"
