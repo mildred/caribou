@@ -1,4 +1,5 @@
 set(SRCS
+  "tinythread.cpp"
   "machine.cpp"
   "symtab.cpp"
   "state_machine.cpp"
