@@ -5,6 +5,7 @@ BigNum asSequence := method(
 		segments append(source % 256)
 		source = source / 256
 		)
+	if(segments isEmpty, segments append(0))
 	segments map(asNumber asCharacter) reduce(..)
 	)
 
@@ -33,7 +34,7 @@ Generator := Object clone do(
     
     init := method(buffer = list)
 
-	binaryHeader := method("Caribou!" ..(version asCharacter))
+	binaryHeader := method("Caribou!" ..(version asCharacter) ..(Sequence clone atPut(3,0)))
 	textualHeader := method("Caribou! Version:" ..(version asString))
     
     binary  := method(
