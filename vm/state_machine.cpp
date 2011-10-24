@@ -37,12 +37,6 @@ namespace Caribou
 
 	void StateMachine::transition(State* other)
 	{
-		tthread::lock_guard<tthread::mutex> lk(mutex);
-
-		current->will_leave(this);
-		current->transition(this, other);
-		current->did_leave(this);
-		other->will_enter(this);
-		other->did_enter(this);
+		set_current(other);
 	}
 }

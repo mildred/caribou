@@ -45,17 +45,26 @@ namespace Caribou
 	class State
 	{
 	public:
+		State() : mutex() {}
 		virtual ~State() {}
 
 		virtual void transition(StateMachine* machine, State* other)
 		{
+			tthread::lock_guard<tthread::mutex> lk(mutex);
+			will_leave(machine);
 			machine->set_current(other);
+			did_leave(machine);
+			other->will_enter(machine);
+			other->did_enter(machine);
 		}
 
 		virtual void will_enter(StateMachine* machine) {}
 		virtual void did_enter(StateMachine* machine) {}
 		virtual void will_leave(StateMachine* machine) {}
 		virtual void did_leave(StateMachine* machine) {}
+
+	private:
+		tthread::mutex mutex;
 	};
 }
 
