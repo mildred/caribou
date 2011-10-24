@@ -25,11 +25,11 @@
 #define __CARIBOU__STATE_HPP__
 
 #include <string>
+#include "tinythread.h"
+#include "state_machine.hpp"
 
 namespace Caribou
 {
-	class StateMachine;
-
 	class StateException
 	{
 	public:
@@ -49,10 +49,7 @@ namespace Caribou
 
 		virtual void transition(StateMachine* machine, State* other)
 		{
-			will_leave(machine);
 			machine->set_current(other);
-			did_leave(machine);
-			other->did_enter(machine);
 		}
 
 		virtual void will_enter(StateMachine* machine) {}

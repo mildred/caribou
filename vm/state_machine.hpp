@@ -24,6 +24,8 @@
 #ifndef __CARIBOU__STATE_MACHINE_HPP__
 #define __CARIBOU__STATE_MACHINE_HPP__
 
+#include "tinythread.h"
+
 namespace Caribou
 {
 	class State;
@@ -42,10 +44,10 @@ namespace Caribou
 			current = s;
 		}
 
-		inline void transition(State* other)
-		{
-			current->transition(this, other);
-		}
+		inline void transition(State* other);
+
+	private:
+		tthread::mutex mutex;
 	};
 }
 
