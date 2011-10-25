@@ -26,7 +26,7 @@
 
 namespace Caribou
 {
-	StateMachine::StateMachine() : current(NULL), mutex()
+	StateMachine::StateMachine() : current(NULL), running(false)
 	{
 	}
 
@@ -38,5 +38,18 @@ namespace Caribou
 	void StateMachine::transition(State* other)
 	{
 		set_current(other);
+	}
+
+	void StateMachine::run()
+	{
+		if(!current)
+			throw StateException("No current state. You must first transition to your initial state.");
+
+		if(!running && current)
+		{
+			current->will_enter(this);
+			current->did_enter(this);
+			current->run(this);
+		}
 	}
 }
