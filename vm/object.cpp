@@ -25,9 +25,14 @@
 #include <map>
 #include <vector>
 #include "object.hpp"
+#include "mailbox.hpp"
 
 namespace Caribou
 {
+	Object::Object() : mailbox(new Mailbox()), slots(), traits()
+	{
+	}
+
 	void Object::add_slot(const std::string name, Object* value)
 	{
 		slots.insert(std::pair<std::string, Object*>(name, value));

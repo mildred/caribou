@@ -33,6 +33,7 @@ namespace Caribou
 	class Message : public Object
 	{
 	public:
+		Message() : name(""), arguments() {}
 		Message(const std::string& n, std::vector<Message*> args) : name(n), arguments(args) {}
 
 		std::string get_name() { return name; }

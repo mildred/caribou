@@ -21,55 +21,65 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__OBJECT_HPP__
-#define __CARIBOU__OBJECT_HPP__
+#ifndef __CARIBOU__MAILBOX_HPP__
+#define __CARIBOU__MAILBOX_HPP__
 
-#include <map>
-#include <string>
-#include <vector>
-#include <queue>
-#include "gc.hpp"
+#include "Message.hpp"
 
 namespace Caribou
 {
-	class Object;
-	class Message;
-	class Mailbox;
-
-	typedef std::map<std::string, Object*> SlotTable;
-
-	class Object : public GCObject
+	// Mailbox is a lock-free queue safe for up to two concurrent threads manipulating
+	// it so long as one is delivering and the other is receiving.
+	class Mailbox
 	{
 	private:
-		// First three fields are for the GC.
-		Object*              next;
-		Object*              prev;
-		unsigned int         colour:2;
+		struct Node {
+			Node(const Message& msg) : message(msg), next(nullptr) {}
+			const Message& message;
+			Node* next;
+		};
+		Node* first;
+		Node* divider;
+		Node* last;
 
-		// The mailbox is where messages come into. This allows us to decouple
-		// message sending and message receiving.
-		Mailbox*             mailbox;
-
-		// The slot table is our local container to hold slot definitions.
-		SlotTable            slots;
-
-		// Our traits list contains other composable objects of behaviour and state.
-		std::vector<Object*> traits;
+		void trim_to(Node* upto)
+		{
+			while(first != upto)
+			{
+				Node* tmp = first;
+				first = tmp->next;
+				delete tmp;
+			}
+		}
 
 	public:
-		Object() : mailbox(), slots(), traits() { }
+		Mailbox()
+		{
+			Message msg = Message();
+			first = divider = last = new Node(msg);
+		}
 
-		void add_slot(const std::string, Object*);
-		void remove_slot(const std::string&);
-		void add_trait(Object*);
+		~Mailbox()
+		{
+			trim_to(nullptr);
+		}
 
-		SlotTable* copy_slot_table() { return new SlotTable(slots); }
+		void deliver(const Message& msg)
+		{
+			last->next = new Node(msg);
+			trim_to(divider);
+		}
 
-		virtual void walk();
-
-	private:
-		bool implements(const std::string&);
+		bool receive(Message& result)
+		{
+			if(divider != last)
+			{
+				result = divider->next->message;
+				return true;
+			}
+			return false;
+		}
 	};
 }
 
-#endif /* !__CARIBOU__OBJECT_HPP__ */
+#endif /* !__CARIBOU__MAILBOX_HPP__ */
