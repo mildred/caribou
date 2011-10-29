@@ -57,13 +57,18 @@ namespace Caribou
 		std::vector<Object*> traits;
 
 	public:
-		Object() : mailbox(), slots(), traits() { }
+		Object();
 
 		void add_slot(const std::string, Object*);
 		void remove_slot(const std::string&);
 		void add_trait(Object*);
 
-		SlotTable* copy_slot_table() { return new SlotTable(slots); }
+		// Receives a message. Messages dispatched to this object should already be
+		// in the queue. Therefore, this method pops an item off, and begins the
+		// lookup process.
+		void receive();
+
+		SlotTable& slot_table() { return slots; }
 
 		virtual void walk();
 

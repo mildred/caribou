@@ -26,7 +26,7 @@
 
 namespace Caribou
 {
-	StateMachine::StateMachine() : current(NULL), running(false)
+	StateMachine::StateMachine() : current(nullptr), running(false)
 	{
 	}
 

@@ -51,30 +51,43 @@ namespace Caribou
 		traits.push_back(trait);
 	}
 
-	void walk()
+	void receive()
 	{
-		// TODO: Walk our children. This is part of the GC.
+		Message msg;
+		if(mailbox->receive(msg))
+		{
+			// TODO: Dispatch to lookup
+		}
+	}
+
+	void Object::walk()
+	{
+		if(slots.size() > 0)
+		{
+			for(auto v : slots)
+				collector->shade(v);
+		}
+
+		if(traits.size() > 0)
+		{
+			for(auto t : traits)
+				collector->shade(t);
+		}
 	}
 
 	// We don't want any conflicts. Returns true if we already implement name.
 	bool Object::implements(const std::string& name)
 	{
-		std::vector<Object*>::iterator traitsIter;
 		SlotTable::iterator it;
 
-		for(traitsIter = traits.begin(); traitsIter != traits.end(); traitsIter++)
+		for(auto t : traits)
 		{
 			// When we find that one of our traits already implements a given slot,
 			// we should through an exception.
-			SlotTable* st = (*traitsIter)->copy_slot_table();
-			it = st->find(name);
-			if(it != st->end())
-			{
-				delete st;
+			SlotTable& st = t->slot_table();
+			it = st.find(name);
+			if(it != st.end())
 				return true;
-			}
-			else
-				delete st;
 		}
 
 		it = slots.find(name);
