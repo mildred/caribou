@@ -58,6 +58,7 @@ namespace Caribou
 
 	public:
 		Object();
+		~Object();
 
 		void add_slot(const std::string, Object*);
 		void remove_slot(const std::string&);

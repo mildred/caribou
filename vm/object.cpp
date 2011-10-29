@@ -33,6 +33,11 @@ namespace Caribou
 	{
 	}
 
+	Object::~Object()
+	{
+		delete mailbox;
+	}
+
 	void Object::add_slot(const std::string name, Object* value)
 	{
 		slots.insert(std::pair<std::string, Object*>(name, value));
@@ -51,7 +56,7 @@ namespace Caribou
 		traits.push_back(trait);
 	}
 
-	void receive()
+	void Object::receive()
 	{
 		Message msg;
 		if(mailbox->receive(msg))
