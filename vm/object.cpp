@@ -47,17 +47,26 @@ namespace Caribou
 
 	void Object::remove_slot(const std::string& name)
 	{
+		// DISCUSS: Should this be greedy or non-greedy? I.e., currently, we perform this algorithm:
+		//          1. Look in our current slot table for a name
+		//          2. Remove it.
+		//
+		// What if the slot you want to remove is in a trait? Now we can't just go removing it from the
+		// trait, what about other objects that depend on it? But, what we can do, is copy that trait,
+		// install that copy in place of the original in this objects trait list only.
+		//
+		// Should we implement it this way?
 		slots.erase(name);
 	}
 
 	void Object::add_trait(Object* trait)
 	{
-		for(auto s : trait->slot_keys())
+		for(auto p : trait->slot_table())
 		{
 			Object* result;
 
-			if(implements(s, result))
-				throw SlotExistsError("Conflict: Slot '" + s + "' found on an existing trait.", result);
+			if(implements(p.first, result))
+				throw SlotExistsError("Conflict: Slot '" + p.first + "' found on an existing trait.", result);
 		}
 
 		traits.push_back(trait);
