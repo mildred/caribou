@@ -60,6 +60,7 @@ namespace Caribou
 		void jz();
 		void store();
 		void load();
+		void send();
 		void add_symbol(std::string*);
 		void find_symbol(std::string*);
 

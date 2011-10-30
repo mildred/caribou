@@ -178,6 +178,11 @@ namespace Caribou
 			next();
 	}
 
+	void Machine::send()
+	{
+		// TODO: Implement
+	}
+
 	void Machine::save_stack()
 	{
 		uintptr_t index = 0;
@@ -278,6 +283,9 @@ namespace Caribou
 				break;
 			case Instructions::JZ:
 				jz();
+				break;
+			case Instructions::SEND:
+				send();
 				break;
 			case Instructions::SAVE_STACK:
 				save_stack();
