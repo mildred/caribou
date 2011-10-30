@@ -51,7 +51,8 @@ namespace Caribou
 			STORE,
 			ADD_SYMBOL,
 			FIND_SYMBOL,
-			JZ
+			JZ,
+			SEND
 		};
 	};
 }

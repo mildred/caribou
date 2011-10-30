@@ -25,9 +25,17 @@
 #include "machine.hpp"
 #include "continuation.hpp"
 #include "endian.hpp"
+#include "gc.hpp"
+#include "object.hpp"
+#include "mailbox.hpp"
 
 namespace Caribou
 {
+	class Object;
+	class Message;
+
+	GarbageCollector* collector = nullptr;
+
 	Machine::Machine()
 	{
 	}
@@ -164,6 +172,8 @@ namespace Caribou
 		size_t idx = symtab.lookup(*str);
 		if(idx != SYMTAB_NOT_FOUND)
 			dstack.push((uintptr_t)idx);
+		else
+			dstack.push(0); // XXX: Push nil instead, when you know, nil exists
 		next(8);
 		delete str;
 	}
@@ -180,7 +190,11 @@ namespace Caribou
 
 	void Machine::send()
 	{
-		// TODO: Implement
+		Message* message = reinterpret_cast<Message*>(dstack.pop());
+		Object* sender = reinterpret_cast<Object*>(dstack.pop());
+		Object* receiver = reinterpret_cast<Object*>(dstack.pop());
+
+		receiver->mailbox->deliver(*message);
 	}
 
 	void Machine::save_stack()

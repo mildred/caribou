@@ -27,7 +27,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <queue>
 #include "gc.hpp"
 
 namespace Caribou
@@ -57,25 +56,11 @@ namespace Caribou
 		Object*              prev;
 		unsigned int         colour:2;
 
-		// The mailbox is where messages come into. This allows us to decouple
-		// message sending and message receiving.
-		Mailbox*             mailbox;
-
 		// The slot table is our local container to hold slot definitions.
 		SlotTable            slots;
 
 		// Our traits list contains other composable objects of behaviour and state.
 		std::vector<Object*> traits;
-
-		std::vector<std::string> slot_keys()
-		{
-			std::vector<std::string> keys;
-
-			for(auto e : slots)
-				keys.push_back(e.first);
-
-			return keys;
-		}
 
 	public:
 		Object();
@@ -93,6 +78,10 @@ namespace Caribou
 		SlotTable& slot_table() { return slots; }
 
 		virtual void walk();
+
+		// The mailbox is where messages come into. This allows us to decouple
+		// message sending and message receiving.
+		Mailbox*             mailbox;
 
 	private:
 		bool implements(const std::string&, Object*& obj);

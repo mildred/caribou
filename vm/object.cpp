@@ -29,6 +29,8 @@
 
 namespace Caribou
 {
+	extern GarbageCollector* collector;
+
 	Object::Object() : mailbox(new Mailbox()), slots(), traits()
 	{
 	}
@@ -66,14 +68,13 @@ namespace Caribou
 		Message msg;
 		if(mailbox->receive(msg))
 		{
-			// TODO: Dispatch to lookup
 		}
 	}
 
 	void Object::walk()
 	{
 		for(auto v : slots)
-			collector->shade(v);
+			collector->shade(v.second);
 
 		for(auto t : traits)
 			collector->shade(t);
