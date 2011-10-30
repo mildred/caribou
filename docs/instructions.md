@@ -26,7 +26,8 @@ the file `instructions.hpp`. The currently defined instructions are:
     19 ADD_SYMBOL
     20 FIND_SYMBOL
     21 JZ
-    22..63 are reserved for new instructions, unspecified behaviour.
+    22 SEND
+    23..63 are reserved for new instructions, unspecified behaviour.
 
  -  **NOOP**: Does nothing
 
@@ -86,9 +87,13 @@ the file `instructions.hpp`. The currently defined instructions are:
 
  -  **FIND_SYMBOL**: not specified. Lookup a symbol in the symbol table and if
     the symbol is found, push its identifier on the data stack. If it is not
-    found, does nothing. TODO: how is the programmed supposed to know if the
-    symbol was found? Skip the next 7 bytes in instruction memory.
+    found, pushes nil onto the stack.
 
  -  **JZ**: Jumo on zero. Pop an instruction pointer and a condition from
     the data stack. If the condition is zero, jusp to the specified address.
+
+ -  **SEND**: Pop three elements from the data stack. The context of the
+    caller, the object to receive the message, and the message itself. Creates
+    an activation record with the address of our locals and ip, and pushes
+    it onto the return stack. Jumps to the method.
 
