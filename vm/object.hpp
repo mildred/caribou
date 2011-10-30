@@ -38,6 +38,17 @@ namespace Caribou
 
 	typedef std::map<std::string, Object*> SlotTable;
 
+	class SlotExistsError
+	{
+	private:
+		std::string string;
+		Object*     offender;
+
+	public:
+		SlotExistsError(std::string s, Object* obj) : string(s), offender(obj) {}
+		const std::string& message() const { return string; }
+	};
+
 	class Object : public GCObject
 	{
 	private:
