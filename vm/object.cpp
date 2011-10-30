@@ -50,9 +50,14 @@ namespace Caribou
 
 	void Object::add_trait(Object* trait)
 	{
-		// TODO: Logic here to check the union of all the traits doesn't contain
-		// any slots that this one might be trying to bring in. If there is a
-		// conflict, throw an exception.
+		for(auto s : trait->slot_keys())
+		{
+			Object* result;
+
+			if(implements(s, result))
+				throw SlotExistsError("Conflict: Slot '" + s + "' found on an existing trait.", result);
+		}
+
 		traits.push_back(trait);
 	}
 
@@ -67,21 +72,15 @@ namespace Caribou
 
 	void Object::walk()
 	{
-		if(slots.size() > 0)
-		{
-			for(auto v : slots)
-				collector->shade(v);
-		}
+		for(auto v : slots)
+			collector->shade(v);
 
-		if(traits.size() > 0)
-		{
-			for(auto t : traits)
-				collector->shade(t);
-		}
+		for(auto t : traits)
+			collector->shade(t);
 	}
 
 	// We don't want any conflicts. Returns true if we already implement name.
-	bool Object::implements(const std::string& name)
+	bool Object::implements(const std::string& name, Object*& obj)
 	{
 		SlotTable::iterator it;
 
@@ -92,7 +91,10 @@ namespace Caribou
 			SlotTable& st = t->slot_table();
 			it = st.find(name);
 			if(it != st.end())
+			{
+				obj = t;
 				return true;
+			}
 		}
 
 		it = slots.find(name);

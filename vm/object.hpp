@@ -95,7 +95,7 @@ namespace Caribou
 		virtual void walk();
 
 	private:
-		bool implements(const std::string&);
+		bool implements(const std::string&, Object*& obj);
 	};
 }
 
