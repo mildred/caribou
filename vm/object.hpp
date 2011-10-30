@@ -67,6 +67,16 @@ namespace Caribou
 		// Our traits list contains other composable objects of behaviour and state.
 		std::vector<Object*> traits;
 
+		std::vector<std::string> slot_keys()
+		{
+			std::vector<std::string> keys;
+
+			for(auto e : slots)
+				keys.push_back(e.first);
+
+			return keys;
+		}
+
 	public:
 		Object();
 		~Object();
