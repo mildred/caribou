@@ -29,7 +29,7 @@
 #include "stack.hpp"
 #include "symtab.hpp"
 #include "instructions.hpp"
-#include "activation_record.hpp"
+#include "context.hpp"
 
 namespace Caribou
 {
@@ -43,23 +43,13 @@ namespace Caribou
 
 		void push(const uintptr_t&);
 		uintptr_t pop();
-		void puship(const uintptr_t&);
-		void popip();
+		void ret();
 		void dup();
 		void swap();
 		void rot3();
-		void add();
-		void bitwise_shift_left();
-		void bitwise_shift_right();
-		void bitwise_and();
-		void bitwise_or();
-		void bitwise_xor();
-		void bitwise_not();
 		void save_stack();
 		void restore_stack();
 		void jz();
-		void store();
-		void load();
 		void send();
 		void add_symbol(std::string*);
 		void find_symbol(std::string*);
@@ -72,9 +62,9 @@ namespace Caribou
 		Stack<uintptr_t>& get_data_stack() { return dstack; }
 		Stack<uintptr_t>* copy_data_stack() { return new(this) Stack<uintptr_t>(dstack); }
 		void set_data_stack(Stack<uintptr_t>* ds) { dstack = *ds; }
-		Stack<ActivationRecord*>& get_return_stack() { return rstack; }
-		Stack<ActivationRecord*>* copy_return_stack() { return new(this) Stack<ActivationRecord*>(rstack); }
-		void set_return_stack(Stack<ActivationRecord*>* rs) { rstack = *rs; }
+		Stack<Context*>& get_return_stack() { return rstack; }
+		Stack<Context*>* copy_return_stack() { return new(this) Stack<Context*>(rstack); }
+		void set_return_stack(Stack<Context*>* rs) { rstack = *rs; }
 		uintptr_t get_instruction_pointer() { return ip; }
 		void set_instruction_pointer(uintptr_t val) { ip = val; }
 
@@ -91,7 +81,7 @@ namespace Caribou
 
 	private:
 		Stack<uintptr_t>           dstack;
-		Stack<ActivationRecord*>   rstack;
+		Stack<Context*>            rstack;
 		std::vector<Continuation*> continuations;
 		uint8_t*                   instruction_memory;
 		size_t                     instruction_size;

@@ -21,18 +21,26 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__ACTIVATION_RECORD_HPP__
-#define __CARIBOU__ACTIVATION_RECORD_HPP__
+#ifndef __CARIBOU__CONTEXT_HPP__
+#define __CARIBOU__CONTEXT_HPP__
 
-#include <stdint.h>
+#include <sys/types.h>
+#include "stack.hpp"
 
 namespace Caribou
 {
-	struct ActivationRecord
+	class Object;
+
+	struct Context
 	{
-		uintptr_t ip;
-		uintptr_t locals_index;
+		Context*        previous;
+		Object*         sender;
+		Object*         target;
+		size_t          sp;
+		//CompiledMethod* cm;
+		Object*         receiver;
+		Stack<Object*>  stk;
 	};
 }
 
-#endif /* !__CARIBOU__ACTIVATION_RECORD_HPP__ */
+#endif /* !__CARIBOU__CONTEXT_HPP__ */

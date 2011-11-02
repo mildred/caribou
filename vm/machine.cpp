@@ -57,20 +57,11 @@ namespace Caribou
 		return dstack.pop();
 	}
 
-	void Machine::puship(const uintptr_t& val)
+	void Machine::ret()
 	{
-		ActivationRecord* record = new(this) ActivationRecord;
-		record->ip = val;
-		record->locals_index = dstack.pop();
-		rstack.push(record);
-		next(8);
-	}
-
-	void Machine::popip()
-	{
-		ActivationRecord* r = rstack.pop();
+		// XXX: This is completely broken, as are most of these instructions now.
+		Context* r = rstack.pop();
 		ip = r->ip;
-		dstack.push(r->locals_index);
 		delete r;
 	}
 
@@ -99,63 +90,6 @@ namespace Caribou
 		dstack.push(b);
 		dstack.push(c);
 		dstack.push(a);
-		next();
-	}
-
-	void Machine::add()
-	{
-		intptr_t a = (intptr_t)dstack.pop();
-		intptr_t b = (intptr_t)dstack.pop();
-		intptr_t c = a + b;
-		dstack.push((uintptr_t)c);
-		next();
-	}
-
-	void Machine::bitwise_shift_left()
-	{
-		uintptr_t a = dstack.pop();
-		uintptr_t b = dstack.pop();
-		dstack.push(a << b);
-		next();
-	}
-
-	void Machine::bitwise_shift_right()
-	{
-		uintptr_t a = dstack.pop();
-		uintptr_t b = dstack.pop();
-		dstack.push(a >> b);
-		next();
-	}
-
-	void Machine::bitwise_and()
-	{
-		uintptr_t a = dstack.pop();
-		uintptr_t b = dstack.pop();
-		dstack.push(a & b);
-		next();
-	}
-
-	void Machine::bitwise_or()
-	{
-		uintptr_t a = dstack.pop();
-		uintptr_t b = dstack.pop();
-		dstack.push(a | b);
-		next();
-	}
-
-	void Machine::bitwise_xor()
-	{
-		uintptr_t a = dstack.pop();
-		uintptr_t b = dstack.pop();
-		dstack.push(a ^ b);
-		next();
-	}
-
-	void Machine::bitwise_not()
-	{
-		uintptr_t a = dstack.pop();
-		intptr_t b  = (intptr_t)~a;
-		dstack.push((uintptr_t)b);
 		next();
 	}
 
@@ -214,21 +148,6 @@ namespace Caribou
 		delete c;
 	}
 
-	void Machine::store()
-	{
-		uintptr_t addr = dstack.pop();
-		uintptr_t data = dstack.pop();
-		memory[addr] = data;
-		next();
-	}
-
-	void Machine::load()
-	{
-		uintptr_t addr = dstack.pop();
-		dstack.push(memory[addr]);
-		next();
-	}
-
 	void Machine::run()
 	{
 		for(uint8_t idx = 0; idx < instruction_size; idx++)
@@ -259,10 +178,7 @@ namespace Caribou
 			case Instructions::POP:
 				pop();
 				break;
-			case Instructions::PUSHIP:
-				puship(ip);
-				break;
-			case Instructions::POPIP:
+			case Instructions::RET:
 				popip();
 				break;
 			case Instructions::DUP:
@@ -273,27 +189,6 @@ namespace Caribou
 				break;
 			case Instructions::ROT3:
 				rot3();
-				break;
-			case Instructions::ADD:
-				add();
-				break;
-			case Instructions::LSHIFT:
-				bitwise_shift_left();
-				break;
-			case Instructions::RSHIFT:
-				bitwise_shift_right();
-				break;
-			case Instructions::AND:
-				bitwise_and();
-				break;
-			case Instructions::OR:
-				bitwise_or();
-				break;
-			case Instructions::XOR:
-				bitwise_xor();
-				break;
-			case Instructions::NOT:
-				bitwise_not();
 				break;
 			case Instructions::JZ:
 				jz();
@@ -307,11 +202,9 @@ namespace Caribou
 			case Instructions::RESTORE_STACK:
 				restore_stack();
 				break;
-			case Instructions::STORE:
-				store();
+			case Instructions::ADD_SYMBOL:
 				break;
-			case Instructions::LOAD:
-				load();
+			case Instructions::FIND_SYMBOL:
 				break;
 		}
 		next();
