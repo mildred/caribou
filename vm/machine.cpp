@@ -30,6 +30,7 @@
 #include "mailbox.hpp"
 #include "integer.hpp"
 #include "array.hpp"
+#include "string.hpp"
 
 namespace Caribou
 {
@@ -94,17 +95,19 @@ namespace Caribou
 		next();
 	}
 
-	void Machine::add_symbol(Context* ctx, std::string& str)
+	void Machine::add_symbol(Context* ctx)
 	{
-		intptr_t idx = static_cast<intptr_t>(symtab.add(str));
+		String* str = static_cast<String*>(STACK(ctx).pop());
+		size_t idx = symtab.add(str);
 		Integer* index = new Integer(idx);
 		STACK(ctx).push(index);
-		next(8);
+		next();
 	}
 
-	void Machine::find_symbol(Context* ctx, std::string& str)
+	void Machine::find_symbol(Context* ctx)
 	{
-		intptr_t idx = static_cast<intptr_t>(symtab.lookup(str));
+		String* str = static_cast<String*>(STACK(ctx).pop());
+		size_t idx = symtab.lookup(str);
 		if(idx != SYMTAB_NOT_FOUND)
 		{
 			Integer* index = new Integer(idx);
@@ -112,7 +115,7 @@ namespace Caribou
 		}
 		else
 			STACK(ctx).push(new Integer(0)); // XXX: Push nil instead
-		next(8);
+		next();
 	}
 
 	void Machine::jz(Context* ctx)
@@ -134,12 +137,24 @@ namespace Caribou
 		Array* array = new Array(tmp, count->c_int());
 	}
 
+	void Machine::push_new_context(Context* old, Object* receiver, Object* sender, Message* message)
+	{
+		Context* c = new Context();
+		c->previous = old;
+		c->sender = sender;
+		c->target = receiver;
+		c->receiver = receiver;
+		c->ip = get_instruction_pointer();
+		rstack.push(c);
+	}
+
 	void Machine::send(Context* ctx)
 	{
 		Message* message = static_cast<Message*>(STACK(ctx).pop());
 		Object* sender = static_cast<Object*>(STACK(ctx).pop());
 		Object* receiver = static_cast<Object*>(STACK(ctx).pop());
 
+		push_new_context(ctx, receiver, sender, message);
 		receiver->mailbox->deliver(*message);
 	}
 

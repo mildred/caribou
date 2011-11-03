@@ -34,6 +34,7 @@
 namespace Caribou
 {
 	class Continuation;
+	class Message;
 
 	class Machine
 	{
@@ -52,8 +53,10 @@ namespace Caribou
 		void jz(Context*);
 		void make_array(Context*);
 		void send(Context*);
-		void add_symbol(Context*, std::string&);
-		void find_symbol(Context*, std::string&);
+		void add_symbol(Context*);
+		void find_symbol(Context*);
+
+		void push_new_context(Context*, Object*, Object*, Message*);
 
 		void run();
 		void process(Context*, uint8_t, Object*);
@@ -73,6 +76,8 @@ namespace Caribou
 		}
 
 		uint8_t*& get_instruction_memory() { return instruction_memory; }
+
+		Context* get_current_context() { return rstack.top(); }
 
 	protected:
 		void next(uint64_t val = 1) { ip += val; }
