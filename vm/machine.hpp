@@ -60,11 +60,8 @@ namespace Caribou
 
 		void compile(const int, const uintptr_t&);
 
-		Stack<uintptr_t>& get_data_stack() { return dstack; }
-		Stack<uintptr_t>* copy_data_stack() { return new(this) Stack<uintptr_t>(dstack); }
-		void set_data_stack(Stack<uintptr_t>* ds) { dstack = *ds; }
 		Stack<Context*>& get_return_stack() { return rstack; }
-		Stack<Context*>* copy_return_stack() { return new(this) Stack<Context*>(rstack); }
+		Stack<Context*>* copy_return_stack() { return new Stack<Context*>(rstack); }
 		void set_return_stack(Stack<Context*>* rs) { rstack = *rs; }
 		uintptr_t get_instruction_pointer() { return ip; }
 		void set_instruction_pointer(uintptr_t val) { ip = val; }
@@ -81,7 +78,6 @@ namespace Caribou
 		void next(uint64_t val = 1) { ip += val; }
 
 	private:
-		Stack<uintptr_t>           dstack;
 		Stack<Context*>            rstack;
 		std::vector<Continuation*> continuations;
 		uint8_t*                   instruction_memory;
