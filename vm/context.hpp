@@ -25,6 +25,7 @@
 #define __CARIBOU__CONTEXT_HPP__
 
 #include <sys/types.h>
+#include <stdint.h>
 #include "stack.hpp"
 
 namespace Caribou
@@ -37,6 +38,7 @@ namespace Caribou
 		Object*         sender;
 		Object*         target;
 		size_t          sp;
+		uintptr_t       ip;
 		//CompiledMethod* cm;
 		Object*         receiver;
 		Stack<Object*>  stk;
