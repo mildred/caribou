@@ -44,6 +44,14 @@ namespace Caribou
 		return it->second;
 	}
 
+	size_t Symtab::lookup_or_add(const std::string& str)
+	{
+		size_t idx = lookup(str);
+		if(idx == SYMTAB_NOT_FOUND)
+			idx = add(str);
+		return idx;
+	}
+
 	std::string Symtab::lookup(const uintptr_t idx)
 	{
 		return mapping.at(idx);

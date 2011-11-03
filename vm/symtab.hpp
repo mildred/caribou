@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "string.hpp"
 
 // This is INT32_MAX instead of INTPTR_MAX due to ILP64 systems who define
 // size_t to be 4 bytes instead of following the size of a pointer. One
@@ -42,8 +43,12 @@ namespace Caribou
 	{
 	public:
 		size_t add(std::string str);
+		size_t add(String* str) { return add(str->stringValue()); }
 
 		size_t lookup(const std::string& str);
+		size_t lookup(String* str) { return lookup(str->stringValue()); }
+		size_t lookup_or_add(const std::string& str);
+		size_t lookup_or_add(String* str) { return lookup(str->stringValue()); }
 		std::string lookup(const uintptr_t idx);
 
 		size_t size();
