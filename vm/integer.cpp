@@ -21,27 +21,17 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__INTEGER_HPP__
-#define __CARIBOU__INTEGER_HPP__
-
-#include <stdint.h>
-#include "object.hpp"
+#include "integer.hpp"
+#include "machine.hpp"
 
 namespace Caribou
 {
-	class Integer : public Object
+	const std::string Integer::object_name()
 	{
-	public:
-		Integer(intptr_t i) : value(i) {}
+		return "Integer";
+	}
 
-		virtual const std::string object_name();
-		virtual void bytecode(Machine*);
-
-		intptr_t c_int() { return value; }
-
-	private:
-		intptr_t value;
-	};
+	void Integer::bytecode(Machine* m)
+	{
+	}
 }
-
-#endif /* !__CARIBOU__INTEGER_HPP__ */
