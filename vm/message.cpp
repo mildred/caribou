@@ -22,8 +22,16 @@
  */
 
 #include "message.hpp"
+#include "machine.hpp"
 
 namespace Caribou
 {
+	const std::string Message::object_name()
+	{
+		return "Message";
+	}
 
+	void Message::bytecode(Machine* m)
+	{
+	}
 }
