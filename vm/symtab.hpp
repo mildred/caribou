@@ -29,7 +29,10 @@
 #include <vector>
 #include <map>
 
-#define SYMTAB_NOT_FOUND 0xFFFFFFFE
+// This is INT32_MAX instead of INTPTR_MAX due to ILP64 systems who define
+// size_t to be 4 bytes instead of following the size of a pointer. One
+// platform that pulls this bait and switch is 64-bit Windows.
+#define SYMTAB_NOT_FOUND INT32_MAX
 
 namespace Caribou
 {
