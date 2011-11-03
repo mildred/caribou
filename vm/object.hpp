@@ -34,6 +34,7 @@ namespace Caribou
 	class Object;
 	class Message;
 	class Mailbox;
+	class Machine;
 
 	typedef std::map<std::string, Object*> SlotTable;
 
@@ -78,6 +79,13 @@ namespace Caribou
 		SlotTable& slot_table() { return slots; }
 
 		virtual void walk();
+
+		// Our object name.
+		virtual const std::string object_name();
+
+		// This method gets called during bytecode generation. Subclasses must implement
+		// this method.
+		virtual void bytecode(Machine*);
 
 		// The mailbox is where messages come into. This allows us to decouple
 		// message sending and message receiving.

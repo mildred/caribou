@@ -26,6 +26,8 @@
 #include <vector>
 #include "object.hpp"
 #include "mailbox.hpp"
+#include "machine.hpp"
+#include "integer.hpp"
 
 namespace Caribou
 {
@@ -73,23 +75,6 @@ namespace Caribou
 		traits.push_back(trait);
 	}
 
-	void Object::receive()
-	{
-		Message msg;
-		if(mailbox->receive(msg))
-		{
-		}
-	}
-
-	void Object::walk()
-	{
-		for(auto v : slots)
-			collector->shade(v.second);
-
-		for(auto t : traits)
-			collector->shade(t);
-	}
-
 	// We don't want any conflicts. Returns true if we already implement name.
 	bool Object::implements(const std::string& name, Object*& obj)
 	{
@@ -113,5 +98,35 @@ namespace Caribou
 			return true;
 
 		return false;
+	}
+
+	void Object::receive()
+	{
+		Message msg;
+		if(mailbox->receive(msg))
+		{
+		}
+	}
+
+	void Object::walk()
+	{
+		for(auto v : slots)
+			collector->shade(v.second);
+
+		for(auto t : traits)
+			collector->shade(t);
+	}
+
+	const std::string Object::object_name()
+	{
+		return "Object";
+	}
+
+	void Object::bytecode(Machine* m)
+	{
+		Context* ctx = m->get_current_context();
+		m->find_symbol(ctx);
+		m->push(ctx, new String("clone"));
+		m->send(ctx);
 	}
 }
