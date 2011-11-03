@@ -21,28 +21,16 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__ARRAY_HPP__
-#define __CARIBOU__ARRAY_HPP__
-
-#include <sys/types.h>
-#include "object.hpp"
+#include "array.hpp"
 
 namespace Caribou
 {
-	class Machine;
-
-	class Array : public Object
+	const std::string Array::object_name()
 	{
-	public:
-		Array(Object** ary, size_t len) : data(ary), count(len) {}
+		return "Array";
+	}
 
-		virtual const std::string object_name();
-		virtual void bytecode(Machine*);
-
-	private:
-		Object** data;
-		size_t   count;
-	};
+	void Array::bytecode(Machine* m)
+	{
+	}
 }
-
-#endif /* !__CARIBOU__ARRAY_HPP__ */
