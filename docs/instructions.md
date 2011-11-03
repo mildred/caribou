@@ -42,13 +42,12 @@ the file `instructions.hpp`. The currently defined instructions are:
  -  **RESTORE_STACK**: Pop a continuation pointer from the data stack and
     restore the stacks from this continuation.
 
- -  **ADD_SYMBOL**: not specified. Insert a symbol in the symbol table and push
-    on the data stack its identifier. Skip the next 7 bytes in instruction
-    memory.
+ -  **ADD_SYMBOL**: Insert a symbol in the symbol table and push on the data stack
+    its identifier.
 
- -  **FIND_SYMBOL**: not specified. Lookup a symbol in the symbol table and if
-    the symbol is found, push its identifier on the data stack. If it is not
-    found, pushes nil onto the stack.
+ -  **FIND_SYMBOL**: Lookup a symbol in the symbol table and if the symbol is found,
+    push its identifier on the data stack. If it is not found, pushes nil onto the
+    stack.
 
  -  **JZ**: Jump on zero. Pop an instruction pointer and a condition from
     the data stack. If the condition is zero, jusp to the specified address.
