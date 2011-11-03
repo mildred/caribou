@@ -28,6 +28,8 @@
 #include "gc.hpp"
 #include "object.hpp"
 #include "mailbox.hpp"
+#include "integer.hpp"
+#include "array.hpp"
 
 namespace Caribou
 {
@@ -45,107 +47,117 @@ namespace Caribou
 		delete[] instruction_memory;
 	}
 
-	void Machine::push(const uintptr_t& val)
+	void Machine::push(Context* ctx, Object* val)
 	{
-		dstack.push(val);
+		ctx->stk.push(val);
 		next();
 	}
 
-	uintptr_t Machine::pop()
+	Object* Machine::pop(Context* ctx)
 	{
 		next();
-		return dstack.pop();
+		return ctx->stk.pop();
 	}
 
-	void Machine::ret()
+	void Machine::ret(Context* ctx)
 	{
-		// XXX: This is completely broken, as are most of these instructions now.
-		Context* r = rstack.pop();
-		ip = r->ip;
-		delete r;
+		Object* r = ctx->stk.pop();
+		ip = ctx->ip;
+		ctx->previous->stk.push(r);
 	}
 
-	void Machine::dup()
+	void Machine::dup(Context* ctx)
 	{
-		uintptr_t a = dstack.pop();
-		dstack.push(a);
-		dstack.push(a);
-		next();
-	}
-
-	void Machine::swap()
-	{
-		uintptr_t a = dstack.pop();
-		uintptr_t b = dstack.pop();
-		dstack.push(a);
-		dstack.push(b);
+		Object* a = ctx->stk.pop();
+		ctx->stk.push(a);
+		ctx->stk.push(a);
 		next();
 	}
 
-	void Machine::rot3()
+	void Machine::swap(Context* ctx)
 	{
-		uintptr_t a = dstack.pop();
-		uintptr_t b = dstack.pop();
-		uintptr_t c = dstack.pop();
-		dstack.push(b);
-		dstack.push(c);
-		dstack.push(a);
+		Object* a = ctx->stk.pop();
+		Object* b = ctx->stk.pop();
+		ctx->stk.push(a);
+		ctx->stk.push(b);
 		next();
 	}
 
-	void Machine::add_symbol(std::string* str)
+	void Machine::rot3(Context* ctx)
 	{
-		size_t idx = symtab.add(*str);
-		dstack.push((uintptr_t)idx);
+		Object* a = ctx->stk.pop();
+		Object* b = ctx->stk.pop();
+		Object* c = ctx->stk.pop();
+		ctx->stk.push(b);
+		ctx->stk.push(c);
+		ctx->stk.push(a);
+		next();
+	}
+
+	void Machine::add_symbol(Context* ctx, std::string& str)
+	{
+		intptr_t idx = static_cast<intptr_t>(symtab.add(str));
+		Integer* index = new Integer(idx);
+		// TODO: Add to GC
+		ctx->stk.push(index);
 		next(8);
-		delete str;
 	}
 
-	void Machine::find_symbol(std::string* str)
+	void Machine::find_symbol(Context* ctx, std::string& str)
 	{
-		size_t idx = symtab.lookup(*str);
+		intptr_t idx = static_cast<intptr_t>(symtab.lookup(str));
 		if(idx != SYMTAB_NOT_FOUND)
-			dstack.push((uintptr_t)idx);
+		{
+			Integer* index = new Integer(idx);
+			// TODO: Add to GC
+			ctx->stk.push(index);
+		}
 		else
-			dstack.push(0); // XXX: Push nil instead, when you know, nil exists
+			ctx->stk.push(new Integer(0)); // XXX: Push nil instead
 		next(8);
-		delete str;
 	}
 
-	void Machine::jz()
+	void Machine::jz(Context* ctx)
 	{
-		uintptr_t a = dstack.pop();
-		uintptr_t c = dstack.pop();
-		if(c == 0)
-			ip = a;
+		Integer* a = static_cast<Integer*>(ctx->stk.pop());
+		Integer* c = static_cast<Integer*>(ctx->stk.pop());
+		if(c->c_int() == 0)
+			ip = a->c_int();
 		else
 			next();
 	}
 
-	void Machine::send()
+	void Machine::make_array(Context* ctx)
 	{
-		Message* message = reinterpret_cast<Message*>(dstack.pop());
-		Object* sender = reinterpret_cast<Object*>(dstack.pop());
-		Object* receiver = reinterpret_cast<Object*>(dstack.pop());
+		Integer* count = static_cast<Integer*>(ctx->stk.pop());
+		Object* tmp[count->c_int()];
+		for(uintptr_t i = 0; i < count->c_int(); i++)
+			tmp[i] = ctx->stk.pop();
+		Array* array = new Array(tmp, count->c_int());
+	}
+
+	void Machine::send(Context* ctx)
+	{
+		Message* message = static_cast<Message*>(ctx->stk.pop());
+		Object* sender = static_cast<Object*>(ctx->stk.pop());
+		Object* receiver = static_cast<Object*>(ctx->stk.pop());
 
 		receiver->mailbox->deliver(*message);
 	}
 
-	void Machine::save_stack()
+	void Machine::save_stack(Context* ctx)
 	{
-		uintptr_t index = 0;
-		Continuation* c = new(this) Continuation(*this);
-		c->save_current_stacks();
-		dstack.push((uintptr_t)c);
+		Continuation* c = new Continuation(*this);
+		c->save_current_stack();
+		ctx->stk.push(reinterpret_cast<Object*>(c));
 		next();
 	}
 
-	void Machine::restore_stack()
+	void Machine::restore_stack(Context* ctx)
 	{
-		uintptr_t addr = dstack.pop();
-		Continuation* c = (Continuation*)memory[addr];
-		c->restore_stacks();
-		delete c;
+		Integer* addr = static_cast<Integer*>(ctx->stk.pop());
+		Continuation* c = (Continuation*)memory[addr->c_int()];
+		c->restore_stack();
 	}
 
 	void Machine::run()
@@ -154,6 +166,8 @@ namespace Caribou
 		{
 			uint8_t byte = instruction_memory[idx];
 			uint64_t operand = 0;
+			Object* oper;
+
 			if(byte == Instructions::PUSH)
 			{
 				operand = (uint64_t)instruction_memory[idx + 1];
@@ -161,11 +175,13 @@ namespace Caribou
 					endian_swap(operand);
 				idx += sizeof(uint64_t);
 			}
-			process(byte, operand);
+
+			oper = reinterpret_cast<Object*>(operand);
+			process(rstack.top(), byte, oper);
 		}
 	}
 
-	void Machine::process(uint8_t instr, uintptr_t val)
+	void Machine::process(Context* ctx, uint8_t instr, Object* val)
 	{
 		switch(instr)
 		{
@@ -173,34 +189,38 @@ namespace Caribou
 				next();
 				break;
 			case Instructions::PUSH:
-				push(val);
+			{
+				push(ctx, val);
 				break;
+			}
 			case Instructions::POP:
-				pop();
+				pop(ctx);
 				break;
 			case Instructions::RET:
-				popip();
+				ret(ctx);
 				break;
 			case Instructions::DUP:
-				dup();
+				dup(ctx);
 				break;
 			case Instructions::SWAP:
-				swap();
+				swap(ctx);
 				break;
 			case Instructions::ROT3:
-				rot3();
+				rot3(ctx);
 				break;
 			case Instructions::JZ:
-				jz();
+				jz(ctx);
+				break;
+			case Instructions::MAKE_ARRAY:
 				break;
 			case Instructions::SEND:
-				send();
+				send(ctx);
 				break;
 			case Instructions::SAVE_STACK:
-				save_stack();
+				save_stack(ctx);
 				break;
 			case Instructions::RESTORE_STACK:
-				restore_stack();
+				restore_stack(ctx);
 				break;
 			case Instructions::ADD_SYMBOL:
 				break;

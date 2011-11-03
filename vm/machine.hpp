@@ -41,21 +41,22 @@ namespace Caribou
 		Machine();
 		~Machine();
 
-		void push(const uintptr_t&);
-		uintptr_t pop();
-		void ret();
-		void dup();
-		void swap();
-		void rot3();
-		void save_stack();
-		void restore_stack();
-		void jz();
-		void send();
-		void add_symbol(std::string*);
-		void find_symbol(std::string*);
+		void push(Context*, Object*);
+		Object* pop(Context*);
+		void ret(Context*);
+		void dup(Context*);
+		void swap(Context*);
+		void rot3(Context*);
+		void save_stack(Context*);
+		void restore_stack(Context*);
+		void jz(Context*);
+		void make_array(Context*);
+		void send(Context*);
+		void add_symbol(Context*, std::string&);
+		void find_symbol(Context*, std::string&);
 
 		void run();
-		void process(uint8_t, uintptr_t);
+		void process(Context*, uint8_t, Object*);
 
 		void compile(const int, const uintptr_t&);
 

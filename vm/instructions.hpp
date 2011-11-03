@@ -42,6 +42,7 @@ namespace Caribou
 			ADD_SYMBOL,
 			FIND_SYMBOL,
 			JZ,
+			MAKE_ARRAY,
 			SEND
 		};
 	};
