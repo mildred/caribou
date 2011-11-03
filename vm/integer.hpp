@@ -21,33 +21,24 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__STATE_MACHINE_HPP__
-#define __CARIBOU__STATE_MACHINE_HPP__
+#ifndef __CARIBOU__INTEGER_HPP__
+#define __CARIBOU__INTEGER_HPP__
+
+#include <stdint.h>
+#include "object.hpp"
 
 namespace Caribou
 {
-	class State;
-
-	class StateMachine
+	class Integer : public Object
 	{
-	protected:
-		State* current;
-
 	public:
-		StateMachine();
-		~StateMachine();
+		Integer(intptr_t i) : value(i) {}
 
-		inline void set_current(State* s)
-		{
-			current = s;
-		}
-
-		inline void transition(State* other);
-		void run();
+		intptr_t c_int() { return value; }
 
 	private:
-		bool running;
+		intptr_t value;
 	};
 }
 
-#endif /* !__CARIBOU__STATE_MACHINE_HPP__ */
+#endif /* !__CARIBOU__INTEGER_HPP__ */

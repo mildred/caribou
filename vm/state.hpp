@@ -56,12 +56,14 @@ namespace Caribou
 			did_leave(machine);
 			other->will_enter(machine);
 			other->did_enter(machine);
+			other->run(machine);
 		}
 
-		virtual void will_enter(StateMachine* machine) {}
-		virtual void did_enter(StateMachine* machine) {}
-		virtual void will_leave(StateMachine* machine) {}
-		virtual void did_leave(StateMachine* machine) {}
+		virtual void will_enter(StateMachine* machine) = 0;
+		virtual void did_enter(StateMachine* machine) = 0;
+		virtual void run(StateMachine* machine) = 0;
+		virtual void will_leave(StateMachine* machine) = 0;
+		virtual void did_leave(StateMachine* machine) = 0;
 
 	private:
 		tthread::mutex mutex;

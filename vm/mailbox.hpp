@@ -21,18 +21,65 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__ACTIVATION_RECORD_HPP__
-#define __CARIBOU__ACTIVATION_RECORD_HPP__
+#ifndef __CARIBOU__MAILBOX_HPP__
+#define __CARIBOU__MAILBOX_HPP__
 
-#include <stdint.h>
+#include "Message.hpp"
 
 namespace Caribou
 {
-	struct ActivationRecord
+	// Mailbox is a lock-free queue safe for up to two concurrent threads manipulating
+	// it so long as one is delivering and the other is receiving.
+	class Mailbox
 	{
-		uintptr_t ip;
-		uintptr_t locals_index;
+	private:
+		struct Node {
+			Node(const Message& msg) : message(msg), next(nullptr) {}
+			const Message& message;
+			Node* next;
+		};
+		Node* first;
+		Node* divider;
+		Node* last;
+
+		void trim_to(Node* upto)
+		{
+			while(first != upto)
+			{
+				Node* tmp = first;
+				first = tmp->next;
+				delete tmp;
+			}
+		}
+
+	public:
+		Mailbox()
+		{
+			Message msg = Message();
+			first = divider = last = new Node(msg);
+		}
+
+		~Mailbox()
+		{
+			trim_to(nullptr);
+		}
+
+		void deliver(const Message& msg)
+		{
+			last->next = new Node(msg);
+			trim_to(divider);
+		}
+
+		bool receive(Message& result)
+		{
+			if(divider != last)
+			{
+				result = divider->next->message;
+				return true;
+			}
+			return false;
+		}
 	};
 }
 
-#endif /* !__CARIBOU__ACTIVATION_RECORD_HPP__ */
+#endif /* !__CARIBOU__MAILBOX_HPP__ */

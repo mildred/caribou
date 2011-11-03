@@ -27,16 +27,26 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <queue>
 #include "gc.hpp"
 
 namespace Caribou
 {
 	class Object;
 	class Message;
+	class Mailbox;
 
 	typedef std::map<std::string, Object*> SlotTable;
-	typedef std::queue<Message*>           Mailbox;
+
+	class SlotExistsError
+	{
+	private:
+		std::string string;
+		Object*     offender;
+
+	public:
+		SlotExistsError(std::string s, Object* obj) : string(s), offender(obj) {}
+		const std::string& message() const { return string; }
+	};
 
 	class Object : public GCObject
 	{
@@ -46,10 +56,6 @@ namespace Caribou
 		Object*              prev;
 		unsigned int         colour:2;
 
-		// The mailbox is where messages come into. This allows us to decouple
-		// message sending and message receiving.
-		Mailbox              mailbox;
-
 		// The slot table is our local container to hold slot definitions.
 		SlotTable            slots;
 
@@ -57,18 +63,28 @@ namespace Caribou
 		std::vector<Object*> traits;
 
 	public:
-		Object() : mailbox(), slots(), traits() { }
+		Object();
+		~Object();
 
 		void add_slot(const std::string, Object*);
 		void remove_slot(const std::string&);
 		void add_trait(Object*);
 
-		SlotTable* copy_slot_table() { return new SlotTable(slots); }
+		// Receives a message. Messages dispatched to this object should already be
+		// in the queue. Therefore, this method pops an item off, and begins the
+		// lookup process.
+		void receive();
+
+		SlotTable& slot_table() { return slots; }
 
 		virtual void walk();
 
+		// The mailbox is where messages come into. This allows us to decouple
+		// message sending and message receiving.
+		Mailbox*             mailbox;
+
 	private:
-		bool implements(const std::string&);
+		bool implements(const std::string&, Object*& obj);
 	};
 }
 

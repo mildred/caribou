@@ -25,9 +25,21 @@
 #include <map>
 #include <vector>
 #include "object.hpp"
+#include "mailbox.hpp"
 
 namespace Caribou
 {
+	extern GarbageCollector* collector;
+
+	Object::Object() : mailbox(new Mailbox()), slots(), traits()
+	{
+	}
+
+	Object::~Object()
+	{
+		delete mailbox;
+	}
+
 	void Object::add_slot(const std::string name, Object* value)
 	{
 		slots.insert(std::pair<std::string, Object*>(name, value));
@@ -35,41 +47,64 @@ namespace Caribou
 
 	void Object::remove_slot(const std::string& name)
 	{
+		// DISCUSS: Should this be greedy or non-greedy? I.e., currently, we perform this algorithm:
+		//          1. Look in our current slot table for a name
+		//          2. Remove it.
+		//
+		// What if the slot you want to remove is in a trait? Now we can't just go removing it from the
+		// trait, what about other objects that depend on it? But, what we can do, is copy that trait,
+		// install that copy in place of the original in this objects trait list only.
+		//
+		// Should we implement it this way?
 		slots.erase(name);
 	}
 
 	void Object::add_trait(Object* trait)
 	{
-		// TODO: Logic here to check the union of all the traits doesn't contain
-		// any slots that this one might be trying to bring in. If there is a
-		// conflict, throw an exception.
+		for(auto p : trait->slot_table())
+		{
+			Object* result;
+
+			if(implements(p.first, result))
+				throw SlotExistsError("Conflict: Slot '" + p.first + "' found on an existing trait.", result);
+		}
+
 		traits.push_back(trait);
 	}
 
-	void walk()
+	void Object::receive()
 	{
-		// TODO: Walk our children. This is part of the GC.
+		Message msg;
+		if(mailbox->receive(msg))
+		{
+		}
+	}
+
+	void Object::walk()
+	{
+		for(auto v : slots)
+			collector->shade(v.second);
+
+		for(auto t : traits)
+			collector->shade(t);
 	}
 
 	// We don't want any conflicts. Returns true if we already implement name.
-	bool Object::implements(const std::string& name)
+	bool Object::implements(const std::string& name, Object*& obj)
 	{
-		std::vector<Object*>::iterator traitsIter;
 		SlotTable::iterator it;
 
-		for(traitsIter = traits.begin(); traitsIter != traits.end(); traitsIter++)
+		for(auto t : traits)
 		{
 			// When we find that one of our traits already implements a given slot,
 			// we should through an exception.
-			SlotTable* st = (*traitsIter)->copy_slot_table();
-			it = st->find(name);
-			if(it != st->end())
+			SlotTable& st = t->slot_table();
+			it = st.find(name);
+			if(it != st.end())
 			{
-				delete st;
+				obj = t;
 				return true;
 			}
-			else
-				delete st;
 		}
 
 		it = slots.find(name);

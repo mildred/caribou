@@ -29,7 +29,7 @@
 
 namespace Caribou
 {
-	struct ActivationRecord;
+	struct Context;
 
 	/* Our continuations are implemented by saving the contents of our call stack onto the heap.
 	   They are also per virtual core, meaning you must pass a machine in when you create the
@@ -40,29 +40,25 @@ namespace Caribou
 		Continuation(Machine& m) : machine(m) { }
 		~Continuation()
 		{
-			delete saved_rstack;
-			delete saved_dstack;
+			delete saved_stack;
 		}
 
-		void save_current_stacks()
+		void save_current_stack()
 		{
-			saved_dstack = machine.copy_data_stack();
-			saved_rstack = machine.copy_return_stack();
-			saved_ip     = machine.get_instruction_pointer();
+			saved_stack = machine.copy_return_stack();
+			saved_ip    = machine.get_instruction_pointer();
 		}
 
-		void restore_stacks()
+		void restore_stack()
 		{
-			machine.set_data_stack(saved_dstack);
-			machine.set_return_stack(saved_rstack);
+			machine.set_return_stack(saved_stack);
 			machine.set_instruction_pointer(saved_ip);
 		}
 
 	private:
-		Stack<uintptr_t>*         saved_dstack;
-		Stack<ActivationRecord*>* saved_rstack;
-		uintptr_t                 saved_ip;
-		Machine&                  machine;
+		Stack<Context*>* saved_stack;
+		uintptr_t        saved_ip;
+		Machine&         machine;
 	};
 }
 

@@ -21,33 +21,28 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__STATE_MACHINE_HPP__
-#define __CARIBOU__STATE_MACHINE_HPP__
+#ifndef __CARIBOU__CONTEXT_HPP__
+#define __CARIBOU__CONTEXT_HPP__
+
+#include <sys/types.h>
+#include <stdint.h>
+#include "stack.hpp"
 
 namespace Caribou
 {
-	class State;
+	class Object;
 
-	class StateMachine
+	struct Context
 	{
-	protected:
-		State* current;
-
-	public:
-		StateMachine();
-		~StateMachine();
-
-		inline void set_current(State* s)
-		{
-			current = s;
-		}
-
-		inline void transition(State* other);
-		void run();
-
-	private:
-		bool running;
+		Context*        previous;
+		Object*         sender;
+		Object*         target;
+		size_t          sp;
+		uintptr_t       ip;
+		//CompiledMethod* cm;
+		Object*         receiver;
+		Stack<Object*>  stk;
 	};
 }
 
-#endif /* !__CARIBOU__STATE_MACHINE_HPP__ */
+#endif /* !__CARIBOU__CONTEXT_HPP__ */

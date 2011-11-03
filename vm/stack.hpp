@@ -39,6 +39,12 @@ namespace Caribou
 			store.push_back(val);
 		}
 
+		T top()
+		{
+			T r = store.back();
+			return r;
+		}
+
 		T pop()
 		{
 			T r = store.back();
