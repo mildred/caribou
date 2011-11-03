@@ -21,42 +21,23 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__STACK_HPP__
-#define __CARIBOU__STACK_HPP__
+#ifndef __CARIBOU__ARRAY_HPP__
+#define __CARIBOU__ARRAY_HPP__
 
-#include <vector>
+#include <sys/types.h>
+#include "object.hpp"
 
 namespace Caribou
 {
-	class Machine;
-
-	template<typename T>
-	class Stack
+	class Array : public Object
 	{
 	public:
-		void push(const T& val)
-		{
-			store.push_back(val);
-		}
-
-		T top()
-		{
-			T r = store.back();
-			return r;
-		}
-
-		T pop()
-		{
-			T r = store.back();
-			store.pop_back();
-			return r;
-		}
-
-		std::vector<T>& get_store() { return store; }
+		Array(Object** ary, size_t len) : data(ary), count(len) {}
 
 	private:
-		std::vector<T> store;
+		Object** data;
+		size_t   count;
 	};
 }
 
-#endif /* !__CARIBOU__STACK_HPP__ */
+#endif /* !__CARIBOU__ARRAY_HPP__ */

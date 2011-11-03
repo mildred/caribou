@@ -21,42 +21,24 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__STACK_HPP__
-#define __CARIBOU__STACK_HPP__
+#ifndef __CARIBOU__INTEGER_HPP__
+#define __CARIBOU__INTEGER_HPP__
 
-#include <vector>
+#include <stdint.h>
+#include "object.hpp"
 
 namespace Caribou
 {
-	class Machine;
-
-	template<typename T>
-	class Stack
+	class Integer : public Object
 	{
 	public:
-		void push(const T& val)
-		{
-			store.push_back(val);
-		}
+		Integer(intptr_t i) : value(i) {}
 
-		T top()
-		{
-			T r = store.back();
-			return r;
-		}
-
-		T pop()
-		{
-			T r = store.back();
-			store.pop_back();
-			return r;
-		}
-
-		std::vector<T>& get_store() { return store; }
+		intptr_t c_int() { return value; }
 
 	private:
-		std::vector<T> store;
+		intptr_t value;
 	};
 }
 
-#endif /* !__CARIBOU__STACK_HPP__ */
+#endif /* !__CARIBOU__INTEGER_HPP__ */
