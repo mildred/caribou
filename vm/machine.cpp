@@ -49,48 +49,48 @@ namespace Caribou
 
 	void Machine::push(Context* ctx, Object* val)
 	{
-		ctx->stk.push(val);
+		STACK(ctx).push(val);
 		next();
 	}
 
 	Object* Machine::pop(Context* ctx)
 	{
 		next();
-		return ctx->stk.pop();
+		return STACK(ctx).pop();
 	}
 
 	void Machine::ret(Context* ctx)
 	{
-		Object* r = ctx->stk.pop();
+		Object* r = STACK(ctx).pop();
 		ip = ctx->ip;
-		ctx->previous->stk.push(r);
+		STACK(ctx->previous).push(r);
 	}
 
 	void Machine::dup(Context* ctx)
 	{
-		Object* a = ctx->stk.pop();
-		ctx->stk.push(a);
-		ctx->stk.push(a);
+		Object* a = STACK(ctx).pop();
+		STACK(ctx).push(a);
+		STACK(ctx).push(a);
 		next();
 	}
 
 	void Machine::swap(Context* ctx)
 	{
-		Object* a = ctx->stk.pop();
-		Object* b = ctx->stk.pop();
-		ctx->stk.push(a);
-		ctx->stk.push(b);
+		Object* a = STACK(ctx).pop();
+		Object* b = STACK(ctx).pop();
+		STACK(ctx).push(a);
+		STACK(ctx).push(b);
 		next();
 	}
 
 	void Machine::rot3(Context* ctx)
 	{
-		Object* a = ctx->stk.pop();
-		Object* b = ctx->stk.pop();
-		Object* c = ctx->stk.pop();
-		ctx->stk.push(b);
-		ctx->stk.push(c);
-		ctx->stk.push(a);
+		Object* a = STACK(ctx).pop();
+		Object* b = STACK(ctx).pop();
+		Object* c = STACK(ctx).pop();
+		STACK(ctx).push(b);
+		STACK(ctx).push(c);
+		STACK(ctx).push(a);
 		next();
 	}
 
@@ -98,7 +98,7 @@ namespace Caribou
 	{
 		intptr_t idx = static_cast<intptr_t>(symtab.add(str));
 		Integer* index = new Integer(idx);
-		ctx->stk.push(index);
+		STACK(ctx).push(index);
 		next(8);
 	}
 
@@ -108,17 +108,17 @@ namespace Caribou
 		if(idx != SYMTAB_NOT_FOUND)
 		{
 			Integer* index = new Integer(idx);
-			ctx->stk.push(index);
+			STACK(ctx).push(index);
 		}
 		else
-			ctx->stk.push(new Integer(0)); // XXX: Push nil instead
+			STACK(ctx).push(new Integer(0)); // XXX: Push nil instead
 		next(8);
 	}
 
 	void Machine::jz(Context* ctx)
 	{
-		Integer* a = static_cast<Integer*>(ctx->stk.pop());
-		Integer* c = static_cast<Integer*>(ctx->stk.pop());
+		Integer* a = static_cast<Integer*>(STACK(ctx).pop());
+		Integer* c = static_cast<Integer*>(STACK(ctx).pop());
 		if(c->c_int() == 0)
 			ip = a->c_int();
 		else
@@ -127,18 +127,18 @@ namespace Caribou
 
 	void Machine::make_array(Context* ctx)
 	{
-		Integer* count = static_cast<Integer*>(ctx->stk.pop());
+		Integer* count = static_cast<Integer*>(STACK(ctx).pop());
 		Object* tmp[count->c_int()];
 		for(uintptr_t i = 0; i < count->c_int(); i++)
-			tmp[i] = ctx->stk.pop();
+			tmp[i] = STACK(ctx).pop();
 		Array* array = new Array(tmp, count->c_int());
 	}
 
 	void Machine::send(Context* ctx)
 	{
-		Message* message = static_cast<Message*>(ctx->stk.pop());
-		Object* sender = static_cast<Object*>(ctx->stk.pop());
-		Object* receiver = static_cast<Object*>(ctx->stk.pop());
+		Message* message = static_cast<Message*>(STACK(ctx).pop());
+		Object* sender = static_cast<Object*>(STACK(ctx).pop());
+		Object* receiver = static_cast<Object*>(STACK(ctx).pop());
 
 		receiver->mailbox->deliver(*message);
 	}
@@ -147,13 +147,13 @@ namespace Caribou
 	{
 		Continuation* c = new Continuation(*this);
 		c->save_current_stack();
-		ctx->stk.push(reinterpret_cast<Object*>(c));
+		STACK(ctx).push(reinterpret_cast<Object*>(c));
 		next();
 	}
 
 	void Machine::restore_stack(Context* ctx)
 	{
-		Integer* addr = static_cast<Integer*>(ctx->stk.pop());
+		Integer* addr = static_cast<Integer*>(STACK(ctx).pop());
 		Continuation* c = (Continuation*)memory[addr->c_int()];
 		c->restore_stack();
 	}

@@ -28,6 +28,8 @@
 #include <stdint.h>
 #include "stack.hpp"
 
+#define STACK(ctx) (ctx->stk)
+
 namespace Caribou
 {
 	class Object;
