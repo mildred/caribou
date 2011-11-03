@@ -39,7 +39,6 @@ namespace Caribou
 		Context*        previous;
 		Object*         sender;
 		Object*         target;
-		size_t          sp;
 		uintptr_t       ip;
 		//CompiledMethod* cm;
 		Object*         receiver;
