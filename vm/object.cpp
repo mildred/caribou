@@ -33,6 +33,7 @@ namespace Caribou
 
 	Object::Object() : mailbox(new Mailbox()), slots(), traits()
 	{
+		collector->add_value(dynamic_cast<GCMarker*>(this));
 	}
 
 	Object::~Object()

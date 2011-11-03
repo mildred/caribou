@@ -98,7 +98,6 @@ namespace Caribou
 	{
 		intptr_t idx = static_cast<intptr_t>(symtab.add(str));
 		Integer* index = new Integer(idx);
-		// TODO: Add to GC
 		ctx->stk.push(index);
 		next(8);
 	}
@@ -109,7 +108,6 @@ namespace Caribou
 		if(idx != SYMTAB_NOT_FOUND)
 		{
 			Integer* index = new Integer(idx);
-			// TODO: Add to GC
 			ctx->stk.push(index);
 		}
 		else
