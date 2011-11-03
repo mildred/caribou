@@ -9,6 +9,9 @@ set(SRCS
   "gc.cpp"
   "object.cpp"
   "message.cpp"
+  "array.cpp"
+  "integer.cpp"
+  "string.cpp"
 )
 add_library(caribou SHARED ${SRCS})
 add_executable(vm "main.cpp")
