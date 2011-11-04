@@ -35,6 +35,7 @@ namespace Caribou
 	class Message;
 	class Mailbox;
 	class Machine;
+	class Context;
 
 	typedef std::map<std::string, Object*> SlotTable;
 
@@ -74,7 +75,10 @@ namespace Caribou
 		// Receives a message. Messages dispatched to this object should already be
 		// in the queue. Therefore, this method pops an item off, and begins the
 		// lookup process.
-		void receive();
+		void receive(Context*);
+
+		// Look up a slot
+		Object* lookup(const std::string str, Object*& slot_context);
 
 		SlotTable& slot_table() { return slots; }
 

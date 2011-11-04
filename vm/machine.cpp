@@ -135,6 +135,8 @@ namespace Caribou
 		for(uintptr_t i = 0; i < count->c_int(); i++)
 			tmp[i] = STACK(ctx).pop();
 		Array* array = new Array(tmp, count->c_int());
+		STACK(ctx).push(array);
+		next();
 	}
 
 	void Machine::push_new_context(Context* old, Object* receiver, Object* sender, Message* message)
@@ -154,8 +156,9 @@ namespace Caribou
 		Object* sender = static_cast<Object*>(STACK(ctx).pop());
 		Object* receiver = static_cast<Object*>(STACK(ctx).pop());
 
+		next();
 		push_new_context(ctx, receiver, sender, message);
-		receiver->mailbox->deliver(*message);
+		receiver->mailbox->deliver(get_current_context(), *message);
 	}
 
 	void Machine::save_stack(Context* ctx)

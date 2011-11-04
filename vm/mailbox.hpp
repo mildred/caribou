@@ -28,6 +28,8 @@
 
 namespace Caribou
 {
+	class Context;
+
 	// Mailbox is a lock-free queue safe for up to two concurrent threads manipulating
 	// it so long as one is delivering and the other is receiving.
 	class Mailbox
@@ -64,7 +66,7 @@ namespace Caribou
 			trim_to(nullptr);
 		}
 
-		void deliver(const Message& msg)
+		void deliver(Context* ctx, const Message& msg)
 		{
 			last->next = new Node(msg);
 			trim_to(divider);

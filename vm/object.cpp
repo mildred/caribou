@@ -100,12 +100,26 @@ namespace Caribou
 		return false;
 	}
 
-	void Object::receive()
+	void Object::receive(Context* ctx)
 	{
 		Message msg;
 		if(mailbox->receive(msg))
 		{
+			Object* slot_context;
+			lookup(msg.get_name(), slot_context);
 		}
+	}
+
+	Object* Object::lookup(const std::string str, Object*& slot_context)
+	{
+		SlotTable::iterator it = slots.find(str);
+		if(it != slots.end())
+		{
+			slot_context = this;
+			return it->second;
+		}
+
+		return NULL;
 	}
 
 	void Object::walk()
