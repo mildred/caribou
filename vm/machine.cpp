@@ -178,6 +178,9 @@ namespace Caribou
 
 	void Machine::run()
 	{
+		// TODO: Need to create a default context and push that onto the return stack before evaluating any bytecodes.
+		push_new_context(NULL, NULL/*Lobby*/, NULL/*Lobby*/, NULL/*someMessage*/);
+
 		for(uint8_t idx = 0; idx < instruction_size; idx++)
 		{
 			uint8_t byte = instruction_memory[idx];
