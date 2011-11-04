@@ -68,6 +68,13 @@ namespace Caribou
 		Object();
 		~Object();
 
+		static Object* allocate(GarbageCollector& gc, size_t size)
+		{
+			Object* obj;
+			gc_allocate(gc, size, obj);
+			return obj;
+		}
+
 		void add_slot(const std::string, Object*);
 		void remove_slot(const std::string&);
 		void add_trait(Object*);

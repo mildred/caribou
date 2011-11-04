@@ -103,4 +103,17 @@ namespace Caribou
 		blacks = whites;
 		whites = tmp;
 	}
+
+	void GCObject::walk()
+	{
+		// Nothing to do here
+	}
+
+	template<class T> void gc_allocate(GarbageCollector& gc, size_t size, T*& out)
+	{
+		out = new T();
+		GCMarker* marker = gc.new_marker();
+		marker->object = out;
+		gc.add_value(marker);
+	}
 }

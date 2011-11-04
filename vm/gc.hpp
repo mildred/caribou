@@ -31,6 +31,7 @@ namespace Caribou
 {
 	class Machine;
 	class GCObject;
+	class GarbageCollector;
 
 	enum GCColours
 	{
@@ -39,6 +40,8 @@ namespace Caribou
 		kGCColourWhite,
 		kGCColourFreed
 	};
+
+	template<class T> void gc_allocate(GarbageCollector&, size_t, T*&);
 
 	struct GCMarker
 	{
@@ -170,7 +173,14 @@ namespace Caribou
 	public:
 		GCMarker marker;
 
-		virtual void walk() = 0;
+		static GCObject* allocate(GarbageCollector& gc, size_t size)
+		{
+			GCObject* obj;
+			gc_allocate(gc, size, obj);
+			return obj;
+		}
+
+		virtual void walk();
 	};
 }
 
