@@ -28,7 +28,7 @@
 
 namespace Caribou
 {
-	struct BytecodeHeader
+	struct __attribute__((packed, aligned(1))) BytecodeHeader
 	{
 		// Magic string.
 		char     name[8];
