@@ -12,6 +12,7 @@ set(SRCS
   "array.cpp"
   "integer.cpp"
   "string.cpp"
+  "compiled_method.cpp"
 )
 add_library(caribou SHARED ${SRCS})
 add_executable(vm "main.cpp")

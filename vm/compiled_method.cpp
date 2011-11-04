@@ -21,30 +21,9 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__CONTEXT_HPP__
-#define __CARIBOU__CONTEXT_HPP__
-
-#include <sys/types.h>
-#include <stdint.h>
-#include "stack.hpp"
-
-#define STACK(ctx) (ctx->stk)
+#include "compiled_method.hpp"
 
 namespace Caribou
 {
-	class Object;
-	class CompiledMethod;
-
-	struct Context
-	{
-		Context*        previous;
-		Object*         sender;
-		Object*         target;
-		uintptr_t       ip;
-		CompiledMethod* cm;
-		Object*         receiver;
-		Stack<Object*>  stk;
-	};
+	CompiledMethod::CompiledMethod() {}
 }
-
-#endif /* !__CARIBOU__CONTEXT_HPP__ */
