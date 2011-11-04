@@ -231,6 +231,7 @@ namespace Caribou
 				jz(ctx);
 				break;
 			case Instructions::MAKE_ARRAY:
+				make_array(ctx);
 				break;
 			case Instructions::SEND:
 				send(ctx);
@@ -242,8 +243,10 @@ namespace Caribou
 				restore_stack(ctx);
 				break;
 			case Instructions::ADD_SYMBOL:
+				add_symbol(ctx);
 				break;
 			case Instructions::FIND_SYMBOL:
+				find_symbol(ctx);
 				break;
 		}
 		next();
