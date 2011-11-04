@@ -95,6 +95,9 @@ namespace Caribou
 		// message sending and message receiving.
 		Mailbox*             mailbox;
 
+	protected:
+		bool local_lookup(SlotTable&, const std::string, Object*&, Object*&);
+
 	private:
 		bool implements(const std::string&, Object*& obj);
 	};

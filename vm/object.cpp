@@ -110,13 +110,29 @@ namespace Caribou
 		}
 	}
 
-	Object* Object::lookup(const std::string str, Object*& slot_context)
+	bool Object::local_lookup(SlotTable& st, const std::string str, Object*& value, Object*& slot_context)
 	{
-		SlotTable::iterator it = slots.find(str);
-		if(it != slots.end())
+		SlotTable::iterator it = st.find(str);
+		if(it != st.end())
 		{
 			slot_context = this;
-			return it->second;
+			value = it->second;
+			return true;
+		}
+		return false;
+	}
+
+	Object* Object::lookup(const std::string str, Object*& slot_context)
+	{
+		Object* value = NULL;
+
+		if(local_lookup(slots, str, value, slot_context))
+			return value;
+
+		for(auto t : traits)
+		{
+			if(local_lookup(t->slot_table(), str, value, slot_context))
+				return value;
 		}
 
 		return NULL;
