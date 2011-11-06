@@ -25,5 +25,7 @@
 
 namespace Caribou
 {
-	CompiledMethod::CompiledMethod() {}
+	CompiledMethod::CompiledMethod() : literals()
+	{
+	}
 }
