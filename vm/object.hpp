@@ -58,6 +58,8 @@ namespace Caribou
 		Object*              prev;
 		unsigned int         colour:2;
 
+		bool                 activatable;
+
 		// The slot table is our local container to hold slot definitions.
 		SlotTable            slots;
 
@@ -86,6 +88,11 @@ namespace Caribou
 
 		// Look up a slot
 		Object* lookup(const std::string str, Object*& slot_context);
+		Object* perform(Object*, Message*);
+		Object* forward(Object*, Message*);
+		Object* activate(Object*, Object*, Message*, Object*);
+		bool is_activatable() { return activatable; }
+		void set_activatable(bool value) { activatable = value; }
 
 		SlotTable& slot_table() { return slots; }
 
@@ -103,7 +110,7 @@ namespace Caribou
 		Mailbox*             mailbox;
 
 	protected:
-		bool local_lookup(SlotTable&, const std::string, Object*&, Object*&);
+		bool local_lookup(const std::string, Object*&, Object*&);
 
 	private:
 		bool implements(const std::string&, Object*& obj);

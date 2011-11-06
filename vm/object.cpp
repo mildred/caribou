@@ -110,10 +110,10 @@ namespace Caribou
 		}
 	}
 
-	bool Object::local_lookup(SlotTable& st, const std::string str, Object*& value, Object*& slot_context)
+	bool Object::local_lookup(const std::string str, Object*& value, Object*& slot_context)
 	{
-		SlotTable::iterator it = st.find(str);
-		if(it != st.end())
+		SlotTable::iterator it = slots.find(str);
+		if(it != slots.end())
 		{
 			slot_context = this;
 			value = it->second;
@@ -126,16 +126,53 @@ namespace Caribou
 	{
 		Object* value = NULL;
 
-		if(local_lookup(slots, str, value, slot_context))
+		if(local_lookup(str, value, slot_context))
 			return value;
 
 		for(auto t : traits)
 		{
-			if(local_lookup(t->slot_table(), str, value, slot_context))
+			if(t->local_lookup(str, value, slot_context))
 				return value;
 		}
 
 		return NULL;
+	}
+
+	Object* Object::perform(Object* locals, Message* msg)
+	{
+		Object* context;
+		Object* value = lookup(msg->get_name(), context);
+
+		if(value)
+			return value->activate(this, locals, msg, context);
+
+		return forward(locals, msg);
+	}
+
+	Object* Object::activate(Object* target, Object* locals, Message* msg, Object* slot_context)
+	{
+		if(is_activatable())
+		{
+			Object* context;
+			Object* value = lookup("activate", context);
+
+			if(value)
+				value->activate(target, locals, msg, context);
+		}
+
+		return this;
+	}
+
+	Object* Object::forward(Object* locals, Message* msg)
+	{
+		Object* context;
+		Object* value = lookup("forward", context);
+
+		if(value)
+			value->activate(this, locals, msg, context);
+
+		// Raise exception
+		return this;
 	}
 
 	void Object::walk()
