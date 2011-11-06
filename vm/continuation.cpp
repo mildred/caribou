@@ -21,52 +21,30 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__CONTINUATION_HPP__
-#define __CARIBOU__CONTINUATION_HPP__
-
-#include <vector>
-#include "machine.hpp"
-#include "object.hpp"
+#include "continuation.hpp"
 
 namespace Caribou
 {
-	struct Context;
-
-	/* Our continuations are implemented by saving the contents of our call stack onto the heap.
-	   They are also per virtual core, meaning you must pass a machine in when you create the
-	   continuation. */
-	class Continuation : public Object
+	Continuation* Continuation::now(Object* locals, Message* msg)
 	{
-	public:
-		Continuation(Machine& m) : machine(m) { }
-		~Continuation()
-		{
-			delete saved_stack;
-		}
+		Continuation* now = new Continuation(machine);
+		now->save_current_stack();
+		return now;
+	}
 
-		Continuation* now(Object*, Message*);
+	const std::string Continuation::object_name()
+	{
+		return "Continuation";
+	}
 
-		void save_current_stack()
-		{
-			saved_stack = machine.copy_return_stack();
-			saved_ip    = machine.get_instruction_pointer();
-		}
+	void Continuation::bytecode(Machine* m)
+	{
+		Context* ctx = m->get_current_context();
+		m->save_stack(ctx);
+	}
 
-		void restore_stack()
-		{
-			machine.set_return_stack(saved_stack);
-			machine.set_instruction_pointer(saved_ip);
-		}
-
-		virtual const std::string object_name();
-		virtual void bytecode(Machine*);
-		virtual void walk();
-
-	private:
-		Stack<Context*>* saved_stack;
-		uintptr_t        saved_ip;
-		Machine&         machine;
-	};
+	void Continuation::walk()
+	{
+		// Walk the return stack, and all the contexts stacks too.
+	}
 }
-
-#endif /* !__CARIBOU__CONTINUATION_HPP__ */

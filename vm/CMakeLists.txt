@@ -8,6 +8,7 @@ set(SRCS
   "input_reader.cpp"
   "gc.cpp"
   "object.cpp"
+  "continuation.cpp"
   "message.cpp"
   "array.cpp"
   "integer.cpp"
