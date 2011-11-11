@@ -26,9 +26,6 @@
 
 #include <sys/types.h>
 #include <stdint.h>
-#include "stack.hpp"
-
-#define STACK(ctx) (ctx->stk)
 
 namespace Caribou
 {
@@ -41,9 +38,23 @@ namespace Caribou
 		Object*         sender;
 		Object*         target;
 		uintptr_t       ip;
+		uintptr_t       sp;
 		CompiledMethod* cm;
 		Object*         receiver;
-		Stack<Object*>  stk;
+		Object*         stk[];
+
+		inline void push(Object* val)
+		{
+			stk[sp] = val;
+			++sp;
+		}
+
+		inline Object* pop()
+		{
+			uintptr_t old_sp = sp;
+			--sp;
+			return stk[old_sp];
+		}
 	};
 }
 
