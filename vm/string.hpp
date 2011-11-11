@@ -35,7 +35,6 @@ namespace Caribou
 		String(String* str) : string(str->stringValue()) {}
 
 		virtual const std::string object_name();
-		virtual void bytecode(Machine*);
 
 		std::string stringValue() const { return string; }
 

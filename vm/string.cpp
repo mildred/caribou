@@ -30,10 +30,4 @@ namespace Caribou
 	{
 		return "String";
 	}
-
-	void String::bytecode(Machine* m)
-	{
-		Context* ctx = m->get_current_context();
-		m->push(ctx, this);
-	}
 }

@@ -35,7 +35,6 @@ namespace Caribou
 		Integer(intptr_t i) : value(i) {}
 
 		virtual const std::string object_name();
-		virtual void bytecode(Machine*);
 
 		intptr_t c_int() { return value; }
 
