@@ -21,6 +21,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#include <iostream>
 #include <fstream>
 #include <stdint.h>
 #include "input_reader.hpp"
@@ -35,6 +36,7 @@ namespace Caribou
 		std::ifstream file(filename, std::ios::binary);
 		size_t instruction_size = 0;
 		BytecodeHeader header;
+		char magic[5] = {0};
 
 		file.seekg(0, std::ios::end);
 		instruction_size = file.tellg();
@@ -45,7 +47,11 @@ namespace Caribou
 		uint8_t*& instruction_memory = machine.get_instruction_memory();
 
 		file.read((char*)&header, sizeof(BytecodeHeader));
-		file.read((char*)instruction_memory, instruction_size);
+		strncpy(magic, header.name, 4);
+		if(strcmp(magic, "CRBU") == 0)
+			file.read((char*)instruction_memory, instruction_size);
+		else
+			std::cerr << "Invalid file format." << std::endl;
 		file.close();
 
 		machine.run();

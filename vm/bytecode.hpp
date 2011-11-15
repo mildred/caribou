@@ -24,14 +24,14 @@
 #ifndef __CARIBOU__BYTECODE_HPP__
 #define __CARIBOU__BYTECODE_HPP__
 
-#define HEADER_MAGIC_NUMBER { 'C', 'a', 'r', 'i', 'b', 'o', 'u', '!' }
+#define HEADER_MAGIC_NUMBER { 'C', 'R', 'B', 'U' }
 
 namespace Caribou
 {
 	struct __attribute__((packed, aligned(1))) BytecodeHeader
 	{
 		// Magic string.
-		char     name[8];
+		char     name[4];
 
 		// The following field represents a version number of the bytecode image.
 		// It's a serial number incrementing from 0.
