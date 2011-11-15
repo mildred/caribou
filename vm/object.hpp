@@ -96,6 +96,7 @@ namespace Caribou
 
 		SlotTable& slot_table() { return slots; }
 
+		virtual void generic_object_walk();
 		virtual void walk();
 
 		// Our object name.

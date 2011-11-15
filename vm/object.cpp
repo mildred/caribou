@@ -169,17 +169,22 @@ namespace Caribou
 		if(value)
 			value->activate(this, locals, msg, context);
 
-		// Raise exception
+		// XXX: Raise exception
 		return this;
 	}
 
-	void Object::walk()
+	void Object::generic_object_walk()
 	{
 		for(auto v : slots)
 			collector->shade(v.second);
 
 		for(auto t : traits)
 			collector->shade(t);
+	}
+
+	void Object::walk()
+	{
+		generic_object_walk();
 	}
 
 	const std::string Object::object_name()
