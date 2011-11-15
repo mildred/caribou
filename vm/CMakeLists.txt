@@ -13,6 +13,7 @@ set(SRCS
   "array.cpp"
   "integer.cpp"
   "string.cpp"
+  "nil.cpp"
   "compiled_method.cpp"
 )
 add_library(caribou SHARED ${SRCS})
