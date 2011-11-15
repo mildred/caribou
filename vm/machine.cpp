@@ -31,6 +31,7 @@
 #include "integer.hpp"
 #include "array.hpp"
 #include "string.hpp"
+#include "nil.hpp"
 
 namespace Caribou
 {
@@ -114,7 +115,7 @@ namespace Caribou
 			ctx->push(index);
 		}
 		else
-			ctx->push(new Integer(0)); // XXX: Push nil instead
+			ctx->push(Nil::instance());
 		next();
 	}
 
