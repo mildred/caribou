@@ -31,7 +31,11 @@ namespace Caribou
 	class Context;
 
 	// Mailbox is a lock-free queue safe for up to two concurrent threads manipulating
-	// it so long as one is delivering and the other is receiving.
+	// it so long as one is delivering and the other is receiving. So we still need a mutex
+	// protecting the access, but fine grained: one for reading, one for writing. The way I
+	// plan on doing this is to use the state machine, each state in a different thread. I
+	// protect transitions via mutexes. So long as the states are constructed carefully, so
+	// all writing is done in one, all reading in another, then we should be fine.
 	class Mailbox
 	{
 	private:
