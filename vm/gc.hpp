@@ -33,6 +33,8 @@ namespace Caribou
 	class GCObject;
 	class GarbageCollector;
 
+	extern GarbageCollector* collector;
+
 	enum GCColours
 	{
 		kGCColourBlack = 0,
