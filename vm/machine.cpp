@@ -21,6 +21,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#include <iostream>
 #include <stdint.h>
 #include "machine.hpp"
 #include "continuation.hpp"
@@ -42,6 +43,7 @@ namespace Caribou
 
 	Machine::Machine()
 	{
+		collector = new GarbageCollector(this);
 	}
 
 	Machine::~Machine()
@@ -159,7 +161,7 @@ namespace Caribou
 
 		next();
 		push_new_context(ctx, receiver, sender, message);
-		receiver->mailbox->deliver(get_current_context(), *message);
+		receiver->mailbox->deliver(get_current_context(), message);
 	}
 
 	void Machine::save_stack(Context* ctx)

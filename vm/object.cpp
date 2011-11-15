@@ -100,11 +100,11 @@ namespace Caribou
 
 	void Object::receive(Context* ctx)
 	{
-		Message msg;
+		Message* msg;
 		if(mailbox->receive(msg))
 		{
 			Object* slot_context;
-			lookup(msg.get_name(), slot_context);
+			lookup(msg->get_name(), slot_context);
 		}
 	}
 

@@ -40,8 +40,8 @@ namespace Caribou
 	{
 	private:
 		struct Node {
-			Node(const Message& msg) : message(msg), next(nullptr) {}
-			const Message& message;
+			Node(Message* msg) : message(msg), next(nullptr) {}
+			Message* message;
 			Node* next;
 		};
 		Node* first;
@@ -53,16 +53,18 @@ namespace Caribou
 			while(first != upto)
 			{
 				Node* tmp = first;
-				first = tmp->next;
-				delete tmp;
+				if(tmp != nullptr)
+				{
+					first = tmp->next;
+					delete tmp;
+				}
 			}
 		}
 
 	public:
 		Mailbox()
 		{
-			Message msg = Message();
-			first = divider = last = new Node(msg);
+			first = divider = last = nullptr;
 		}
 
 		~Mailbox()
@@ -70,14 +72,17 @@ namespace Caribou
 			trim_to(nullptr);
 		}
 
-		void deliver(Context* ctx, const Message& msg)
+		void deliver(Context* ctx, Message* msg)
 		{
 			last->next = new Node(msg);
 			trim_to(divider);
 		}
 
-		bool receive(Message& result)
+		bool receive(Message* result)
 		{
+			if(first == last)
+				first = divider = last = new Node(result);
+
 			if(divider != last)
 			{
 				result = divider->next->message;

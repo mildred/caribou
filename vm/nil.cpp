@@ -26,10 +26,12 @@
 
 namespace Caribou
 {
-	static Nil* nilptr = new Nil();
+	static Nil* nilptr = nullptr;
 
 	Nil* Nil::instance()
 	{
+		if(nilptr == nullptr)
+			nilptr = new Nil();
 		return nilptr;
 	}
 }
