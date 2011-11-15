@@ -37,7 +37,7 @@ namespace Caribou
 		Array(Object** ary, size_t len) : data(ary), count(len) {}
 
 		virtual const std::string object_name();
-		virtual void bytecode(Machine*);
+		virtual void walk();
 
 	private:
 		Object** data;

@@ -30,7 +30,11 @@ namespace Caribou
 		return "Array";
 	}
 
-	void Array::bytecode(Machine* m)
+	void Array::walk()
 	{
+		generic_object_walk();
+
+		for(size_t i = 0; i < count; i++)
+			collector->shade(data[count]);
 	}
 }
