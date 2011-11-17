@@ -37,7 +37,7 @@ namespace Caribou
 			RET,
 			DUP,
 			SWAP,
-			ROT3,
+			ROTATE,
 			SAVE_STACK,
 			RESTORE_STACK,
 			ADD_SYMBOL,

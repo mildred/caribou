@@ -47,7 +47,7 @@ namespace Caribou
 		void ret(Context*);
 		void dup(Context*);
 		void swap(Context*);
-		void rot3(Context*);
+		void rotate(Context*);
 		void save_stack(Context*);
 		void restore_stack(Context*);
 		void jz(Context*);

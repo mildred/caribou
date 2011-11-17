@@ -10,7 +10,7 @@ the file `instructions.hpp`. The currently defined instructions are:
     3  RET
     4  DUP
     5  SWAP
-    6  ROT3
+    6  ROTATE
     7  SAVE_STACK
     8  RESTORE_STACK
     9  ADD_SYMBOL
@@ -34,7 +34,10 @@ the file `instructions.hpp`. The currently defined instructions are:
 
  -  **SWAP**: Swap the last two elements on the data stack
 
- -  **ROT3**: Swap the second and third elements on the data stack.
+ -  **ROTATE**: Pops a count off the stack, and then pops that many items off the
+    stack. Then pushes those items onto the stack such that that subset of data
+    is now reversed in position. i.e., 1,2,3,4 after rotate of 4 items we will see
+    4,3,2,1.
 
  -  **SAVE_STACK**: Creates a continuation from VM memory and push a pointer to
     it on the data stack

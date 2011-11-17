@@ -87,14 +87,18 @@ namespace Caribou
 		next();
 	}
 
-	void Machine::rot3(Context* ctx)
+	void Machine::rotate(Context* ctx)
 	{
-		Object* a = ctx->pop();
-		Object* b = ctx->pop();
-		Object* c = ctx->pop();
-		ctx->push(a);
-		ctx->push(b);
-		ctx->push(c);
+		size_t count = static_cast<Integer*>(ctx->pop())->c_int();
+		Object* tmp[count];
+		size_t i;
+
+		for(i = 0; i < count; i++)
+			tmp[i] = ctx->pop();
+
+		for(i = 0; i < count; i++)
+			ctx->push(tmp[i]);
+
 		next();
 	}
 
@@ -229,8 +233,8 @@ namespace Caribou
 			case Instructions::SWAP:
 				swap(ctx);
 				break;
-			case Instructions::ROT3:
-				rot3(ctx);
+			case Instructions::ROTATE:
+				rotate(ctx);
 				break;
 			case Instructions::JZ:
 				jz(ctx);
