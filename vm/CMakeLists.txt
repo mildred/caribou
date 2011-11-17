@@ -1,4 +1,4 @@
-set(CMAKE_CXX_FLAGS "-std=c++0x")
+set(CMAKE_CXX_FLAGS "-g -std=c++0x")
 set(SRCS
   "tinythread.cpp"
   "machine.cpp"
