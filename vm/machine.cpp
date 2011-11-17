@@ -183,22 +183,23 @@ namespace Caribou
 	{
 		// TODO: Need to create a default context and push that onto the return stack before evaluating any bytecodes.
 		push_new_context(nullptr, nullptr/*Lobby*/, nullptr/*Lobby*/, nullptr/*someMessage*/);
+		ip = 0;
 
-		for(uint8_t idx = 0; idx < instruction_size; idx++)
+		while(ip != UINTPTR_MAX)
 		{
-			uint8_t byte = instruction_memory[idx];
+			uint8_t byte = instruction_memory[ip];
 			uint64_t operand = 0;
 			Object* oper;
 
 			if(byte == Instructions::PUSH)
 			{
-				operand = (uint64_t)instruction_memory[idx + 1];
+				operand = (uint64_t)instruction_memory[ip + 1];
 				if(big_endian())
 					endian_swap(operand);
-				idx += sizeof(uint64_t);
+				ip += sizeof(uint64_t) - 1;
 			}
 
-			oper = reinterpret_cast<Object*>(operand);
+			oper = reinterpret_cast<Object*>(new Integer(operand));
 			process(rstack.top(), byte, oper);
 		}
 	}
@@ -253,6 +254,5 @@ namespace Caribou
 				find_symbol(ctx);
 				break;
 		}
-		next();
 	}
 }

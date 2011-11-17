@@ -26,6 +26,9 @@
 
 #include <sys/types.h>
 #include <stdint.h>
+#include "integer.hpp"
+
+#define CARIBOU_MAX_STACK_SIZE 8192
 
 namespace Caribou
 {
@@ -41,19 +44,24 @@ namespace Caribou
 		uintptr_t       sp;
 		CompiledMethod* cm;
 		Object*         receiver;
-		Object*         stk[];
+		Object*         stk[CARIBOU_MAX_STACK_SIZE];
 
 		inline void push(Object* val)
 		{
-			stk[sp] = val;
-			++sp;
+			stk[sp++] = val;
 		}
 
 		inline Object* pop()
 		{
-			uintptr_t old_sp = sp;
-			--sp;
-			return stk[old_sp];
+			return stk[--sp];
+		}
+
+		void print_stack()
+		{
+			printf("Stack: [");
+			for(uintptr_t i = 0; i < sp; i++)
+				printf("%ld%s", static_cast<Integer*>(stk[i])->c_int(), (i != sp - 1) ? ", " : "");
+			printf("]\n");
 		}
 	};
 }
