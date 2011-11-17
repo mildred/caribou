@@ -210,11 +210,12 @@ namespace Caribou
 			case Instructions::NOOP:
 				next();
 				break;
+			case Instructions::HALT:
+				ip = UINTPTR_MAX;
+				break;
 			case Instructions::PUSH:
-			{
 				push(ctx, val);
 				break;
-			}
 			case Instructions::POP:
 				pop(ctx);
 				break;

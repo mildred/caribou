@@ -31,6 +31,7 @@ namespace Caribou
 		enum
 		{
 			NOOP = 0,
+			HALT,
 			PUSH,
 			POP,
 			RET,
