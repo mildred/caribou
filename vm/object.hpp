@@ -77,7 +77,7 @@ namespace Caribou
 			return obj;
 		}
 
-		void add_slot(const std::string, Object*);
+		void add_slot(const std::string&, Object*&);
 		void remove_slot(const std::string&);
 		void add_trait(Object*);
 
