@@ -41,7 +41,7 @@ namespace Caribou
 
 	GarbageCollector* collector = nullptr;
 
-	Machine::Machine()
+	Machine::Machine() : rstack()
 	{
 		collector = new GarbageCollector(this);
 	}
@@ -98,6 +98,7 @@ namespace Caribou
 
 		for(i = 0; i < count; i++)
 			ctx->push(tmp[i]);
+		ctx->print_stack();
 
 		next();
 	}
@@ -146,6 +147,21 @@ namespace Caribou
 		next();
 	}
 
+	void Machine::make_string(Context* ctx)
+	{
+		Integer* count = static_cast<Integer*>(ctx->pop());
+		char* tmp = new char[count->c_int()];
+
+		for(uintptr_t i = 0; i < count->c_int(); i++)
+			tmp[i] = static_cast<Integer*>(ctx->pop())->c_int();
+
+		String* str = new String(std::string(tmp));
+		ctx->push(str);
+
+		delete tmp;
+		next();
+	}
+
 	void Machine::push_new_context(Context* old, Object* receiver, Object* sender, Message* message)
 	{
 		Context* c = new Context();
@@ -170,7 +186,7 @@ namespace Caribou
 
 	void Machine::save_stack(Context* ctx)
 	{
-		Continuation* c = new Continuation(*this);
+		Continuation* c = new Continuation(this);
 		c->save_current_stack();
 		ctx->push(reinterpret_cast<Object*>(c));
 		next();
@@ -178,8 +194,7 @@ namespace Caribou
 
 	void Machine::restore_stack(Context* ctx)
 	{
-		Integer* addr = static_cast<Integer*>(ctx->pop());
-		Continuation* c = (Continuation*)memory[addr->c_int()];
+		Continuation* c = static_cast<Continuation*>(ctx->pop());
 		c->restore_stack();
 	}
 
@@ -241,6 +256,9 @@ namespace Caribou
 				break;
 			case Instructions::MAKE_ARRAY:
 				make_array(ctx);
+				break;
+			case Instructions::MAKE_STRING:
+				make_string(ctx);
 				break;
 			case Instructions::SEND:
 				send(ctx);

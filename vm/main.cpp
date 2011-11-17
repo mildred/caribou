@@ -29,7 +29,7 @@ using namespace Caribou;
 
 int main(int argc, char* argv[])
 {
-	Machine m = Machine();
+	Machine m;
 	InputReader reader = InputReader(m);
 
 	if(argv[1] == NULL)

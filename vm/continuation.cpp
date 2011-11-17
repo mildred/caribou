@@ -32,15 +32,21 @@ namespace Caribou
 		return now;
 	}
 
+	void Continuation::save_current_stack()
+	{
+		saved_stack = machine->copy_return_stack();
+		saved_ip    = machine->get_instruction_pointer();
+	}
+
+	void Continuation::restore_stack()
+	{
+		machine->set_return_stack(saved_stack);
+		machine->set_instruction_pointer(saved_ip);
+	}
+
 	const std::string Continuation::object_name()
 	{
 		return "Continuation";
-	}
-
-	void Continuation::bytecode(Machine* m)
-	{
-		Context* ctx = m->get_current_context();
-		m->save_stack(ctx);
 	}
 
 	void Continuation::walk()

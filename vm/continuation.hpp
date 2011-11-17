@@ -38,7 +38,7 @@ namespace Caribou
 	class Continuation : public Object
 	{
 	public:
-		Continuation(Machine& m) : machine(m) { }
+		Continuation(Machine* m) : machine(m) { }
 		~Continuation()
 		{
 			delete saved_stack;
@@ -46,26 +46,16 @@ namespace Caribou
 
 		Continuation* now(Object*, Message*);
 
-		void save_current_stack()
-		{
-			saved_stack = machine.copy_return_stack();
-			saved_ip    = machine.get_instruction_pointer();
-		}
-
-		void restore_stack()
-		{
-			machine.set_return_stack(saved_stack);
-			machine.set_instruction_pointer(saved_ip);
-		}
+		void save_current_stack();
+		void restore_stack();
 
 		virtual const std::string object_name();
-		virtual void bytecode(Machine*);
 		virtual void walk();
 
 	private:
 		Stack<Context*>* saved_stack;
 		uintptr_t        saved_ip;
-		Machine&         machine;
+		Machine*         machine;
 	};
 }
 

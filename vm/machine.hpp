@@ -52,6 +52,7 @@ namespace Caribou
 		void restore_stack(Context*);
 		void jz(Context*);
 		void make_array(Context*);
+		void make_string(Context*);
 		void send(Context*);
 		void add_symbol(Context*);
 		void find_symbol(Context*);
@@ -65,7 +66,12 @@ namespace Caribou
 
 		Stack<Context*>& get_return_stack() { return rstack; }
 		Stack<Context*>* copy_return_stack() { return new Stack<Context*>(rstack); }
-		void set_return_stack(Stack<Context*>* rs) { rstack = *rs; }
+		void set_return_stack(Stack<Context*>* rs)
+		{
+			Stack<Context*> tmp(*rs);
+			rstack = tmp;
+		}
+
 		uintptr_t get_instruction_pointer() { return ip; }
 		void set_instruction_pointer(uintptr_t val) { ip = val; }
 

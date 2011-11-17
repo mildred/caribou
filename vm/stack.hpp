@@ -25,15 +25,25 @@
 #define __CARIBOU__STACK_HPP__
 
 #include <vector>
+#include "context.hpp"
 
 namespace Caribou
 {
-	class Machine;
-
 	template<typename T>
 	class Stack
 	{
 	public:
+		Stack() {}
+
+		Stack(Stack<Context*>& other)
+		{
+			for(Context* e : other.store)
+			{
+				Context* a = new Context(*e);
+				store.push_back(a);
+			}
+		}
+
 		void push(const T& val)
 		{
 			store.push_back(val);
@@ -53,6 +63,8 @@ namespace Caribou
 		}
 
 		std::vector<T>& get_store() { return store; }
+
+		size_t size() { return store.size(); }
 
 	private:
 		std::vector<T> store;

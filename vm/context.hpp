@@ -46,9 +46,38 @@ namespace Caribou
 		Object*         receiver;
 		Object*         stk[CARIBOU_MAX_STACK_SIZE];
 
+		Context() {}
+
+		Context(Context& ctx)
+		{
+			previous = ctx.previous;
+			sender = ctx.sender;
+			target = ctx.target;
+			ip = ctx.ip;
+			sp = ctx.sp;
+			cm = ctx.cm;
+			receiver = ctx.receiver;
+			memcpy(stk, ctx.stk, CARIBOU_MAX_STACK_SIZE);
+		}
+
+		Context& operator=(const Context& ctx)
+		{
+			previous = ctx.previous;
+			sender = ctx.sender;
+			target = ctx.target;
+			ip = ctx.ip;
+			sp = ctx.sp;
+			cm = ctx.cm;
+			receiver = ctx.receiver;
+			memcpy(stk, ctx.stk, CARIBOU_MAX_STACK_SIZE);
+
+			return *this;
+		}
+
 		inline void push(Object* val)
 		{
 			stk[sp++] = val;
+			print_stack();
 		}
 
 		inline Object* pop()
