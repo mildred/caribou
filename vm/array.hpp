@@ -34,6 +34,7 @@ namespace Caribou
 	class Array : public Object
 	{
 	public:
+		Array() : data(nullptr), count(0) {}
 		Array(Object** ary, size_t len) : data(ary), count(len) {}
 
 		virtual const std::string object_name();

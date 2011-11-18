@@ -41,7 +41,7 @@ namespace Caribou
 		delete mailbox;
 	}
 
-	void Object::add_slot(const std::string& name, Object*& value)
+	void Object::add_slot(const std::string& name, Object* value)
 	{
 		slots.insert(std::pair<std::string, Object*>(name, value));
 	}

@@ -38,7 +38,8 @@ namespace Caribou
 	class Continuation : public Object
 	{
 	public:
-		Continuation(Machine* m) : machine(m) { }
+		Continuation() : machine(nullptr) {}
+		Continuation(Machine* m) : machine(m) {}
 		~Continuation()
 		{
 			delete saved_stack;
