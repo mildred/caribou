@@ -32,8 +32,7 @@ namespace Caribou
 		{
 			NOOP = 0,
 			HALT,
-			PUSHA,
-			PUSHB,
+			PUSH,
 			POP,
 			DUP,
 			SWAP,

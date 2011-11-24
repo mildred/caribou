@@ -56,12 +56,6 @@ namespace Caribou
 	void Machine::push(Context* ctx, Object* val)
 	{
 		ctx->push(val);
-		next(sizeof(void*));
-	}
-
-	void Machine::push(Context* ctx, uint8_t val)
-	{
-		ctx->push(val);
 		next();
 	}
 
@@ -109,6 +103,7 @@ namespace Caribou
 		Integer* a = static_cast<Integer*>(ctx->pop());
 		Integer* b = static_cast<Integer*>(ctx->pop());
 		ctx->push(new Integer(a->c_int() + b->c_int()));
+		next();
 	}
 
 	void Machine::sub(Context* ctx)
@@ -116,6 +111,7 @@ namespace Caribou
 		Integer* a = static_cast<Integer*>(ctx->pop());
 		Integer* b = static_cast<Integer*>(ctx->pop());
 		ctx->push(new Integer(a->c_int() - b->c_int()));
+		next();
 	}
 
 	void Machine::mul(Context* ctx)
@@ -123,6 +119,7 @@ namespace Caribou
 		Integer* a = static_cast<Integer*>(ctx->pop());
 		Integer* b = static_cast<Integer*>(ctx->pop());
 		ctx->push(new Integer(a->c_int() * b->c_int()));
+		next();
 	}
 
 	void Machine::div(Context* ctx)
@@ -130,6 +127,7 @@ namespace Caribou
 		Integer* a = static_cast<Integer*>(ctx->pop());
 		Integer* b = static_cast<Integer*>(ctx->pop());
 		ctx->push(new Integer(a->c_int() / b->c_int()));
+		next();
 	}
 
 	void Machine::mod(Context* ctx)
@@ -137,6 +135,7 @@ namespace Caribou
 		Integer* a = static_cast<Integer*>(ctx->pop());
 		Integer* b = static_cast<Integer*>(ctx->pop());
 		ctx->push(new Integer(a->c_int() % b->c_int()));
+		next();
 	}
 
 	void Machine::pow(Context* ctx)
@@ -144,12 +143,14 @@ namespace Caribou
 		Integer* a = static_cast<Integer*>(ctx->pop());
 		Integer* b = static_cast<Integer*>(ctx->pop());
 		ctx->push(new Integer(::pow(a->c_int(), b->c_int())));
+		next();
 	}
 
 	void Machine::bitwise_not(Context* ctx)
 	{
 		Integer* a = static_cast<Integer*>(ctx->pop());
 		ctx->push(new Integer(~(a->c_int())));
+		next();
 	}
 
 	void Machine::eq(Context* ctx)
@@ -157,6 +158,7 @@ namespace Caribou
 		Object* a = ctx->pop();
 		Object* b = ctx->pop();
 		ctx->push(new Boolean(a->compare(b)));
+		next();
 	}
 
 	void Machine::lt(Context* ctx)
@@ -164,6 +166,7 @@ namespace Caribou
 		Object* a = ctx->pop();
 		Object* b = ctx->pop();
 		ctx->push(new Boolean(a->compare(b) == -1));
+		next();
 	}
 
 	void Machine::gt(Context* ctx)
@@ -171,6 +174,7 @@ namespace Caribou
 		Object* a = ctx->pop();
 		Object* b = ctx->pop();
 		ctx->push(new Boolean(a->compare(b) == 1));
+		next();
 	}
 
 	void Machine::add_symbol(Context* ctx)
@@ -290,15 +294,13 @@ namespace Caribou
 			uintptr_t operand = 0;
 			Object* oper;
 
-			if(byte == Instructions::PUSHA)
+			if(byte == Instructions::PUSH)
 			{
 				operand = (uintptr_t)instruction_memory[ip + 1];
 				if(big_endian())
 					endian_swap(operand);
 				ip += sizeof(uintptr_t) - 1;
 			}
-			else if(byte == Instructions::PUSHB)
-				operand = instruction_memory[ip++];
 
 			oper = reinterpret_cast<Object*>(new Integer(operand));
 			process(rstack.top(), byte, oper);
@@ -315,8 +317,7 @@ namespace Caribou
 			case Instructions::HALT:
 				ip = UINTPTR_MAX;
 				break;
-			case Instructions::PUSHA:
-			case Instructions::PUSHB:
+			case Instructions::PUSH:
 				push(ctx, val);
 				break;
 			case Instructions::POP:

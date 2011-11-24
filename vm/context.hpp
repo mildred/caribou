@@ -77,13 +77,6 @@ namespace Caribou
 		inline void push(Object* val)
 		{
 			stk[sp++] = val;
-			print_stack();
-		}
-
-		inline void push(uint8_t val)
-		{
-			stk[sp++] = reinterpret_cast<Object*>(val);
-			print_stack();
 		}
 
 		inline Object* pop()
