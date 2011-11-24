@@ -43,14 +43,26 @@ namespace Caribou
 		~Machine();
 
 		void push(Context*, Object*);
+		void push(Context*, uint8_t);
 		Object* pop(Context*);
 		void ret(Context*);
 		void dup(Context*);
 		void swap(Context*);
 		void rotate(Context*);
+		void add(Context*);
+		void sub(Context*);
+		void mul(Context*);
+		void div(Context*);
+		void mod(Context*);
+		void pow(Context*);
+		void bitwise_not(Context*);
+		void eq(Context*);
+		void lt(Context*);
+		void gt(Context*);
+		void jmp(Context*);
+		void jt(Context*);
 		void save_stack(Context*);
 		void restore_stack(Context*);
-		void jz(Context*);
 		void make_array(Context*);
 		void make_string(Context*);
 		void send(Context*);
@@ -86,7 +98,7 @@ namespace Caribou
 		Context* get_current_context() { return rstack.top(); }
 
 	protected:
-		void next(uint64_t val = 1) { ip += val; }
+		void next(uintptr_t val = 1) { ip += val; }
 
 	private:
 		Stack<Context*>            rstack;

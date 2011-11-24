@@ -21,44 +21,28 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include <vector>
-#include <string>
-#include <map>
-#include <utility>
-#include "symtab.hpp"
+#ifndef __CARIBOU__BOOLEAN_HPP__
+#define __CARIBOU__BOOLEAN_HPP__
+
+#include "object.hpp"
 
 namespace Caribou
 {
-	size_t Symtab::add(String* str)
+	class Boolean : public Object
 	{
-		mapping.push_back(str);
-		symbols.insert(std::pair<String*, size_t>(str, mapping.size() - 1));
-		return symbols.size() - 1;
-	}
+	private:
+		bool boolValue;
 
-	size_t Symtab::lookup(String* str)
-	{
-		SymMap::iterator it = symbols.find(str);
-		if(it == symbols.end())
-			return SYMTAB_NOT_FOUND;
-		return it->second;
-	}
+	public:
+		Boolean(bool val = false) : boolValue(val) {}
 
-	size_t Symtab::lookup_or_add(String* str)
-	{
-		size_t idx = lookup(str);
-		if(idx == SYMTAB_NOT_FOUND)
-			idx = add(str);
-		return idx;
-	}
+		virtual const std::string object_name()
+		{
+			return "Boolean";
+		}
 
-	String* Symtab::lookup(const uintptr_t idx)
-	{
-		return mapping.at(idx);
-	}
-
-	size_t Symtab::size()
-	{
-		return symbols.size();
-	}
+		bool value() { return boolValue; }
+	};
 }
+
+#endif /* !__CARIBOU__BOOLEAN_HPP__ */

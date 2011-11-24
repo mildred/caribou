@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <stdint.h>
+#include <math.h>
 #include "machine.hpp"
 #include "continuation.hpp"
 #include "endian.hpp"
@@ -33,6 +34,7 @@
 #include "array.hpp"
 #include "string.hpp"
 #include "nil.hpp"
+#include "boolean.hpp"
 
 namespace Caribou
 {
@@ -54,6 +56,12 @@ namespace Caribou
 	void Machine::push(Context* ctx, Object* val)
 	{
 		ctx->push(val);
+		next(sizeof(void*));
+	}
+
+	void Machine::push(Context* ctx, uint8_t val)
+	{
+		ctx->push(val);
 		next();
 	}
 
@@ -61,13 +69,6 @@ namespace Caribou
 	{
 		next();
 		return ctx->pop();
-	}
-
-	void Machine::ret(Context* ctx)
-	{
-		Object* r = ctx->pop();
-		ip = ctx->ip;
-		ctx->previous->push(r);
 	}
 
 	void Machine::dup(Context* ctx)
@@ -103,6 +104,75 @@ namespace Caribou
 		next();
 	}
 
+	void Machine::add(Context* ctx)
+	{
+		Integer* a = static_cast<Integer*>(ctx->pop());
+		Integer* b = static_cast<Integer*>(ctx->pop());
+		ctx->push(new Integer(a->c_int() + b->c_int()));
+	}
+
+	void Machine::sub(Context* ctx)
+	{
+		Integer* a = static_cast<Integer*>(ctx->pop());
+		Integer* b = static_cast<Integer*>(ctx->pop());
+		ctx->push(new Integer(a->c_int() - b->c_int()));
+	}
+
+	void Machine::mul(Context* ctx)
+	{
+		Integer* a = static_cast<Integer*>(ctx->pop());
+		Integer* b = static_cast<Integer*>(ctx->pop());
+		ctx->push(new Integer(a->c_int() * b->c_int()));
+	}
+
+	void Machine::div(Context* ctx)
+	{
+		Integer* a = static_cast<Integer*>(ctx->pop());
+		Integer* b = static_cast<Integer*>(ctx->pop());
+		ctx->push(new Integer(a->c_int() / b->c_int()));
+	}
+
+	void Machine::mod(Context* ctx)
+	{
+		Integer* a = static_cast<Integer*>(ctx->pop());
+		Integer* b = static_cast<Integer*>(ctx->pop());
+		ctx->push(new Integer(a->c_int() % b->c_int()));
+	}
+
+	void Machine::pow(Context* ctx)
+	{
+		Integer* a = static_cast<Integer*>(ctx->pop());
+		Integer* b = static_cast<Integer*>(ctx->pop());
+		ctx->push(new Integer(::pow(a->c_int(), b->c_int())));
+	}
+
+	void Machine::bitwise_not(Context* ctx)
+	{
+		Integer* a = static_cast<Integer*>(ctx->pop());
+		ctx->push(new Integer(~(a->c_int())));
+	}
+
+	void Machine::eq(Context* ctx)
+	{
+		Object* a = ctx->pop();
+		Object* b = ctx->pop();
+		ctx->push(new Boolean(a->compare(b)));
+	}
+
+	void Machine::lt(Context* ctx)
+	{
+		Object* a = ctx->pop();
+		Object* b = ctx->pop();
+		ctx->push(new Boolean(a->compare(b) == -1));
+	}
+
+	void Machine::gt(Context* ctx)
+	{
+		Object* a = ctx->pop();
+		Object* b = ctx->pop();
+		ctx->push(new Boolean(a->compare(b) == 1));
+	}
+
 	void Machine::add_symbol(Context* ctx)
 	{
 		String* str = static_cast<String*>(ctx->pop());
@@ -114,23 +184,26 @@ namespace Caribou
 
 	void Machine::find_symbol(Context* ctx)
 	{
-		String* str = static_cast<String*>(ctx->pop());
-		size_t idx = symtab.lookup(str);
-		if(idx != SYMTAB_NOT_FOUND)
-		{
-			Integer* index = new Integer(idx);
-			ctx->push(index);
-		}
+		Integer* i = static_cast<Integer*>(ctx->pop());
+		String* str = symtab.lookup(i->c_int());
+		if(str)
+			ctx->push(str);
 		else
 			ctx->push(Nil::instance());
 		next();
 	}
 
-	void Machine::jz(Context* ctx)
+	void Machine::jmp(Context* ctx)
 	{
 		Integer* a = static_cast<Integer*>(ctx->pop());
-		Integer* c = static_cast<Integer*>(ctx->pop());
-		if(c->c_int() == 0)
+		ip = a->c_int();
+	}
+
+	void Machine::jt(Context* ctx)
+	{
+		Integer* a = static_cast<Integer*>(ctx->pop());
+		Boolean* c = static_cast<Boolean*>(ctx->pop());
+		if(c->value())
 			ip = a->c_int();
 		else
 			next();
@@ -184,6 +257,13 @@ namespace Caribou
 		receiver->mailbox->deliver(get_current_context(), message);
 	}
 
+	void Machine::ret(Context* ctx)
+	{
+		Object* r = ctx->pop();
+		ip = ctx->ip;
+		ctx->previous->push(r);
+	}
+
 	void Machine::save_stack(Context* ctx)
 	{
 		Continuation* c = new Continuation(this);
@@ -207,16 +287,18 @@ namespace Caribou
 		while(ip != UINTPTR_MAX)
 		{
 			uint8_t byte = instruction_memory[ip];
-			uint64_t operand = 0;
+			uintptr_t operand = 0;
 			Object* oper;
 
-			if(byte == Instructions::PUSH)
+			if(byte == Instructions::PUSHA)
 			{
-				operand = (uint64_t)instruction_memory[ip + 1];
+				operand = (uintptr_t)instruction_memory[ip + 1];
 				if(big_endian())
 					endian_swap(operand);
-				ip += sizeof(uint64_t) - 1;
+				ip += sizeof(uintptr_t) - 1;
 			}
+			else if(byte == Instructions::PUSHB)
+				operand = instruction_memory[ip++];
 
 			oper = reinterpret_cast<Object*>(new Integer(operand));
 			process(rstack.top(), byte, oper);
@@ -233,7 +315,8 @@ namespace Caribou
 			case Instructions::HALT:
 				ip = UINTPTR_MAX;
 				break;
-			case Instructions::PUSH:
+			case Instructions::PUSHA:
+			case Instructions::PUSHB:
 				push(ctx, val);
 				break;
 			case Instructions::POP:
@@ -251,8 +334,47 @@ namespace Caribou
 			case Instructions::ROTATE:
 				rotate(ctx);
 				break;
-			case Instructions::JZ:
-				jz(ctx);
+			case Instructions::SAVE_STACK:
+				save_stack(ctx);
+				break;
+			case Instructions::RESTORE_STACK:
+				restore_stack(ctx);
+				break;
+			case Instructions::ADD:
+				add(ctx);
+				break;
+			case Instructions::SUB:
+				sub(ctx);
+				break;
+			case Instructions::MUL:
+				mul(ctx);
+				break;
+			case Instructions::DIV:
+				div(ctx);
+				break;
+			case Instructions::MOD:
+				mod(ctx);
+				break;
+			case Instructions::POW:
+				pow(ctx);
+				break;
+			case Instructions::NOT:
+				not(ctx);
+				break;
+			case Instructions::EQ:
+				eq(ctx);
+				break;
+			case Instructions::LT:
+				lt(ctx);
+				break;
+			case Instructions::GT:
+				gt(ctx);
+				break;
+			case Instructions::JMP:
+				jmp(ctx);
+				break;
+			case Instructions::JT:
+				jt(ctx);
 				break;
 			case Instructions::MAKE_ARRAY:
 				make_array(ctx);
@@ -262,12 +384,6 @@ namespace Caribou
 				break;
 			case Instructions::SEND:
 				send(ctx);
-				break;
-			case Instructions::SAVE_STACK:
-				save_stack(ctx);
-				break;
-			case Instructions::RESTORE_STACK:
-				restore_stack(ctx);
 				break;
 			case Instructions::ADD_SYMBOL:
 				add_symbol(ctx);

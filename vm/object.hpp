@@ -96,6 +96,8 @@ namespace Caribou
 
 		SlotTable& slot_table() { return slots; }
 
+		virtual int compare(Object*);
+
 		virtual void generic_object_walk();
 		virtual void walk();
 

@@ -50,6 +50,14 @@ namespace Caribou
 			((x<<8)  & 0x000000FF00000000) | ((x>>8)  & 0x00000000FF000000) |
 			((x>>24) & 0x0000000000FF0000) | ((x>>40) & 0x000000000000FF00) | (x<<56);
 	}
+
+	inline void endian_swap(uintptr_t& x)
+	{
+		if(sizeof(x) == 4)
+			endian_swap(reinterpret_cast<uint32_t&>(x));
+		else if(sizeof(x) == 8)
+			endian_swap(reinterpret_cast<uint64_t&>(x));
+	}
 }
 
 #endif /* !__CARIBOU__ENDIAN_HPP__ */

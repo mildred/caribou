@@ -32,20 +32,32 @@ namespace Caribou
 		{
 			NOOP = 0,
 			HALT,
-			PUSH,
+			PUSHA,
+			PUSHB,
 			POP,
-			RET,
 			DUP,
 			SWAP,
 			ROTATE,
 			SAVE_STACK,
 			RESTORE_STACK,
+			ADD,
+			SUB,
+			MUL,
+			DIV,
+			MOD,
+			POW,
+			NOT,
+			EQ,
+			LT,
+			GT,
+			JMP,
+			JT,
 			ADD_SYMBOL,
 			FIND_SYMBOL,
-			JZ,
 			MAKE_ARRAY,
 			MAKE_STRING,
-			SEND
+			SEND,
+			RET
 		};
 	};
 }

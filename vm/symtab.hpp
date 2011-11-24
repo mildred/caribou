@@ -37,25 +37,22 @@
 
 namespace Caribou
 {
-	typedef std::map<std::string, size_t> SymMap;
+	typedef std::map<String*, size_t> SymMap;
 
 	class Symtab
 	{
 	public:
-		size_t add(std::string str);
-		size_t add(String* str) { return add(str->stringValue()); }
+		size_t add(String* str);
 
-		size_t lookup(const std::string& str);
-		size_t lookup(String* str) { return lookup(str->stringValue()); }
-		size_t lookup_or_add(const std::string& str);
-		size_t lookup_or_add(String* str) { return lookup(str->stringValue()); }
-		std::string lookup(const uintptr_t idx);
+		size_t lookup(String* str);
+		size_t lookup_or_add(String* str);
+		String* lookup(const uintptr_t idx);
 
 		size_t size();
 
 	private:
-		std::vector<std::string> mapping;
-		SymMap                   symbols;
+		std::vector<String*> mapping;
+		SymMap               symbols;
 	};
 }
 

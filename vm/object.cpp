@@ -173,6 +173,16 @@ namespace Caribou
 		return this;
 	}
 
+	int Object::compare(Object* other)
+	{
+		if(this == other)
+			return 0;
+		else if(this > other)
+			return 1;
+		else
+			return -1;
+	}
+
 	void Object::generic_object_walk()
 	{
 		for(auto v : slots)
