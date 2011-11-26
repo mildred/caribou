@@ -31,11 +31,17 @@ namespace Caribou
 {
 	class CompiledMethod : public Object
 	{
+	private:
+		size_t                   required_args;
+		size_t                   total_args;
+		std::vector<std::string> literals;
+		Object*                  scope;
+
 	public:
 		CompiledMethod();
+		CompiledMethod(size_t, size_t);
 
-	private:
-		std::vector<std::string> literals;
+		virtual const std::string object_name();
 	};
 }
 

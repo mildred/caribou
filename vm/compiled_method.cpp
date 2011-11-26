@@ -25,7 +25,16 @@
 
 namespace Caribou
 {
-	CompiledMethod::CompiledMethod() : literals()
+	CompiledMethod::CompiledMethod() : literals(), required_args(0), total_args(0)
 	{
+	}
+
+	CompiledMethod::CompiledMethod(size_t ra, size_t ta) : literals(), required_args(ra), total_args(ta)
+	{
+	}
+
+	const std::string CompiledMethod::object_name()
+	{
+		return "CompiledMethod";
 	}
 }
