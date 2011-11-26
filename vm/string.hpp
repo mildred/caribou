@@ -31,12 +31,12 @@ namespace Caribou
 	class String : public Object
 	{
 	public:
-		String(const std::string str) : string(str) {}
+		String(const std::string& str) : string(str) {}
 		String(String* str) : string(str->stringValue()) {}
 
 		virtual const std::string object_name();
 
-		std::string stringValue() const { return string; }
+		const std::string& stringValue() const { return string; }
 
 	private:
 		std::string string;
