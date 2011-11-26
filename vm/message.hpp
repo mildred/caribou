@@ -39,7 +39,6 @@ namespace Caribou
 		Message(const std::string& n, std::vector<Message*> args) : name(n), arguments(args) {}
 
 		virtual const std::string object_name();
-		virtual void bytecode(Machine*);
 
 		std::string get_name() { return name; }
 		std::vector<Message*> get_arguments() { return arguments; }

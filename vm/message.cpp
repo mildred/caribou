@@ -30,8 +30,4 @@ namespace Caribou
 	{
 		return "Message";
 	}
-
-	void Message::bytecode(Machine* m)
-	{
-	}
 }
