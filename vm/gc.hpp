@@ -27,6 +27,8 @@
 #include <vector>
 #include <stdint.h>
 
+#define GC_MAX_FREE_OBJECTS 8192
+
 namespace Caribou
 {
 	class Machine;
@@ -131,6 +133,7 @@ namespace Caribou
 		void add_value(GCMarker*);
 
 		void scan_greys(size_t max = INT_MAX);
+		size_t free_whites();
 		void sweep();
 
 		void make_grey(GCMarker* other)

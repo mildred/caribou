@@ -94,10 +94,33 @@ namespace Caribou
 		}
 	}
 
+	size_t GarbageCollector::free_whites()
+	{
+		GCMarker* v = whites->next;
+		GCMarker* new_next;
+		unsigned int c = whites->colour;
+		size_t count = 0;
+
+		while(v->colour == c)
+		{
+			new_next = v->next;
+			if(count > GC_MAX_FREE_OBJECTS)
+				delete v;
+			else
+				make_freed(v);
+			count++;
+			v = new_next;
+		}
+
+		return count;
+	}
+
 	void GarbageCollector::sweep()
 	{
 		while(!greys->is_empty())
 			scan_greys();
+
+		free_whites();
 
 		GCMarker* tmp = blacks;
 		blacks = whites;
