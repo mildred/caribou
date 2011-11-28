@@ -44,16 +44,16 @@ namespace Caribou
 		file.seekg(0, std::ios::beg);
 
 		machine.allocate_instruction_memory(instruction_size);
-		uint8_t*& instruction_memory = machine.get_instruction_memory();
+		uint32_t*& instructions = machine.get_instructions();
 
 		file.read((char*)&header, sizeof(BytecodeHeader));
 		strncpy(magic, header.name, 4);
 		if(strcmp(magic, "CRBU") == 0)
-			file.read((char*)instruction_memory, instruction_size);
+			file.read((char*)instructions, instruction_size);
 		else
 			std::cerr << "Invalid file format." << std::endl;
 		file.close();
 
-		machine.run();
+		machine.execute();
 	}
 }

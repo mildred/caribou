@@ -21,56 +21,17 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__STACK_HPP__
-#define __CARIBOU__STACK_HPP__
-
-#include <vector>
-#include "context.hpp"
+#ifndef __CARIBOU__VMMETHOD_HPP__
+#define __CARIBOU__VMMETHOD_HPP__
 
 namespace Caribou
 {
-	template<typename T>
-	class Stack
+	class VMMethod
 	{
 	public:
-		Stack() {}
-
-		Stack(Stack<Context*>& other)
-		{
-			for(Context* e : other.store)
-			{
-				Context* a = new Context(*e);
-				store.push_back(a);
-			}
-		}
-
-		void push(const T& val)
-		{
-			store.push_back(val);
-		}
-
-		T top()
-		{
-			if(!store.empty())
-				return store.back();
-			return NULL;
-		}
-
-		T pop()
-		{
-			T r = top();
-			if(r != NULL)
-				store.pop_back();
-			return r;
-		}
-
-		std::vector<T>& get_store() { return store; }
-
-		size_t size() { return store.size(); }
-
-	private:
-		std::vector<T> store;
+		size_t nargs;
+		size_t nlocals;
 	};
 }
 
-#endif /* !__CARIBOU__STACK_HPP__ */
+#endif /* !__CARIBOU__VMMETHOD_HPP__ */

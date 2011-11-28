@@ -37,6 +37,9 @@ namespace Caribou
 		// It's a serial number incrementing from 0.
 		uint8_t  version;
 
+		// Denotes the space required for the constants pool which follows.
+		uint32_t pool_size;
+
 		// Reserve space for a custom header. Needs to have at a minimum a size
 		// field to indicate how many bytes it is going to run.
 		uint32_t custom_size;

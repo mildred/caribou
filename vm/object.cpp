@@ -201,12 +201,4 @@ namespace Caribou
 	{
 		return "Object";
 	}
-
-	void Object::bytecode(Machine* m)
-	{
-		Context* ctx = m->get_current_context();
-		m->find_symbol(ctx);
-		m->push(ctx, new String("clone"));
-		m->send(ctx);
-	}
 }

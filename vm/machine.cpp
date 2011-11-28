@@ -50,347 +50,271 @@ namespace Caribou
 
 	Machine::~Machine()
 	{
-		delete[] instruction_memory;
+		delete[] instructions;
 	}
 
-	void Machine::push(Context* ctx, Object* val)
+	uint32_t Machine::fetch()
 	{
-		ctx->push(val);
-		next();
+		return instructions[ip];
 	}
 
-	Object* Machine::pop(Context* ctx)
+	void Machine::decode(uint32_t instr)
 	{
-		next();
-		return ctx->pop();
+		if(big_endian())
+			endian_swap(instr);
+
+		opcode   = instr & 0xff;
+		fields.a = instr & 0x00ff;
+		fields.b = instr & 0x0000ff;
+		fields.c = instr & 0x000000ff;
 	}
 
-	void Machine::dup(Context* ctx)
+	void Machine::move(Object** regs, uint8_t a, uint8_t b)
 	{
-		Object* a = ctx->pop();
-		ctx->push(a);
-		ctx->push(a);
-		next();
+		regs[a] = regs[b];
 	}
 
-	void Machine::swap(Context* ctx)
+	void Machine::loadi(Object** regs, uint8_t a, uint16_t i)
 	{
-		Object* a = ctx->pop();
-		Object* b = ctx->pop();
-		ctx->push(a);
-		ctx->push(b);
-		next();
+		regs[a] = constants[i];
 	}
 
-	void Machine::rotate(Context* ctx)
+	void Machine::add(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
-		size_t count = static_cast<Integer*>(ctx->pop())->c_int();
-		Object* tmp[count];
-		size_t i;
-
-		for(i = 0; i < count; i++)
-			tmp[i] = ctx->pop();
-
-		for(i = 0; i < count; i++)
-			ctx->push(tmp[i]);
-		ctx->print_stack();
-
-		next();
+		Integer* i1 = static_cast<Integer*>(regs[b]);
+		Integer* i2 = static_cast<Integer*>(regs[c]);
+		regs[a] = new Integer(i1->c_int() + i2->c_int());
 	}
 
-	void Machine::add(Context* ctx)
+	void Machine::sub(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
-		Integer* a = static_cast<Integer*>(ctx->pop());
-		Integer* b = static_cast<Integer*>(ctx->pop());
-		ctx->push(new Integer(a->c_int() + b->c_int()));
-		next();
+		Integer* i1 = static_cast<Integer*>(regs[b]);
+		Integer* i2 = static_cast<Integer*>(regs[c]);
+		regs[a] = new Integer(i1->c_int() - i2->c_int());
 	}
 
-	void Machine::sub(Context* ctx)
+	void Machine::mul(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
-		Integer* a = static_cast<Integer*>(ctx->pop());
-		Integer* b = static_cast<Integer*>(ctx->pop());
-		ctx->push(new Integer(a->c_int() - b->c_int()));
-		next();
+		Integer* i1 = static_cast<Integer*>(regs[b]);
+		Integer* i2 = static_cast<Integer*>(regs[c]);
+		regs[a] = new Integer(i1->c_int() * i2->c_int());
 	}
 
-	void Machine::mul(Context* ctx)
+	void Machine::div(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
-		Integer* a = static_cast<Integer*>(ctx->pop());
-		Integer* b = static_cast<Integer*>(ctx->pop());
-		ctx->push(new Integer(a->c_int() * b->c_int()));
-		next();
+		Integer* i1 = static_cast<Integer*>(regs[b]);
+		Integer* i2 = static_cast<Integer*>(regs[c]);
+		regs[a] = new Integer(i1->c_int() / i2->c_int());
 	}
 
-	void Machine::div(Context* ctx)
+	void Machine::mod(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
-		Integer* a = static_cast<Integer*>(ctx->pop());
-		Integer* b = static_cast<Integer*>(ctx->pop());
-		ctx->push(new Integer(a->c_int() / b->c_int()));
-		next();
+		Integer* i1 = static_cast<Integer*>(regs[b]);
+		Integer* i2 = static_cast<Integer*>(regs[c]);
+		regs[a] = new Integer(i1->c_int() % i2->c_int());
 	}
 
-	void Machine::mod(Context* ctx)
+	void Machine::pow(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
-		Integer* a = static_cast<Integer*>(ctx->pop());
-		Integer* b = static_cast<Integer*>(ctx->pop());
-		ctx->push(new Integer(a->c_int() % b->c_int()));
-		next();
+		Integer* i1 = static_cast<Integer*>(regs[b]);
+		Integer* i2 = static_cast<Integer*>(regs[c]);
+		regs[a] = new Integer(i1->c_int() ^ i2->c_int());
 	}
 
-	void Machine::pow(Context* ctx)
+	void Machine::bitwise_not(Object** regs, uint8_t a, uint8_t b)
 	{
-		Integer* a = static_cast<Integer*>(ctx->pop());
-		Integer* b = static_cast<Integer*>(ctx->pop());
-		ctx->push(new Integer(::pow(a->c_int(), b->c_int())));
-		next();
+		Integer* i = static_cast<Integer*>(regs[b]);
+		regs[a] = new Integer(~i->c_int());
 	}
 
-	void Machine::bitwise_not(Context* ctx)
+	void Machine::eq(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
-		Integer* a = static_cast<Integer*>(ctx->pop());
-		ctx->push(new Integer(~(a->c_int())));
-		next();
-	}
+		Object* o1 = regs[b];
+		Object* o2 = regs[c];
+		int r = o1->compare(o2);
+		regs[a] = new Boolean(r == 0);
 
-	void Machine::eq(Context* ctx)
-	{
-		Object* a = ctx->pop();
-		Object* b = ctx->pop();
-		ctx->push(new Boolean(a->compare(b)));
-		next();
-	}
-
-	void Machine::lt(Context* ctx)
-	{
-		Object* a = ctx->pop();
-		Object* b = ctx->pop();
-		ctx->push(new Boolean(a->compare(b) == -1));
-		next();
-	}
-
-	void Machine::gt(Context* ctx)
-	{
-		Object* a = ctx->pop();
-		Object* b = ctx->pop();
-		ctx->push(new Boolean(a->compare(b) == 1));
-		next();
-	}
-
-	void Machine::add_symbol(Context* ctx)
-	{
-		String* str = static_cast<String*>(ctx->pop());
-		size_t idx = symtab.add(str);
-		Integer* index = new Integer(idx);
-		ctx->push(index);
-		next();
-	}
-
-	void Machine::find_symbol(Context* ctx)
-	{
-		Integer* i = static_cast<Integer*>(ctx->pop());
-		String* str = symtab.lookup(i->c_int());
-		if(str)
-			ctx->push(str);
-		else
-			ctx->push(Nil::instance());
-		next();
-	}
-
-	void Machine::jmp(Context* ctx)
-	{
-		Integer* a = static_cast<Integer*>(ctx->pop());
-		ip = a->c_int();
-	}
-
-	void Machine::jt(Context* ctx)
-	{
-		Integer* a = static_cast<Integer*>(ctx->pop());
-		Boolean* c = static_cast<Boolean*>(ctx->pop());
-		if(c->value())
-			ip = a->c_int();
-		else
+		// Skip an extra instruction (the JMP)
+		if(r == 0)
 			next();
 	}
 
-	void Machine::make_array(Context* ctx)
+	void Machine::lt(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
-		Integer* count = static_cast<Integer*>(ctx->pop());
-		Object* tmp[count->c_int()];
-		for(uintptr_t i = 0; i < count->c_int(); i++)
-			tmp[i] = ctx->pop();
-		Array* array = new Array(tmp, count->c_int());
-		ctx->push(array);
-		next();
+		Object* o1 = regs[b];
+		Object* o2 = regs[c];
+		int r = o1->compare(o2);
+		regs[a] = new Boolean(r < 0);
+
+		// Skip an extra instruction (the JMP)
+		if(r < 0)
+			next();
 	}
 
-	void Machine::make_string(Context* ctx)
+	void Machine::lte(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
-		Integer* count = static_cast<Integer*>(ctx->pop());
-		char* tmp = new char[count->c_int()];
+		Object* o1 = regs[b];
+		Object* o2 = regs[c];
+		int r = o1->compare(o2);
+		regs[a] = new Boolean(r <= 0);
 
-		for(uintptr_t i = 0; i < count->c_int(); i++)
-			tmp[i] = static_cast<Integer*>(ctx->pop())->c_int();
-
-		String* str = new String(std::string(tmp));
-		ctx->push(str);
-
-		delete tmp;
-		next();
+		// Skip an extra instruction (the JMP)
+		if(r <= 0)
+			next();
 	}
 
-	void Machine::push_new_context(Context* old, Object* receiver, Object* sender, Message* message)
+	void Machine::gt(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
-		Context* c = new Context();
-		c->previous = old;
-		c->sender = sender;
-		c->target = receiver;
-		c->receiver = receiver;
-		c->ip = get_instruction_pointer();
-		rstack.push(c);
+		Object* o1 = regs[b];
+		Object* o2 = regs[c];
+		int r = o1->compare(o2);
+		regs[a] = new Boolean(r > 0);
+
+		// Skip an extra instruction (the JMP)
+		if(r > 0)
+			next();
 	}
 
-	void Machine::send(Context* ctx)
+	void Machine::gte(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
-		Message* message = static_cast<Message*>(ctx->pop());
-		Object* sender = static_cast<Object*>(ctx->pop());
-		Object* receiver = static_cast<Object*>(ctx->pop());
+		Object* o1 = regs[b];
+		Object* o2 = regs[c];
+		int r = o1->compare(o2);
+		regs[a] = new Boolean(r >= 0);
 
-		next();
-		push_new_context(ctx, receiver, sender, message);
-		receiver->mailbox->deliver(get_current_context(), message);
+		// Skip an extra instruction (the JMP)
+		if(r >= 0)
+			next();
 	}
 
-	void Machine::ret(Context* ctx)
+	void Machine::jmp(uint32_t loc)
 	{
-		Object* r = ctx->pop();
-		ip = ctx->ip;
-		ctx->previous->push(r);
+		ip = loc;
 	}
 
-	void Machine::save_stack(Context* ctx)
+	void Machine::save(Object** regs, uint8_t a)
 	{
 		Continuation* c = new Continuation(this);
 		c->save_current_stack();
-		ctx->push(reinterpret_cast<Object*>(c));
-		next();
+		regs[a] = reinterpret_cast<Object*>(c);
 	}
 
-	void Machine::restore_stack(Context* ctx)
+	void Machine::restore(Object** regs, uint8_t a)
 	{
-		Continuation* c = static_cast<Continuation*>(ctx->pop());
+		Continuation* c = static_cast<Continuation*>(regs[a]);
 		c->restore_stack();
 	}
 
-	void Machine::run()
+	void Machine::execute()
 	{
-		// TODO: Need to create a default context and push that onto the return stack before evaluating any bytecodes.
-		push_new_context(nullptr, nullptr/*Lobby*/, nullptr/*Lobby*/, nullptr/*someMessage*/);
 		ip = 0;
 
-		while(ip != UINTPTR_MAX)
+		decode(fetch());
+
+		while(opcode != Instructions::HALT && ip < icount)
 		{
-			uint8_t byte = instruction_memory[ip];
-			uintptr_t operand = 0;
-			Object* oper;
-
-			if(byte == Instructions::PUSH)
-			{
-				operand = (uintptr_t)instruction_memory[ip + 1];
-				if(big_endian())
-					endian_swap(operand);
-				ip += sizeof(uintptr_t) - 1;
-			}
-
-			oper = reinterpret_cast<Object*>(new Integer(operand));
-			process(rstack.top(), byte, oper);
+			process(opcode, rstack.top()->registers);
+			decode(fetch());
 		}
 	}
 
-	void Machine::process(Context* ctx, uint8_t instr, Object* val)
+	void Machine::process(uint8_t op, Object** regs)
 	{
-		switch(instr)
+		switch(op)
 		{
 			case Instructions::NOOP:
+				next();
+				break;
+			case Instructions::MOVE:
+				move(regs, fields.a, fields.b);
+				next();
+				break;
+			case Instructions::LOADI:
+				loadi(regs, fields.a, fields.bmore);
+				next();
+				break;
+			case Instructions::PUSH:
+				break;
+			case Instructions::POP:
+				break;
+			case Instructions::SWAP:
+				break;
+			case Instructions::ROTATE:
+				break;
+			case Instructions::DUP:
+				break;
+			case Instructions::ADD:
+				add(regs, fields.a, fields.b, fields.c);
+				next();
+				break;
+			case Instructions::SUB:
+				sub(regs, fields.a, fields.b, fields.c);
+				next();
+				break;
+			case Instructions::MUL:
+				mul(regs, fields.a, fields.b, fields.c);
+				next();
+				break;
+			case Instructions::DIV:
+				div(regs, fields.a, fields.b, fields.c);
+				next();
+				break;
+			case Instructions::MOD:
+				mod(regs, fields.a, fields.b, fields.c);
+				next();
+				break;
+			case Instructions::POW:
+				pow(regs, fields.a, fields.b, fields.c);
+				next();
+				break;
+			case Instructions::NOT:
+				bitwise_not(regs, fields.a, fields.b);
+				next();
+				break;
+			case Instructions::EQ:
+				eq(regs, fields.a, fields.b, fields.c);
+				next();
+				break;
+			case Instructions::LT:
+				lt(regs, fields.a, fields.b, fields.c);
+				next();
+				break;
+			case Instructions::LTE:
+				lte(regs, fields.a, fields.b, fields.c);
+				next();
+				break;
+			case Instructions::GT:
+				gt(regs, fields.a, fields.b, fields.c);
+				next();
+				break;
+			case Instructions::GTE:
+				gte(regs, fields.a, fields.b, fields.c);
 				next();
 				break;
 			case Instructions::HALT:
 				ip = UINTPTR_MAX;
 				break;
-			case Instructions::PUSH:
-				push(ctx, val);
-				break;
-			case Instructions::POP:
-				pop(ctx);
+			case Instructions::SEND:
 				break;
 			case Instructions::RET:
-				ret(ctx);
-				break;
-			case Instructions::DUP:
-				dup(ctx);
-				break;
-			case Instructions::SWAP:
-				swap(ctx);
-				break;
-			case Instructions::ROTATE:
-				rotate(ctx);
-				break;
-			case Instructions::SAVE_STACK:
-				save_stack(ctx);
-				break;
-			case Instructions::RESTORE_STACK:
-				restore_stack(ctx);
-				break;
-			case Instructions::ADD:
-				add(ctx);
-				break;
-			case Instructions::SUB:
-				sub(ctx);
-				break;
-			case Instructions::MUL:
-				mul(ctx);
-				break;
-			case Instructions::DIV:
-				div(ctx);
-				break;
-			case Instructions::MOD:
-				mod(ctx);
-				break;
-			case Instructions::POW:
-				pow(ctx);
-				break;
-			case Instructions::NOT:
-				not(ctx);
-				break;
-			case Instructions::EQ:
-				eq(ctx);
-				break;
-			case Instructions::LT:
-				lt(ctx);
-				break;
-			case Instructions::GT:
-				gt(ctx);
 				break;
 			case Instructions::JMP:
-				jmp(ctx);
+				jmp(fields.immed);
 				break;
-			case Instructions::JT:
-				jt(ctx);
+			case Instructions::SAVE:
+				save(regs, fields.a);
+				next();
 				break;
-			case Instructions::MAKE_ARRAY:
-				make_array(ctx);
+			case Instructions::RESTORE:
+				restore(regs, fields.a);
 				break;
-			case Instructions::MAKE_STRING:
-				make_string(ctx);
+			case Instructions::ADDSYM:
 				break;
-			case Instructions::SEND:
-				send(ctx);
+			case Instructions::FINDSYM:
 				break;
-			case Instructions::ADD_SYMBOL:
-				add_symbol(ctx);
+			case Instructions::ARRAY:
 				break;
-			case Instructions::FIND_SYMBOL:
-				find_symbol(ctx);
+			case Instructions::STRING:
 				break;
 		}
 	}

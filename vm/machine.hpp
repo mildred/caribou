@@ -31,6 +31,8 @@
 #include "instructions.hpp"
 #include "context.hpp"
 
+#define MAX_REGISTERS 256
+
 namespace Caribou
 {
 	class Continuation;
@@ -38,43 +40,54 @@ namespace Caribou
 
 	class Machine
 	{
+	private:
+		uint8_t         opcode;
+		union {
+			struct
+			{
+				uint8_t a;
+				uint8_t b;
+				uint8_t c;
+			};
+			uint16_t    bmore;
+			uint32_t    immed;
+		} fields;
+
+		intptr_t        fp;
+		uintptr_t       ip;
+		uint32_t*       instructions;
+		size_t          icount;
+		Stack<Context*> rstack;
+		Object**        constants;
+		size_t          const_count;
+		Symtab          symtab;
+
 	public:
 		Machine();
 		~Machine();
 
-		void push(Context*, Object*);
-		void push(Context*, uint8_t);
-		Object* pop(Context*);
-		void ret(Context*);
-		void dup(Context*);
-		void swap(Context*);
-		void rotate(Context*);
-		void add(Context*);
-		void sub(Context*);
-		void mul(Context*);
-		void div(Context*);
-		void mod(Context*);
-		void pow(Context*);
-		void bitwise_not(Context*);
-		void eq(Context*);
-		void lt(Context*);
-		void gt(Context*);
-		void jmp(Context*);
-		void jt(Context*);
-		void save_stack(Context*);
-		void restore_stack(Context*);
-		void make_array(Context*);
-		void make_string(Context*);
-		void send(Context*);
-		void add_symbol(Context*);
-		void find_symbol(Context*);
+		uint32_t fetch();
+		void decode(uint32_t);
+		void execute();
 
-		void push_new_context(Context*, Object*, Object*, Message*);
-
-		void run();
-		void process(Context*, uint8_t, Object*);
-
-		void compile(const int, const uintptr_t&);
+		void move(Object** regs, uint8_t a, uint8_t b);
+		void loadi(Object** regs, uint8_t a, uint16_t i);
+		void bitwise_not(Object** regs, uint8_t a, uint8_t b);
+		void jmp(uint32_t loc);
+		void add(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void sub(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void mul(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void div(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void mod(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void pow(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void bitwise_not(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void save(Object** regs, uint8_t a);
+		void restore(Object** regs, uint8_t a);
+		void eq(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void lt(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void lte(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void gt(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void gte(Object** regs, uint8_t a, uint8_t b, uint8_t c);
 
 		Stack<Context*>& get_return_stack() { return rstack; }
 		Stack<Context*>* copy_return_stack() { return new Stack<Context*>(rstack); }
@@ -89,11 +102,11 @@ namespace Caribou
 
 		void allocate_instruction_memory(size_t size)
 		{
-			instruction_size   = size;
-			instruction_memory = new uint8_t[size];
+			icount       = size;
+			instructions = new uint32_t[size];
 		}
 
-		uint8_t*& get_instruction_memory() { return instruction_memory; }
+		uint32_t*& get_instructions() { return instructions; }
 
 		Context* get_current_context() { return rstack.top(); }
 
@@ -101,14 +114,7 @@ namespace Caribou
 		void next(uintptr_t val = 1) { ip += val; }
 
 	private:
-		Stack<Context*>            rstack;
-		std::vector<Continuation*> continuations;
-		uint8_t*                   instruction_memory;
-		size_t                     instruction_size;
-		// The instruction pointer references a byte in the instruction memory above
-		uintptr_t                  ip;
-		uintptr_t*                 memory;
-		Symtab                     symtab;
+		inline void process(uint8_t, Object**);
 	};
 }
 

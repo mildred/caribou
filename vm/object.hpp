@@ -104,10 +104,6 @@ namespace Caribou
 		// Our object name.
 		virtual const std::string object_name();
 
-		// This method gets called during bytecode generation. Subclasses must implement
-		// this method.
-		virtual void bytecode(Machine*);
-
 		// The mailbox is where messages come into. This allows us to decouple
 		// message sending and message receiving.
 		Mailbox*             mailbox;

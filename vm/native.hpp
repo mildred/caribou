@@ -21,56 +21,18 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__STACK_HPP__
-#define __CARIBOU__STACK_HPP__
+#ifndef __CARIBOU__NATIVE_HPP__
+#define __CARIBOU__NATIVE_HPP__
 
-#include <vector>
-#include "context.hpp"
+#include <limit.h>
+#include <stdint.h>
 
-namespace Caribou
-{
-	template<typename T>
-	class Stack
-	{
-	public:
-		Stack() {}
+#if UINTPTR_MAX == 0xffffffff // 32-bit
+	typedef uint32_t native_width;
+	typedef uint16_t half_width;
+#else                         // 64-bit
+	typedef uint64_t native_width;
+	typedef uint32_t half_width;
+#endif                        // 32-bit
 
-		Stack(Stack<Context*>& other)
-		{
-			for(Context* e : other.store)
-			{
-				Context* a = new Context(*e);
-				store.push_back(a);
-			}
-		}
-
-		void push(const T& val)
-		{
-			store.push_back(val);
-		}
-
-		T top()
-		{
-			if(!store.empty())
-				return store.back();
-			return NULL;
-		}
-
-		T pop()
-		{
-			T r = top();
-			if(r != NULL)
-				store.pop_back();
-			return r;
-		}
-
-		std::vector<T>& get_store() { return store; }
-
-		size_t size() { return store.size(); }
-
-	private:
-		std::vector<T> store;
-	};
-}
-
-#endif /* !__CARIBOU__STACK_HPP__ */
+#endif /* !__CARIBOU__NATIVE_HPP__ */
