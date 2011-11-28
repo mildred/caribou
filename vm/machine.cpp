@@ -246,6 +246,32 @@ namespace Caribou
 		c->restore_stack();
 	}
 
+	void Machine::make_array(Object** regs, uint8_t a)
+	{
+		Context* ctx = get_current_context();
+		Integer* count = static_cast<Integer*>(regs[a]);
+		Object* tmp[count->c_int()];
+		for(uintptr_t i = 0; i < count->c_int(); i++)
+			tmp[i] = ctx->pop();
+		Array* array = new Array(tmp, count->c_int());
+		ctx->push(array);
+	}
+
+	void Machine::make_string(Object** regs, uint8_t a)
+	{
+		Context* ctx = get_current_context();
+		Integer* count = static_cast<Integer*>(regs[a]);
+		char* tmp = new char[count->c_int()];
+
+		for(uintptr_t i = 0; i < count->c_int(); i++)
+			tmp[i] = static_cast<Integer*>(ctx->pop())->c_int();
+
+		String* str = new String(std::string(tmp));
+		ctx->push(str);
+
+		delete tmp;
+	}
+
 	void Machine::execute()
 	{
 		ip = 0;
@@ -359,8 +385,10 @@ namespace Caribou
 			case Instructions::FINDSYM:
 				break;
 			case Instructions::ARRAY:
+				make_array(regs, fields.a);
 				break;
 			case Instructions::STRING:
+				make_string(regs, fields.a);
 				break;
 		}
 	}
