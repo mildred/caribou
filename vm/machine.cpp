@@ -79,6 +79,47 @@ namespace Caribou
 		regs[a] = constants[i];
 	}
 
+	void Machine::push(Object** regs, uint8_t a)
+	{
+		get_current_context()->push(regs[a]);
+	}
+
+	void Machine::pop(Object** regs, uint8_t a)
+	{
+		regs[a] = get_current_context()->pop();
+	}
+
+	void Machine::dup()
+	{
+		Context* ctx = get_current_context();
+		Object* obj = ctx->pop();
+		ctx->push(obj);
+		ctx->push(obj);
+	}
+
+	void Machine::swap()
+	{
+		Context* ctx = get_current_context();
+		Object* a = ctx->pop();
+		Object* b = ctx->pop();
+		ctx->push(a);
+		ctx->push(b);
+	}
+
+	void Machine::rotate(Object** regs, uint8_t a)
+	{
+		Context* ctx = get_current_context();
+		size_t count = static_cast<Integer*>(regs[a])->c_int();
+		Object* tmp[count];
+		size_t i;
+
+		for(i = 0; i < count; i++)
+			tmp[i] = ctx->pop();
+
+		for(i = 0; i < count; i++)
+			ctx->push(tmp[i]);
+	}
+
 	void Machine::add(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Integer* i1 = static_cast<Integer*>(regs[b]);
@@ -234,14 +275,19 @@ namespace Caribou
 				next();
 				break;
 			case Instructions::PUSH:
+				push(regs, fields.a);
 				break;
 			case Instructions::POP:
+				pop(regs, fields.a);
 				break;
 			case Instructions::SWAP:
+				swap();
 				break;
 			case Instructions::ROTATE:
+				rotate(regs, fields.a);
 				break;
 			case Instructions::DUP:
+				dup();
 				break;
 			case Instructions::ADD:
 				add(regs, fields.a, fields.b, fields.c);

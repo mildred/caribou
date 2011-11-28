@@ -74,6 +74,11 @@ namespace Caribou
 		void loadi(Object** regs, uint8_t a, uint16_t i);
 		void bitwise_not(Object** regs, uint8_t a, uint8_t b);
 		void jmp(uint32_t loc);
+		void push(Object** regs, uint8_t a);
+		void pop(Object** regs, uint8_t a);
+		void dup();
+		void swap();
+		void rotate(Object** regs, uint8_t a);
 		void add(Object** regs, uint8_t a, uint8_t b, uint8_t c);
 		void sub(Object** regs, uint8_t a, uint8_t b, uint8_t c);
 		void mul(Object** regs, uint8_t a, uint8_t b, uint8_t c);
