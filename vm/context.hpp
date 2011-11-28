@@ -26,52 +26,31 @@
 
 #include <sys/types.h>
 #include <stdint.h>
-#include "integer.hpp"
+#include "vmmethod.hpp"
 
 #define CARIBOU_MAX_STACK_SIZE 8192
 
 namespace Caribou
 {
 	class Object;
-	class CompiledMethod;
 
 	struct Context
 	{
-		Context*        previous;
-		Object*         sender;
-		Object*         target;
-		uintptr_t       ip;
-		uintptr_t       sp;
-		CompiledMethod* cm;
-		Object*         receiver;
-		Object*         stk[CARIBOU_MAX_STACK_SIZE];
+		Context*  previous;
+		VMMethod* method;
+		uintptr_t return_address;
+		Object**  registers;
+		uint16_t  sp;
+		Object*   stk[CARIBOU_MAX_STACK_SIZE];
 
 		Context() {}
 
-		Context(Context& ctx)
+		Context(Context* ctx, VMMethod* meth, uintptr_t ra)
 		{
-			previous = ctx.previous;
-			sender = ctx.sender;
-			target = ctx.target;
-			ip = ctx.ip;
-			sp = ctx.sp;
-			cm = ctx.cm;
-			receiver = ctx.receiver;
-			memcpy(stk, ctx.stk, CARIBOU_MAX_STACK_SIZE);
-		}
-
-		Context& operator=(const Context& ctx)
-		{
-			previous = ctx.previous;
-			sender = ctx.sender;
-			target = ctx.target;
-			ip = ctx.ip;
-			sp = ctx.sp;
-			cm = ctx.cm;
-			receiver = ctx.receiver;
-			memcpy(stk, ctx.stk, CARIBOU_MAX_STACK_SIZE);
-
-			return *this;
+			previous = ctx;
+			method = meth;
+			return_address = ra;
+			registers = new Object*[meth->nargs + meth->nlocals];
 		}
 
 		inline void push(Object* val)
@@ -82,14 +61,6 @@ namespace Caribou
 		inline Object* pop()
 		{
 			return stk[--sp];
-		}
-
-		void print_stack()
-		{
-			printf("Stack: [");
-			for(uintptr_t i = 0; i < sp; i++)
-				printf("%ld%s", static_cast<Integer*>(stk[i])->c_int(), (i != sp - 1) ? ", " : "");
-			printf("]\n");
 		}
 	};
 }

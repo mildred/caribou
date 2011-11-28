@@ -31,32 +31,50 @@ namespace Caribou
 		enum
 		{
 			NOOP = 0,
-			HALT,
-			PUSH,
+			MOVE,
+			LOADI,
+
+			// Stack operations.
+			PUSH = 0x10,
 			POP,
-			DUP,
 			SWAP,
 			ROTATE,
-			SAVE_STACK,
-			RESTORE_STACK,
-			ADD,
+			DUP,
+
+			// Numerical operations.
+			//  Each instruction takes three registers.
+			ADD = 0x20,
 			SUB,
 			MUL,
 			DIV,
 			MOD,
 			POW,
 			NOT,
-			EQ,
+
+			// Comparison operations.
+			//  These are intended to be paired with JMP operations. On a successful
+			//  comparison, each will bump the IP by one (to the JMP). On failure,
+			//  each will bump the IP by 2 (to the instruction just past the JMP).
+			//  Each instruction takes three registers.
+			EQ = 0x30,
 			LT,
+			LTE,
 			GT,
-			JMP,
-			JT,
-			ADD_SYMBOL,
-			FIND_SYMBOL,
-			MAKE_ARRAY,
-			MAKE_STRING,
+			GTE,
+
+			// Control flow operations.
+			HALT = 0x40,
 			SEND,
-			RET
+			RET,
+			JMP,
+			SAVE,
+			RESTORE,
+
+			// Primitive object operations.
+			ADDSYM = 0x50,
+			FINDSYM,
+			ARRAY,
+			STRING
 		};
 	};
 }

@@ -21,37 +21,17 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__REGISTER_HPP__
-#define __CARIBOU__REGISTER_HPP__
-
-#include "native.hpp"
+#ifndef __CARIBOU__VMMETHOD_HPP__
+#define __CARIBOU__VMMETHOD_HPP__
 
 namespace Caribou
 {
-	class Register
+	class VMMethod
 	{
-	private:
-		uint8_t number:3;
-		uint8_t unused:5;
-
-		union
-		{
-			native_width  native;
-			native_width* ptr;
-
-			union
-			{
-				half_width h;
-				half_width l;
-			} half;
-		} reg;
-
 	public:
-		Register(const uint8_t&, native_width);
-		Register(const uint8_t&, native_width*);
-		Register(const uint8_t&, half_width, half_width);
-		Register(const uint8_t&);
+		size_t nargs;
+		size_t nlocals;
 	};
 }
 
-#endif /* !__CARIBOU__REGISTER_HPP__ */
+#endif /* !__CARIBOU__VMMETHOD_HPP__ */

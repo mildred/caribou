@@ -51,14 +51,16 @@ namespace Caribou
 
 		T top()
 		{
-			T r = store.back();
-			return r;
+			if(!store.empty())
+				return store.back();
+			return NULL;
 		}
 
 		T pop()
 		{
-			T r = store.back();
-			store.pop_back();
+			T r = top();
+			if(r != NULL)
+				store.pop_back();
 			return r;
 		}
 
