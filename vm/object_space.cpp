@@ -24,7 +24,6 @@
 #include "object_space.hpp"
 #include "object.hpp"
 #include "array.hpp"
-#include "compiled_method.hpp"
 #include "continuation.hpp"
 #include "integer.hpp"
 #include "message.hpp"
@@ -41,7 +40,6 @@ namespace Caribou
 
 		add_slot("Object", new Object());
 		add_slot("Array", static_cast<Object*>(new Array()));
-		add_slot("CompiledMethod", static_cast<Object*>(new CompiledMethod()));
 		add_slot("Continuation", static_cast<Object*>(new Continuation()));
 		add_slot("Integer", static_cast<Object*>(new Integer(0)));
 		add_slot("Message", static_cast<Object*>(new Message()));
