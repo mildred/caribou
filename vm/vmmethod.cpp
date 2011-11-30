@@ -21,28 +21,16 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__COMPILED_METHOD_HPP__
-#define __CARIBOU__COMPILED_METHOD_HPP__
-
-#include <vector>
-#include "object.hpp"
+#include "vmmethod.hpp"
+#include "machine.hpp"
 
 namespace Caribou
 {
-	class CompiledMethod : public Object
+	VMMethod::VMMethod(Machine* machine, Context* ctx, String* str, uintptr_t start, size_t num_args)
+		: name(str),
+		  start_ip(start),
+		  nargs(num_args)
 	{
-	private:
-		size_t                   required_args;
-		size_t                   total_args;
-		std::vector<std::string> literals;
-		Object*                  scope;
-
-	public:
-		CompiledMethod();
-		CompiledMethod(size_t, size_t);
-
-		virtual const std::string object_name();
-	};
+		current_context = new Context(ctx, this, machine->get_instruction_pointer());
+	}
 }
-
-#endif /* !__CARIBOU__COMPILED_METHOD_HPP__ */

@@ -14,8 +14,8 @@ set(SRCS
   "integer.cpp"
   "string.cpp"
   "nil.cpp"
-  "compiled_method.cpp"
   "object_space.cpp"
+  "vmmethod.cpp"
 )
 add_library(caribou SHARED ${SRCS})
 add_executable(vm "main.cpp")

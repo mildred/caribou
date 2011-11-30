@@ -42,20 +42,9 @@ namespace Caribou
 	{
 	private:
 		uint8_t         opcode;
-		union {
-			struct
-			{
-				uint8_t a;
-				uint8_t b;
-				uint8_t c;
-			};
-			uint16_t    bmore;
-			uint32_t    immed;
-		} fields;
-
 		intptr_t        fp;
 		uintptr_t       ip;
-		uint32_t*       instructions;
+		uint8_t*        instructions;
 		size_t          icount;
 		Stack<Context*> rstack;
 		Object**        constants;
@@ -66,15 +55,14 @@ namespace Caribou
 		Machine();
 		~Machine();
 
-		uint32_t fetch();
-		void decode(uint32_t);
+		uint8_t fetch_decode();
 		void execute();
 
 		void move(Object** regs, uint8_t a, uint8_t b);
-		void loadi(Object** regs, uint8_t a, uint16_t i);
+		void loadi(Object** regs, uint8_t a, uintptr_t i);
 		void bitwise_not(Object** regs, uint8_t a, uint8_t b);
 		void jmp(uint32_t loc);
-		void push(Object** regs, uint8_t a);
+		void push(Object** regs, uintptr_t a);
 		void pop(Object** regs, uint8_t a);
 		void dup();
 		void swap();
@@ -110,15 +98,18 @@ namespace Caribou
 		void allocate_instruction_memory(size_t size)
 		{
 			icount       = size;
-			instructions = new uint32_t[size];
+			instructions = new uint8_t[size];
 		}
 
-		uint32_t*& get_instructions() { return instructions; }
+		uint8_t*& get_instructions() { return instructions; }
 
 		Context* get_current_context() { return rstack.top(); }
 
 	protected:
 		void next(uintptr_t val = 1) { ip += val; }
+		uint8_t get_reg_opcode();
+		uint32_t get_int32_opcode();
+		uintptr_t get_intptr_opcode();
 
 	private:
 		inline void process(uint8_t, Object**);

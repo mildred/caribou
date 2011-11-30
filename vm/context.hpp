@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include "vmmethod.hpp"
 
-#define CARIBOU_MAX_STACK_SIZE 8192
+#define CARIBOU_MAX_STACK_SIZE 256
 
 namespace Caribou
 {
@@ -40,7 +40,8 @@ namespace Caribou
 		VMMethod* method;
 		uintptr_t return_address;
 		Object**  registers;
-		uint16_t  sp;
+		uint8_t   num_registers;
+		uint8_t   sp;
 		Object*   stk[CARIBOU_MAX_STACK_SIZE];
 
 		Context() {}
@@ -50,7 +51,24 @@ namespace Caribou
 			previous = ctx;
 			method = meth;
 			return_address = ra;
-			registers = new Object*[meth->nargs + meth->nlocals];
+			num_registers = meth->nargs + meth->nlocals;
+			registers = new Object*[num_registers];
+		}
+
+		Context(const Context& ctx)
+		{
+			previous       = ctx.previous;
+			method         = ctx.method;
+			return_address = ctx.return_address;
+			num_registers  = ctx.num_registers;
+			sp             = ctx.sp;
+			memcpy(registers, ctx.registers, num_registers);
+			memcpy(stk, ctx.stk, CARIBOU_MAX_STACK_SIZE);
+		}
+
+		~Context()
+		{
+			delete[] registers;
 		}
 
 		inline void push(Object* val)

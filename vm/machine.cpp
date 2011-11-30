@@ -53,20 +53,40 @@ namespace Caribou
 		delete[] instructions;
 	}
 
-	uint32_t Machine::fetch()
+	uint8_t Machine::fetch_decode()
 	{
-		return instructions[ip];
+		opcode = instructions[ip];
+		return opcode;
 	}
 
-	void Machine::decode(uint32_t instr)
+	uint8_t Machine::get_reg_opcode()
 	{
-		if(big_endian())
-			endian_swap(instr);
+		return instructions[++ip];
+	}
 
-		opcode   = instr & 0xff;
-		fields.a = instr & 0x00ff;
-		fields.b = instr & 0x0000ff;
-		fields.c = instr & 0x000000ff;
+	uint32_t Machine::get_int32_opcode()
+	{
+		uint32_t r = (instructions[++ip] << 24) | (instructions[++ip] << 16) | (instructions[++ip] << 8) | instructions[++ip];
+		if(big_endian())
+			endian_swap(r);
+		return r;
+	}
+
+	uintptr_t Machine::get_intptr_opcode()
+	{
+		uintptr_t r = 0;
+
+		switch(sizeof(uintptr_t))
+		{
+			case 8:
+				r = static_cast<uintptr_t>(get_int32_opcode()) << 32 | get_int32_opcode();
+				break;
+			case 4:
+				r = get_int32_opcode();
+				break;
+		}
+
+		return r;
 	}
 
 	void Machine::move(Object** regs, uint8_t a, uint8_t b)
@@ -74,14 +94,14 @@ namespace Caribou
 		regs[a] = regs[b];
 	}
 
-	void Machine::loadi(Object** regs, uint8_t a, uint16_t i)
+	void Machine::loadi(Object** regs, uint8_t a, uintptr_t i)
 	{
 		regs[a] = constants[i];
 	}
 
-	void Machine::push(Object** regs, uint8_t a)
+	void Machine::push(Object** regs, uintptr_t a)
 	{
-		get_current_context()->push(regs[a]);
+		get_current_context()->push(reinterpret_cast<Object*>(a));
 	}
 
 	void Machine::pop(Object** regs, uint8_t a)
@@ -176,7 +196,7 @@ namespace Caribou
 		regs[a] = new Boolean(r == 0);
 
 		// Skip an extra instruction (the JMP)
-		if(r == 0)
+		if(r != 0)
 			next();
 	}
 
@@ -188,7 +208,7 @@ namespace Caribou
 		regs[a] = new Boolean(r < 0);
 
 		// Skip an extra instruction (the JMP)
-		if(r < 0)
+		if(r != -1)
 			next();
 	}
 
@@ -200,7 +220,7 @@ namespace Caribou
 		regs[a] = new Boolean(r <= 0);
 
 		// Skip an extra instruction (the JMP)
-		if(r <= 0)
+		if(r > 0)
 			next();
 	}
 
@@ -212,7 +232,7 @@ namespace Caribou
 		regs[a] = new Boolean(r > 0);
 
 		// Skip an extra instruction (the JMP)
-		if(r > 0)
+		if(r == 1)
 			next();
 	}
 
@@ -224,7 +244,7 @@ namespace Caribou
 		regs[a] = new Boolean(r >= 0);
 
 		// Skip an extra instruction (the JMP)
-		if(r >= 0)
+		if(r < 0)
 			next();
 	}
 
@@ -276,12 +296,12 @@ namespace Caribou
 	{
 		ip = 0;
 
-		decode(fetch());
+		fetch_decode();
 
 		while(opcode != Instructions::HALT && ip < icount)
 		{
 			process(opcode, rstack.top()->registers);
-			decode(fetch());
+			fetch_decode();
 		}
 	}
 
@@ -293,74 +313,74 @@ namespace Caribou
 				next();
 				break;
 			case Instructions::MOVE:
-				move(regs, fields.a, fields.b);
+				move(regs, get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::LOADI:
-				loadi(regs, fields.a, fields.bmore);
+				loadi(regs, get_reg_opcode(), get_intptr_opcode());
 				next();
 				break;
 			case Instructions::PUSH:
-				push(regs, fields.a);
+				push(regs, get_intptr_opcode());
 				break;
 			case Instructions::POP:
-				pop(regs, fields.a);
+				pop(regs, get_reg_opcode());
 				break;
 			case Instructions::SWAP:
 				swap();
 				break;
 			case Instructions::ROTATE:
-				rotate(regs, fields.a);
+				rotate(regs, get_reg_opcode());
 				break;
 			case Instructions::DUP:
 				dup();
 				break;
 			case Instructions::ADD:
-				add(regs, fields.a, fields.b, fields.c);
+				add(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::SUB:
-				sub(regs, fields.a, fields.b, fields.c);
+				sub(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::MUL:
-				mul(regs, fields.a, fields.b, fields.c);
+				mul(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::DIV:
-				div(regs, fields.a, fields.b, fields.c);
+				div(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::MOD:
-				mod(regs, fields.a, fields.b, fields.c);
+				mod(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::POW:
-				pow(regs, fields.a, fields.b, fields.c);
+				pow(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::NOT:
-				bitwise_not(regs, fields.a, fields.b);
+				bitwise_not(regs, get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::EQ:
-				eq(regs, fields.a, fields.b, fields.c);
+				eq(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::LT:
-				lt(regs, fields.a, fields.b, fields.c);
+				lt(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::LTE:
-				lte(regs, fields.a, fields.b, fields.c);
+				lte(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::GT:
-				gt(regs, fields.a, fields.b, fields.c);
+				gt(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::GTE:
-				gte(regs, fields.a, fields.b, fields.c);
+				gte(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				next();
 				break;
 			case Instructions::HALT:
@@ -371,24 +391,24 @@ namespace Caribou
 			case Instructions::RET:
 				break;
 			case Instructions::JMP:
-				jmp(fields.immed);
+				jmp(get_intptr_opcode());
 				break;
 			case Instructions::SAVE:
-				save(regs, fields.a);
+				save(regs, get_reg_opcode());
 				next();
 				break;
 			case Instructions::RESTORE:
-				restore(regs, fields.a);
+				restore(regs, get_reg_opcode());
 				break;
 			case Instructions::ADDSYM:
 				break;
 			case Instructions::FINDSYM:
 				break;
 			case Instructions::ARRAY:
-				make_array(regs, fields.a);
+				make_array(regs, get_reg_opcode());
 				break;
 			case Instructions::STRING:
-				make_string(regs, fields.a);
+				make_string(regs, get_reg_opcode());
 				break;
 		}
 	}
