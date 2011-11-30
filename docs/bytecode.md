@@ -13,9 +13,7 @@ The header is composed of a 4 byte array, representing the string "CRBU" followe
 
 ## Instruction Formats
 
-There are three different instruction formats in Caribou. They are defined below.
-
-Opcodes are always 8-bits, and always start the instruction.
+Caribou doesn't use a rigid instruction format. Opcodes are always 8-bits, and always start the instruction. We offload instruction decoding responsibilities to the instructions themselves. They'll fetch an integer if they want it, a register if they want it. Additionally, they'll fetch them in whatever order they feel like. That said, our instructions will be in one of the three forms below.
 
 ### ABC
 
@@ -28,19 +26,18 @@ Here we have three operands to the opcode, all 8-bit indexes representing regist
 
 ### ABmore
 
-0        7       15          31
+0        7       15          48/80
 |--------|-------|-----------|
 | opcode | reg-a | immediate |
 |--------|-------|-----------|
 
-In this case, we have one register followed by a 16-bit immediate value which will be used by the instruction to load an object into the register.
+In this case, we have one register followed by a pointer sized immediate value which will be used by the instruction to load an object into the register.
 
 ### Immed
 
-0        8           31
+0        8           40/72
 |--------|-----------|
 | opcode | immediate |
 |--------|-----------|
 
-This instruction format generally only makes sense for unconditional jumping.
-
+This instruction format is generally only used for stack operations like push, rotate and for unconditional jumping.
