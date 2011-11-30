@@ -24,13 +24,27 @@
 #ifndef __CARIBOU__VMMETHOD_HPP__
 #define __CARIBOU__VMMETHOD_HPP__
 
+#include <stdint.h>
+#include "object.hpp"
+
 namespace Caribou
 {
-	class VMMethod
+	class String;
+	class Context;
+
+	class VMMethod : public Object
 	{
 	public:
-		size_t nargs;
-		size_t nlocals;
+		size_t    nargs;
+		size_t    nlocals;
+
+	private:
+		Context*  current_context;
+		String*   name;
+		uintptr_t start_ip;
+
+	public:
+		VMMethod(Machine*, Context*, String*, uintptr_t, size_t);
 	};
 }
 

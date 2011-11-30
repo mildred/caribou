@@ -21,66 +21,16 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __CARIBOU__CONTEXT_HPP__
-#define __CARIBOU__CONTEXT_HPP__
-
-#include <sys/types.h>
-#include <stdint.h>
 #include "vmmethod.hpp"
-
-#define CARIBOU_MAX_STACK_SIZE 256
+#include "machine.hpp"
 
 namespace Caribou
 {
-	class Object;
-
-	struct Context
+	VMMethod::VMMethod(Machine* machine, Context* ctx, String* str, uintptr_t start, size_t num_args)
+		: name(str),
+		  start_ip(start),
+		  nargs(num_args)
 	{
-		Context*  previous;
-		VMMethod* method;
-		uintptr_t return_address;
-		Object**  registers;
-		uint8_t   num_registers;
-		uint8_t   sp;
-		Object*   stk[CARIBOU_MAX_STACK_SIZE];
-
-		Context() {}
-
-		Context(Context* ctx, VMMethod* meth, uintptr_t ra)
-		{
-			previous = ctx;
-			method = meth;
-			return_address = ra;
-			num_registers = meth->nargs + meth->nlocals;
-			registers = new Object*[num_registers];
-		}
-
-		Context(const Context& ctx)
-		{
-			previous       = ctx.previous;
-			method         = ctx.method;
-			return_address = ctx.return_address;
-			num_registers  = ctx.num_registers;
-			sp             = ctx.sp;
-			memcpy(registers, ctx.registers, num_registers);
-			memcpy(stk, ctx.stk, CARIBOU_MAX_STACK_SIZE);
-		}
-
-		~Context()
-		{
-			delete[] registers;
-		}
-
-		inline void push(Object* val)
-		{
-			stk[sp++] = val;
-		}
-
-		inline Object* pop()
-		{
-			return stk[--sp];
-		}
-	};
+		current_context = new Context(ctx, this, machine->get_instruction_pointer());
+	}
 }
-
-#endif /* !__CARIBOU__CONTEXT_HPP__ */
