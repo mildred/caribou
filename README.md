@@ -17,6 +17,13 @@ Object concurrency is handled by the Actor model. This allows us some great deal
 
 Caribou is implemented as a register-based virtual machine.
 
+## Components
+
+There are several components which make up this distribution. At the time of this writing, there are two worth mentioning:
+
+* The `vm` directory contains the C++ source code to the virtual machine. It will also house the JIT when it is written.
+* The `as` directory contains the Ruby source code to the assembler. This takes an input source file with a syntax similar to Io, and outputs bytecode.
+
 ## License
 
 My express wish is that you use the code as you see fit. Keep my copyright notice on any files I have written, and that you grant others the same rights I've granted you when you distribute it.

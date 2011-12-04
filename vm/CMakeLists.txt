@@ -1,9 +1,7 @@
 set(CMAKE_CXX_FLAGS "-g -std=c++0x")
 set(SRCS
-  "tinythread.cpp"
   "machine.cpp"
   "symtab.cpp"
-  "state_machine.cpp"
   "output_writer.cpp"
   "input_reader.cpp"
   "gc.cpp"
