@@ -38,6 +38,12 @@ namespace Caribou
 		BytecodeHeader header;
 		char magic[5] = {0};
 
+		if(!file.is_open())
+		{
+			perror("Unable to open file");
+			exit(1);
+		}
+
 		file.seekg(0, std::ios::end);
 		instruction_size = file.tellg();
 		instruction_size -= sizeof(header);
