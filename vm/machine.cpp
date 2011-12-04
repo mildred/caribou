@@ -298,9 +298,13 @@ namespace Caribou
 
 		fetch_decode();
 
+		VMMethod* main = new VMMethod(this, NULL, new String("__main"), ip, 0);
+		Context* context = new Context(NULL, main, 0);
+		rstack.push(context);
+
 		while(opcode != Instructions::HALT && ip < icount)
 		{
-			process(opcode, rstack.top()->registers);
+			process(opcode, get_current_context()->registers);
 			fetch_decode();
 		}
 	}
