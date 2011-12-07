@@ -67,8 +67,6 @@ namespace Caribou
 	uint32_t Machine::get_int32_opcode()
 	{
 		uint32_t r = (instructions[++ip] << 24) | (instructions[++ip] << 16) | (instructions[++ip] << 8) | instructions[++ip];
-		if(big_endian())
-			endian_swap(r);
 		return r;
 	}
 
@@ -85,6 +83,9 @@ namespace Caribou
 				r = get_int32_opcode();
 				break;
 		}
+
+		if(big_endian())
+			endian_swap(r);
 
 		return r;
 	}
