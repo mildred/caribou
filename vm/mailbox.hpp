@@ -28,8 +28,6 @@
 
 namespace Caribou
 {
-	class Context;
-
 	// Mailbox is a lock-free queue safe for up to two concurrent threads manipulating
 	// it so long as one is delivering and the other is receiving. So we still need a mutex
 	// protecting the access, but fine grained: one for reading, one for writing. The way I
@@ -40,8 +38,9 @@ namespace Caribou
 	{
 	private:
 		struct Node {
-			Node(Message* msg) : message(msg), next(nullptr) {}
+			Node(Message* msg, Object* obj = nullptr /* XXX: should be some reasonably default */) : message(msg), sender(obj), next(nullptr) {}
 			Message* message;
+			Object*  sender;
 			Node* next;
 		};
 		Node* first;
@@ -72,9 +71,9 @@ namespace Caribou
 			trim_to(nullptr);
 		}
 
-		void deliver(Context* ctx, Message* msg)
+		void deliver(Message* msg, Object* sender)
 		{
-			last->next = new Node(msg);
+			last->next = new Node(msg, sender);
 			trim_to(divider);
 		}
 

@@ -74,6 +74,7 @@ namespace Caribou
 		void mod(Object** regs, uint8_t a, uint8_t b, uint8_t c);
 		void pow(Object** regs, uint8_t a, uint8_t b, uint8_t c);
 		void bitwise_not(Object** regs, uint8_t a, uint8_t b, uint8_t c);
+		void send(Object** regs, uint8_t a, uint8_t b, uint8_t c);
 		void ret();
 		void save(Object** regs, uint8_t a);
 		void restore(Object** regs, uint8_t a);

@@ -254,6 +254,14 @@ namespace Caribou
 		ip = loc;
 	}
 
+	void Machine::send(Object** regs, uint8_t a, uint8_t b, uint8_t c)
+	{
+		Object*& receiver = regs[a];
+		Object*& sender = regs[c];
+		Message* msg = static_cast<Message*>(regs[b]);
+		receiver->mailbox->deliver(msg, sender);
+	}
+
 	void Machine::ret()
 	{
 		Context* ctx = get_current_context();
