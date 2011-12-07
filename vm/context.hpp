@@ -76,6 +76,11 @@ namespace Caribou
 		{
 			return stk[--sp];
 		}
+
+		inline Object* top()
+		{
+			return stk[sp];
+		}
 	};
 }
 
