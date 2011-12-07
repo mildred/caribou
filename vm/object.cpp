@@ -67,7 +67,7 @@ namespace Caribou
 			Object* result;
 
 			if(implements(p.first, result))
-				throw SlotExistsError("Conflict: Slot '" + p.first + "' found on an existing trait.", result);
+				throw SlotExistsError(p.first, result);
 		}
 
 		traits.push_back(trait);

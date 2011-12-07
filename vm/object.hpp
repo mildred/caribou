@@ -39,17 +39,6 @@ namespace Caribou
 
 	typedef std::map<std::string, Object*> SlotTable;
 
-	class SlotExistsError
-	{
-	private:
-		std::string string;
-		Object*     offender;
-
-	public:
-		SlotExistsError(std::string s, Object* obj) : string(s), offender(obj) {}
-		const std::string& message() const { return string; }
-	};
-
 	class Object : public GCObject
 	{
 	private:
@@ -113,6 +102,17 @@ namespace Caribou
 
 	private:
 		bool implements(const std::string&, Object*& obj);
+	};
+
+	class SlotExistsError
+	{
+	private:
+		std::string string;
+		Object*     offender;
+
+	public:
+		SlotExistsError(std::string s, Object* obj) : string(s), offender(obj) {}
+		const std::string message() const { return "Conflict: Slot '" + string + "' found on '" + offender->object_name() + "'"; }
 	};
 }
 
