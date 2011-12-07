@@ -107,7 +107,7 @@ namespace Caribou
 		Context* get_current_context() { return rstack.top(); }
 
 	protected:
-		void next(uintptr_t val = 1) { ip += val; }
+		void next(uint8_t val = 1) { ip += val; }
 		uint8_t get_reg_opcode();
 		uint32_t get_int32_opcode();
 		uintptr_t get_intptr_opcode();

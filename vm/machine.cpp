@@ -198,7 +198,7 @@ namespace Caribou
 
 		// Skip an extra instruction (the JMP)
 		if(r != 0)
-			next();
+			next(4);
 	}
 
 	void Machine::lt(Object** regs, uint8_t a, uint8_t b, uint8_t c)
@@ -210,7 +210,7 @@ namespace Caribou
 
 		// Skip an extra instruction (the JMP)
 		if(r != -1)
-			next();
+			next(4);
 	}
 
 	void Machine::lte(Object** regs, uint8_t a, uint8_t b, uint8_t c)
@@ -222,7 +222,7 @@ namespace Caribou
 
 		// Skip an extra instruction (the JMP)
 		if(r > 0)
-			next();
+			next(4);
 	}
 
 	void Machine::gt(Object** regs, uint8_t a, uint8_t b, uint8_t c)
@@ -234,7 +234,7 @@ namespace Caribou
 
 		// Skip an extra instruction (the JMP)
 		if(r == 1)
-			next();
+			next(4);
 	}
 
 	void Machine::gte(Object** regs, uint8_t a, uint8_t b, uint8_t c)
@@ -246,7 +246,7 @@ namespace Caribou
 
 		// Skip an extra instruction (the JMP)
 		if(r < 0)
-			next();
+			next(4);
 	}
 
 	void Machine::jmp(uint32_t loc)
@@ -331,11 +331,11 @@ namespace Caribou
 				break;
 			case Instructions::MOVE:
 				move(regs, get_reg_opcode(), get_reg_opcode());
-				next();
+				next(3);
 				break;
 			case Instructions::LOADI:
 				loadi(regs, get_reg_opcode(), get_intptr_opcode());
-				next();
+				next(2 + sizeof(uintptr_t));
 				break;
 			case Instructions::PUSH:
 				push(regs, get_intptr_opcode());
@@ -354,56 +354,57 @@ namespace Caribou
 				break;
 			case Instructions::ADD:
 				add(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
-				next();
+				next(4);
 				break;
 			case Instructions::SUB:
 				sub(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
-				next();
+				next(4);
 				break;
 			case Instructions::MUL:
 				mul(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
-				next();
+				next(4);
 				break;
 			case Instructions::DIV:
 				div(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
-				next();
+				next(4);
 				break;
 			case Instructions::MOD:
 				mod(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
-				next();
+				next(4);
 				break;
 			case Instructions::POW:
 				pow(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
-				next();
+				next(4);
 				break;
 			case Instructions::NOT:
 				bitwise_not(regs, get_reg_opcode(), get_reg_opcode());
-				next();
+				next(3);
 				break;
 			case Instructions::EQ:
 				eq(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
-				next();
+				next(4);
 				break;
 			case Instructions::LT:
 				lt(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
-				next();
+				next(4);
 				break;
 			case Instructions::LTE:
 				lte(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
-				next();
+				next(4);
 				break;
 			case Instructions::GT:
 				gt(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
-				next();
+				next(4);
 				break;
 			case Instructions::GTE:
 				gte(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
-				next();
+				next(4);
 				break;
 			case Instructions::HALT:
 				ip = UINTPTR_MAX;
 				break;
 			case Instructions::SEND:
+				send(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
 				break;
 			case Instructions::RET:
 				ret();
@@ -413,7 +414,7 @@ namespace Caribou
 				break;
 			case Instructions::SAVE:
 				save(regs, get_reg_opcode());
-				next();
+				next(2);
 				break;
 			case Instructions::RESTORE:
 				restore(regs, get_reg_opcode());
