@@ -36,7 +36,7 @@ namespace Caribou
 	{
 	public:
 		size_t    nargs;
-		size_t    nlocals;
+		Object*   locals;
 
 	private:
 		Context*  current_context;
@@ -45,6 +45,7 @@ namespace Caribou
 
 	public:
 		VMMethod(Machine*, Context*, String*, uintptr_t, size_t);
+		~VMMethod();
 	};
 }
 

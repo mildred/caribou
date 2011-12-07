@@ -31,6 +31,12 @@ namespace Caribou
 		  start_ip(start),
 		  nargs(num_args)
 	{
+		locals = new Object();
 		current_context = new Context(ctx, this, machine->get_instruction_pointer());
+	}
+
+	VMMethod::~VMMethod()
+	{
+		delete locals;
 	}
 }
