@@ -313,6 +313,19 @@ namespace Caribou
 		delete tmp;
 	}
 
+	void Machine::addsym(Object** regs, uint8_t a, uint8_t b)
+	{
+		String* str = static_cast<String*>(regs[b]);
+		size_t i = symtab.add(str);
+		regs[a] = reinterpret_cast<Object*>(new Integer(i));
+	}
+
+	void Machine::findsym(Object** regs, uint8_t a, uint8_t b)
+	{
+		Integer* idx = static_cast<Integer*>(regs[b]);
+		regs[a] = reinterpret_cast<Object*>(symtab.lookup(idx->c_int()));
+	}
+
 	void Machine::execute()
 	{
 		ip = 0;
@@ -428,8 +441,10 @@ namespace Caribou
 				restore(regs, get_reg_opcode());
 				break;
 			case Instructions::ADDSYM:
+				addsym(regs, get_reg_opcode(), get_reg_opcode());
 				break;
 			case Instructions::FINDSYM:
+				findsym(regs, get_reg_opcode(), get_reg_opcode());
 				break;
 			case Instructions::ARRAY:
 				make_array(regs, get_reg_opcode());

@@ -85,6 +85,8 @@ namespace Caribou
 		void gte(Object** regs, uint8_t a, uint8_t b, uint8_t c);
 		void make_array(Object** regs, uint8_t a);
 		void make_string(Object** regs, uint8_t a);
+		void addsym(Object** regs, uint8_t a, uint8_t b);
+		void findsym(Object** regs, uint8_t a, uint8_t b);
 
 		Stack<Context*>& get_return_stack() { return rstack; }
 		Stack<Context*>* copy_return_stack() { return new Stack<Context*>(rstack); }
