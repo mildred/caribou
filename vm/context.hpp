@@ -29,6 +29,7 @@
 #include "vmmethod.hpp"
 
 #define CARIBOU_MAX_STACK_SIZE 256
+#define CARIBOU_NUM_REGISTERS  8
 
 namespace Caribou
 {
@@ -39,8 +40,11 @@ namespace Caribou
 		Context*  previous;
 		VMMethod* method;
 		uintptr_t return_address;
-		Object**  registers;
-		uint8_t   num_registers;
+		// Register 0: Reserved for the receiver of the method
+		// Register 1: Reserved for the method locals
+		// Register 2: Reserved to hold the return value of child calls
+		// Register 3-7: General purpose registers
+		Object*   registers[CARIBOU_NUM_REGISTERS];
 		uint8_t   sp;
 		Object*   stk[CARIBOU_MAX_STACK_SIZE];
 
@@ -51,8 +55,6 @@ namespace Caribou
 			previous = ctx;
 			method = meth;
 			return_address = ra;
-			num_registers = meth->nargs + meth->nlocals;
-			registers = new Object*[num_registers];
 		}
 
 		Context(const Context& ctx)
@@ -60,15 +62,9 @@ namespace Caribou
 			previous       = ctx.previous;
 			method         = ctx.method;
 			return_address = ctx.return_address;
-			num_registers  = ctx.num_registers;
 			sp             = ctx.sp;
-			memcpy(registers, ctx.registers, num_registers);
+			memcpy(registers, ctx.registers, CARIBOU_NUM_REGISTERS);
 			memcpy(stk, ctx.stk, CARIBOU_MAX_STACK_SIZE);
-		}
-
-		~Context()
-		{
-			delete[] registers;
 		}
 
 		inline void push(Object* val)

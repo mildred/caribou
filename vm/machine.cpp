@@ -253,6 +253,18 @@ namespace Caribou
 		ip = loc;
 	}
 
+	void Machine::ret()
+	{
+		Context* ctx = get_current_context();
+		Object** regs = ctx->previous->registers;
+		Object* r = ctx->top();
+
+		if(r == NULL)
+			regs[2] = Nil::instance();
+		else
+			regs[2] = r;
+	}
+
 	void Machine::save(Object** regs, uint8_t a)
 	{
 		Continuation* c = new Continuation(this);
@@ -393,6 +405,7 @@ namespace Caribou
 			case Instructions::SEND:
 				break;
 			case Instructions::RET:
+				ret();
 				break;
 			case Instructions::JMP:
 				jmp(get_intptr_opcode());
