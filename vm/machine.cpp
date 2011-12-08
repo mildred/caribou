@@ -320,10 +320,20 @@ namespace Caribou
 		regs[a] = reinterpret_cast<Object*>(new Integer(i));
 	}
 
+	/* Find a symbol in the table.
+	 * Inputs: Two registers - 1) Destination, 2) Index into the table
+	 * Takes an index in the table held in the second register, and looks it up in the symbol
+	 * table. Places the string returned by that action into the first register. Places Nil
+	 * if no symbol could be found.
+	 */
 	void Machine::findsym(Object** regs, uint8_t a, uint8_t b)
 	{
 		Integer* idx = static_cast<Integer*>(regs[b]);
-		regs[a] = reinterpret_cast<Object*>(symtab.lookup(idx->c_int()));
+		Object* str = reinterpret_cast<Object*>(symtab.lookup(idx->c_int()));
+		if(str)
+			regs[a] = str;
+		else
+			regs[a] = Nil::instance();
 	}
 
 	void Machine::execute()
