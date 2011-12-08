@@ -298,6 +298,11 @@ namespace Caribou
 		ctx->push(array);
 	}
 
+	/* Make a new string
+	 * Inputs: One register - containing the count of items to pop off the stack
+	 * Place the bytes on the stack prior to invoking this instruction and place the count
+	 * in a register that will be passed to this instruction.
+	 */
 	void Machine::make_string(Object** regs, uint8_t a)
 	{
 		Context* ctx = get_current_context();
@@ -313,6 +318,11 @@ namespace Caribou
 		delete tmp;
 	}
 
+	/* Add a string to the symbol table.
+	 * Inputs: Two registers - 1) Destination, 2) String
+	 * Takes a string object held in the second register, and places it in the symbol table.
+	 * Places the identifier returned by that action into the first register.
+	 */
 	void Machine::addsym(Object** regs, uint8_t a, uint8_t b)
 	{
 		String* str = static_cast<String*>(regs[b]);
