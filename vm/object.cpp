@@ -100,7 +100,7 @@ namespace Caribou
 
 	void Object::receive(Context* ctx)
 	{
-		Message* msg;
+		Message* msg = nullptr;
 		if(mailbox->receive(msg))
 		{
 			Object* slot_context;
