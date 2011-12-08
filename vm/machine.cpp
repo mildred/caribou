@@ -90,34 +90,57 @@ namespace Caribou
 		return r;
 	}
 
+	/* Copy contents of one register to another
+	 * Inputs: Two registers - 1) Destination, 2) Source
+	 * Copies the contents of the source register to the destination register
+	 */
 	void Machine::move(Object** regs, uint8_t a, uint8_t b)
 	{
 		regs[a] = regs[b];
 	}
 
+	/* Load a constant into a register
+	 * Inputs: A register and a pointer sized operand
+	 * Copies the object into the register
+	 */
 	void Machine::loadi(Object** regs, uint8_t a, uintptr_t i)
 	{
 		regs[a] = constants[i];
 	}
 
+	/* Push an item onto the stack
+	 * Inputs: A pointer sized object
+	 * Pushes the operand onto the stack.
+	 */
 	void Machine::push(Object** regs, uintptr_t a)
 	{
 		get_current_context()->push(reinterpret_cast<Object*>(a));
 	}
 
+	/* Pop an object off the stack
+	 * Inputs: One register - Destination for the object
+	 * Removes the top of the stack and places it into the register.
+	 */
 	void Machine::pop(Object** regs, uint8_t a)
 	{
 		regs[a] = get_current_context()->pop();
 	}
 
+	/* Duplicate the top item on the stack
+	 * Inputs: Top of the stack
+	 * Looks at the top of the stack, and pushes it into the stack again.
+	 */
 	void Machine::dup()
 	{
 		Context* ctx = get_current_context();
-		Object* obj = ctx->pop();
-		ctx->push(obj);
-		ctx->push(obj);
+		ctx->push(ctx->top());
 	}
 
+	/* Swaps the top two items on the stack
+	 * Inputs: Top two stack items
+	 * Pops the top two items off the stack, and pushes them back on in reverse
+	 * order
+	 */
 	void Machine::swap()
 	{
 		Context* ctx = get_current_context();
@@ -127,6 +150,12 @@ namespace Caribou
 		ctx->push(b);
 	}
 
+	/* Rotate N items on the stack
+	 * Inputs: One register - The number of items to rotate on the stack
+	 * Pops N items off the stack, then pushes them back on preserving order.
+	 * Before: (a b c d --)
+	 * After: (d c b a --)
+	 */
 	void Machine::rotate(Object** regs, uint8_t a)
 	{
 		Context* ctx = get_current_context();
@@ -141,6 +170,9 @@ namespace Caribou
 			ctx->push(tmp[i]);
 	}
 
+	/* Add two integers
+	 * Inputs: Three registers - 1) Destination, 2) Integer A, 3) Integer B
+	 */
 	void Machine::add(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Integer* i1 = static_cast<Integer*>(regs[b]);
@@ -148,6 +180,9 @@ namespace Caribou
 		regs[a] = new Integer(i1->c_int() + i2->c_int());
 	}
 
+	/* Subtract two integers
+	 * Inputs: Three registers - 1) Destination, 2) Integer A, 3) Integer B
+	 */
 	void Machine::sub(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Integer* i1 = static_cast<Integer*>(regs[b]);
@@ -155,6 +190,9 @@ namespace Caribou
 		regs[a] = new Integer(i1->c_int() - i2->c_int());
 	}
 
+	/* Multiply two integers
+	 * Inputs: Three registers - 1) Destination, 2) Integer A, 3) Integer B
+	 */
 	void Machine::mul(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Integer* i1 = static_cast<Integer*>(regs[b]);
@@ -162,6 +200,9 @@ namespace Caribou
 		regs[a] = new Integer(i1->c_int() * i2->c_int());
 	}
 
+	/* Divide two integers
+	 * Inputs: Three registers - 1) Destination, 2) Integer A, 3) Integer B
+	 */
 	void Machine::div(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Integer* i1 = static_cast<Integer*>(regs[b]);
@@ -169,6 +210,9 @@ namespace Caribou
 		regs[a] = new Integer(i1->c_int() / i2->c_int());
 	}
 
+	/* Calculate the modulo of two integers
+	 * Inputs: Three registers - 1) Destination, 2) Integer A, 3) Integer B
+	 */
 	void Machine::mod(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Integer* i1 = static_cast<Integer*>(regs[b]);
@@ -176,6 +220,10 @@ namespace Caribou
 		regs[a] = new Integer(i1->c_int() % i2->c_int());
 	}
 
+	/* Calculate the power of an integer
+	 * Inputs: Three registers - 1) Destination, 2) Integer, 3) Exponent
+	 * Returns the result of applying the exponent to the integer.
+	 */
 	void Machine::pow(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Integer* i1 = static_cast<Integer*>(regs[b]);
@@ -183,12 +231,21 @@ namespace Caribou
 		regs[a] = new Integer(i1->c_int() ^ i2->c_int());
 	}
 
+	/* Calculate the bitwise not of an integer
+	 * Inputs: Two registers - 1) Destination 2) Source
+	 * Applies a complement to the integer.
+	 */
 	void Machine::bitwise_not(Object** regs, uint8_t a, uint8_t b)
 	{
 		Integer* i = static_cast<Integer*>(regs[b]);
 		regs[a] = new Integer(~i->c_int());
 	}
 
+	/* Check if two objects are equal
+	 * Inputs: Three registers - 1) Destination, 2) Object A, 3) Object B
+	 * This instruction expects to be paired with a JMP instruction or 4 noop
+	 * instructions.
+	 */
 	void Machine::eq(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Object* o1 = regs[b];
@@ -201,6 +258,11 @@ namespace Caribou
 			next(4);
 	}
 
+	/* Check if an object is less than another
+	 * Inputs: Three registers - 1) Destination, 2) Object A, 3) Object B
+	 * This instruction expects to be paired with a JMP instruction or 4 noop
+	 * instructions.
+	 */
 	void Machine::lt(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Object* o1 = regs[b];
@@ -213,6 +275,11 @@ namespace Caribou
 			next(4);
 	}
 
+	/* Check if an object is less than or equal to another
+	 * Inputs: Three registers - 1) Destination, 2) Object A, 3) Object B
+	 * This instruction expects to be paired with a JMP instruction or 4 noop
+	 * instructions.
+	 */
 	void Machine::lte(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Object* o1 = regs[b];
@@ -225,6 +292,11 @@ namespace Caribou
 			next(4);
 	}
 
+	/* Check if an object is greater than another
+	 * Inputs: Three registers - 1) Destination, 2) Object A, 3) Object B
+	 * This instruction expects to be paired with a JMP instruction or 4 noop
+	 * instructions.
+	 */
 	void Machine::gt(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Object* o1 = regs[b];
@@ -237,6 +309,11 @@ namespace Caribou
 			next(4);
 	}
 
+	/* Check if an object is greater than or equal to another
+	 * Inputs: Three registers - 1) Destination, 2) Object A, 3) Object B
+	 * This instruction expects to be paired with a JMP instruction or 4 noop
+	 * instructions.
+	 */
 	void Machine::gte(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Object* o1 = regs[b];
@@ -249,11 +326,19 @@ namespace Caribou
 			next(4);
 	}
 
+	/* Unconditional jump
+	 * Inputs: Address to jump to
+	 */
 	void Machine::jmp(uint32_t loc)
 	{
 		ip = loc;
 	}
 
+	/* Send a message
+	 * Inputs: Three registers - receiver of the message, the message, sending context
+	 * Instructs the receiver to receive the message we are sending it. Passes along the
+	 * sending context.
+	 */
 	void Machine::send(Object** regs, uint8_t a, uint8_t b, uint8_t c)
 	{
 		Object*& receiver = regs[a];
@@ -262,6 +347,11 @@ namespace Caribou
 		receiver->mailbox->deliver(msg, sender);
 	}
 
+	/* Return from a method
+	 * Inputs: None
+	 * Stores the top of the stack (or Nil) into the return register of the previous
+	 * context.
+	 */
 	void Machine::ret()
 	{
 		Context* ctx = get_current_context();
@@ -274,6 +364,11 @@ namespace Caribou
 			regs[2] = r;
 	}
 
+	/* Save the contents of the stack in a continuation
+	 * Inputs: One register - for storing the continuation
+	 * After this instruction finishes, we save a copy of the stack including the registers
+	 * in a continuation. This continuation is placed in the destination register.
+	 */
 	void Machine::save(Object** regs, uint8_t a)
 	{
 		Continuation* c = new Continuation(this);
@@ -281,12 +376,22 @@ namespace Caribou
 		regs[a] = reinterpret_cast<Object*>(c);
 	}
 
+	/* Call a continuation and restore the stack
+	 * Inputs: One register - containing the continuation to call
+	 * After this instruction finishes, the instruction pointer will point at the saved IP,
+	 * call stack will be restored along with each set of registers.
+	 */
 	void Machine::restore(Object** regs, uint8_t a)
 	{
 		Continuation* c = static_cast<Continuation*>(regs[a]);
 		c->restore_stack();
 	}
 
+	/* Make a new array
+	 * Inputs: One register - containing the count of items to pop off the stack
+	 * Place the objects on the stack prior to invoking this instruction and place the count
+	 * in a register that will be passed to this instruction.
+	 */
 	void Machine::make_array(Object** regs, uint8_t a)
 	{
 		Context* ctx = get_current_context();
