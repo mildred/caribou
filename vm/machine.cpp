@@ -436,9 +436,11 @@ namespace Caribou
 				break;
 			case Instructions::SEND:
 				send(regs, get_reg_opcode(), get_reg_opcode(), get_reg_opcode());
+				next(4);
 				break;
 			case Instructions::RET:
 				ret();
+				next();
 				break;
 			case Instructions::JMP:
 				jmp(get_intptr_opcode());
@@ -452,15 +454,19 @@ namespace Caribou
 				break;
 			case Instructions::ADDSYM:
 				addsym(regs, get_reg_opcode(), get_reg_opcode());
+				next(3);
 				break;
 			case Instructions::FINDSYM:
 				findsym(regs, get_reg_opcode(), get_reg_opcode());
+				next(3);
 				break;
 			case Instructions::ARRAY:
 				make_array(regs, get_reg_opcode());
+				next(2);
 				break;
 			case Instructions::STRING:
 				make_string(regs, get_reg_opcode());
+				next(2);
 				break;
 		}
 	}
