@@ -38,6 +38,8 @@ namespace Caribou
 	class Continuation;
 	class Message;
 
+	extern GarbageCollector* collector;
+
 	class Machine
 	{
 	private:
