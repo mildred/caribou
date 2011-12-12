@@ -132,11 +132,12 @@ namespace Caribou
 		// Nothing to do here
 	}
 
-	template<class T> void gc_allocate(GarbageCollector& gc, size_t size, T*& out)
+	MemoryAddress gc_allocate(GarbageCollector& gc, size_t size)
 	{
-		out = new T();
+		MemoryAddress addr(malloc(size));
 		GCMarker* marker = gc.new_marker();
-		marker->object = out;
+		marker->object = addr.as<GCObject>();
 		gc.add_value(marker);
+		return addr;
 	}
 }

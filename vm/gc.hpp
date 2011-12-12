@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include "address.hpp"
 
 #define GC_MAX_FREE_OBJECTS 8192
 
@@ -45,7 +46,7 @@ namespace Caribou
 		kGCColourFreed
 	};
 
-	template<class T> void gc_allocate(GarbageCollector&, size_t, T*&);
+	MemoryAddress gc_allocate(GarbageCollector&, size_t);
 
 	struct GCMarker
 	{
@@ -180,9 +181,8 @@ namespace Caribou
 
 		static GCObject* allocate(GarbageCollector& gc, size_t size)
 		{
-			GCObject* obj;
-			gc_allocate(gc, size, obj);
-			return obj;
+			MemoryAddress addr = gc_allocate(gc, size);
+			return addr.as<GCObject>();
 		}
 
 		virtual void walk();

@@ -61,9 +61,8 @@ namespace Caribou
 
 		static Object* allocate(GarbageCollector& gc, size_t size)
 		{
-			Object* obj;
-			gc_allocate(gc, size, obj);
-			return obj;
+			MemoryAddress addr(gc_allocate(gc, size));
+			return addr.as<Object>();
 		}
 
 		void add_slot(const std::string&, Object*);
