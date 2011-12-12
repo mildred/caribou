@@ -131,13 +131,4 @@ namespace Caribou
 	{
 		// Nothing to do here
 	}
-
-	MemoryAddress gc_allocate(GarbageCollector& gc, size_t size)
-	{
-		MemoryAddress addr(malloc(size));
-		GCMarker* marker = gc.new_marker();
-		marker->object = addr.as<GCObject>();
-		gc.add_value(marker);
-		return addr;
-	}
 }

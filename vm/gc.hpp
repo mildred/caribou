@@ -46,8 +46,6 @@ namespace Caribou
 		kGCColourFreed
 	};
 
-	MemoryAddress gc_allocate(GarbageCollector&, size_t);
-
 	struct GCMarker
 	{
 		GCMarker* next;
@@ -179,9 +177,12 @@ namespace Caribou
 	public:
 		GCMarker marker;
 
-		static GCObject* allocate(GarbageCollector& gc, size_t size)
+		void* operator new(size_t size, GarbageCollector& gc = *collector)
 		{
-			MemoryAddress addr = gc_allocate(gc, size);
+			MemoryAddress addr(malloc(size));
+			GCMarker* marker = gc.new_marker();
+			marker->object = addr.as<GCObject>();
+			gc.add_value(marker);
 			return addr.as<GCObject>();
 		}
 
