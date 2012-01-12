@@ -26,6 +26,7 @@
 
 #include <sys/types.h>
 #include <stdint.h>
+#include <string.h>
 #include "vmmethod.hpp"
 
 #define CARIBOU_MAX_STACK_SIZE 256

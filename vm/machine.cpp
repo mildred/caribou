@@ -77,7 +77,7 @@ namespace Caribou
 		switch(sizeof(uintptr_t))
 		{
 			case 8:
-				r = static_cast<uintptr_t>(get_int32_opcode()) << 32 | get_int32_opcode();
+				r = static_cast<uint64_t>(get_int32_opcode()) << 32 | get_int32_opcode();
 				break;
 			case 4:
 				r = get_int32_opcode();

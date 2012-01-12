@@ -20,10 +20,9 @@ set(SRCS
 )
 
 include_directories(${LLVM_CFLAGS})
-link_directories(${LLVM_LDFLAGS})
 
 add_library(caribou SHARED ${SRCS})
-target_link_libraries(caribou "${LLVM_JIT_LIBS}")
+target_link_libraries(caribou "${LLVM_LDFLAGS} ${LLVM_JIT_LIBS}")
 add_executable(vm "main.cpp")
 add_dependencies(vm caribou)
 target_link_libraries(vm caribou)

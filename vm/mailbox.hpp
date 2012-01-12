@@ -24,7 +24,7 @@
 #ifndef __CARIBOU__MAILBOX_HPP__
 #define __CARIBOU__MAILBOX_HPP__
 
-#include "Message.hpp"
+#include "message.hpp"
 
 namespace Caribou
 {
