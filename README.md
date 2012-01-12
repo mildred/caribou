@@ -22,7 +22,7 @@ Caribou is implemented as a register-based virtual machine.
 There are several components which make up this distribution. At the time of this writing, there are two worth mentioning:
 
 * The `vm` directory contains the C++ source code to the virtual machine. It will also house the JIT when it is written.
-* The `as` directory contains the Ruby source code to the assembler. This takes an input source file with a syntax similar to Io, and outputs bytecode.
+* The `io` directory contains the Io source code to the assembler.
 
 ## License
 
